@@ -201,9 +201,7 @@ class LoqueLogic extends ChangeNotifier {
   //
   // Unsubscrbe from the channel
   //
-  Future<bool> unsubscribe(Channel channel, String? currentEpisodeId) async {
-    bool requestStop = false;
-
+  Future<void> unsubscribe(Channel channel) async {
     // delete channel
     _channels.remove(channel);
     await db.deleteChannelById(channel.id);
@@ -214,8 +212,6 @@ class LoqueLogic extends ChangeNotifier {
     // delete corresponding episodes from the database
     await db.deleteEpisodesByChannelId(channel.id);
     notifyListeners();
-
-    return requestStop;
   }
 
   //

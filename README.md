@@ -1,8 +1,9 @@
 # loqueapp
 
-A new Flutter project.
+A Simple Podcast App backed by [PodcastIndex.org](https://podcastindex.org) and also by RSS feeds.
 
 ## TODO
 
-- dryRun what has happened
-- when episodes update set played if seekPos is closed to the end
+- progress bar not responding to the actual seek position.
+
+

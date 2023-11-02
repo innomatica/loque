@@ -56,7 +56,7 @@ class _PlayListViewState extends State<PlayListView> {
                     //
                     // Delete Episode from the Playlist
                     //
-                    // FIXME: enabled not working here
+                    // FIXME: enabled flag not working here
                     //
                     trailing: InkWell(
                       child: const Icon(
