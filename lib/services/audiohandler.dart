@@ -438,7 +438,10 @@ class LoqueAudioHandler extends BaseAudioHandler
     final index =
         sequence.indexWhere((e) => e.tag.extras?['episodeId'] == episodeId);
     log('handler.markPlayed: $currentIndex, $index');
+    // this is for internal use
     await _setPlayed(index);
+    // this is for to save
+    await _logic.setPlayed(episodeId);
     if (currentIndex == index) {
       if (sequence.length > (index + 1)) {
         await _player.seekToNext();
@@ -456,8 +459,6 @@ class LoqueAudioHandler extends BaseAudioHandler
       // this is for internal use
       final tag = sequence[index].tag;
       tag.extras?['played'] = true;
-      // this is for to save
-      await _logic.setPlayed(tag.extras?['episodeId']);
     }
   }
 

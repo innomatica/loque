@@ -31,7 +31,7 @@ class _PlayListViewState extends State<PlayListView> {
                   ListTile(
                     visualDensity: VisualDensity.compact,
                     enabled:
-                        index >= (handler.playbackState.value.queueIndex ?? 0),
+                        index > (handler.playbackState.value.queueIndex ?? 0),
                     key: Key('$index'),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
