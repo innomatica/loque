@@ -4,6 +4,6 @@ A Simple Podcast App backed by [PodcastIndex.org](https://podcastindex.org) and 
 
 ## TODO
 
-- progress bar not responding to the actual seek position.
-- markPlayed not working
+- progress bar not responding to the actual seek position. => use plugin
+
 

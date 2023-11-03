@@ -167,14 +167,8 @@ class LoqueLogic extends ChangeNotifier {
   //
   // get Episode data from the episode list
   //
-  Episode getEpisodeById(String episodeId) {
-    try {
-      return _episodes.firstWhere((e) => e.id == episodeId);
-    } catch (e) {
-      debugPrint(e.toString());
-      throw Exception('Episode not found from the list');
-    }
-  }
+  Episode getEpisodeById(String episodeId) =>
+      _episodes.firstWhere((e) => e.id == episodeId);
 
   //
   // Subscribe to a new channel
@@ -227,7 +221,8 @@ class LoqueLogic extends ChangeNotifier {
           // debugPrint('we reached the end of the episode');
           // we are at the end of the episode => mark played
           // debugPrint('updateSeekPos.setPlayed');
-          await setPlayed(episodeId);
+          // FIXME: this is not reliable
+          // await setPlayed(episodeId);
         } else {
           _episodes[index].mediaSeekPos = seekPos;
           // debugPrint('updateSeekPos.db.save');

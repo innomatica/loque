@@ -52,6 +52,7 @@ dependencies:
   shared_preferences: ^2.2.2
   webview_flutter: ^4.4.1
   cached_network_image: ^3.3.0
+  audio_video_progress_bar: ^2.0.1
 
 dev_dependencies:
   flutter_test:

@@ -31,11 +31,14 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => SearchLogic()),
         ChangeNotifierProvider(create: (_) => LoqueLogic()),
-        Provider<LoqueAudioHandler>(create: (context) {
-          // inject dependency without ProxyProvider
-          handler.setLogic(context.read<LoqueLogic>());
-          return handler;
-        }),
+        Provider<LoqueAudioHandler>(
+          create: (context) {
+            // inject dependency without ProxyProvider
+            handler.setLogic(context.read<LoqueLogic>());
+            return handler;
+          },
+          dispose: (context, value) => handler.dispose(),
+        ),
       ],
       child: const MyApp(),
     ),

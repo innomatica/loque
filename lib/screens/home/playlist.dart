@@ -17,7 +17,7 @@ class _PlayListViewState extends State<PlayListView> {
     final handler = context.read<LoqueAudioHandler>();
     return StreamBuilder<List<MediaItem>>(
         // stream: handler.playbackState.map((e) => e.queueIndex).distinct(),
-        stream: handler.queue.stream,
+        stream: handler.queue.stream.distinct(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             // final queue = handler.getQueue();

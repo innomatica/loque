@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:loqueapp/services/audiohandler.dart';
@@ -56,19 +57,6 @@ class LoqueImage extends StatelessWidget {
                 height: height,
                 fit: BoxFit.cover,
               )
-            // ? Image.network(
-            //     imageUrl!,
-            //     width: width,
-            //     height: height,
-            //     errorBuilder: (_, __, ___) {
-            //       return Image(
-            //         image: const AssetImage('assets/images/podcast-512.png'),
-            //         width: width,
-            //         height: height,
-            //         fit: BoxFit.cover,
-            //       );
-            //     },
-            //   )
             : Image(
                 image: const AssetImage('assets/images/podcast-512.png'),
                 width: width,
@@ -251,15 +239,9 @@ class EpisodeMenu extends StatelessWidget {
 //
 // Play Button
 //
-class PlayButton extends StatelessWidget {
-  final double? size;
-  final Color? color;
-  const PlayButton({this.size, this.color, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    return StreamBuilder(
+StreamBuilder<bool> buildPlayButton(LoqueAudioHandler handler,
+        {double? size, Color? color}) =>
+    StreamBuilder<bool>(
       // stream: handler.playingStream,
       stream: handler.playbackState.map((s) => s.playing).distinct(),
       builder: (context, snapshot) {
@@ -279,55 +261,32 @@ class PlayButton extends StatelessWidget {
               );
       },
     );
-  }
-}
 
 //
 // Forward 30 sec
 //
-class ForwardButton extends StatelessWidget {
-  final double? size;
-  const ForwardButton({this.size, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    return IconButton(
+IconButton buildForwardButton(LoqueAudioHandler handler, {double? size}) =>
+    IconButton(
       icon: Icon(Icons.forward_30_rounded, size: size),
       onPressed: () => handler.fastForward(),
     );
-  }
-}
 
 //
 // Rewind 30 sec
 //
-class RewindButton extends StatelessWidget {
-  final double? size;
-  const RewindButton({this.size, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    return IconButton(
+IconButton buildRewindButton(LoqueAudioHandler handler, {double? size}) =>
+    IconButton(
       icon: Icon(Icons.replay_30_rounded, size: size),
       onPressed: () => handler.rewind(),
     );
-  }
-}
 
 //
 // Playback Speed Button
 //
 const speeds = <double>[0.5, 0.8, 1.0, 1.2, 1.5];
 
-class SpeedButton extends StatelessWidget {
-  const SpeedButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    return StreamBuilder<double>(
+StreamBuilder<double> buildSpeedSelector(LoqueAudioHandler handler) =>
+    StreamBuilder<double>(
       stream: handler.playbackState.map((s) => s.speed).distinct(),
       builder: (context, snapshot) {
         return DropdownButton<double>(
@@ -346,81 +305,27 @@ class SpeedButton extends StatelessWidget {
         );
       },
     );
-  }
-}
 
 //
-// Slider for seek position
+// Progress Bar
 //
-// FIXME
-// 1. StatefulWidget does not update inside modalbottomsheet (StatefulBuilder)
-// 0. Slider can't be a statelesswidget
-class LoqueSlider extends StatefulWidget {
-  final LoqueAudioHandler handler;
-  const LoqueSlider(this.handler, {super.key});
-
-  @override
-  State<LoqueSlider> createState() => _LoqueSliderState();
-}
-
-class _LoqueSliderState extends State<LoqueSlider> {
-  late double _value;
-  late double _max;
-
-  @override
-  void initState() {
-    super.initState();
-    _value =
-        widget.handler.playbackState.value.updatePosition.inSeconds.toDouble();
-    _max = widget.handler.getCurrentEpisode()?.mediaDuration?.toDouble() ?? 0;
-    _max = _max > _value ? _max : _value;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    debugPrint('......rebuilding.......');
-    return StreamBuilder<Duration>(
-      // stream: handler.positionStream,
-      stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
+StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) =>
+    StreamBuilder<Duration>(
+      // TODO: for some reason this stream does not work
+      // stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
+      // but this does
+      stream: handler.positionStream.distinct(),
       builder: (context, snapshot) {
-        final current = snapshot.data?.inSeconds ?? 0;
-        final left = _max.toInt() - current;
-
-        return Column(
-          children: [
-            Slider(
-              max: _max,
-              value: _value,
-              divisions: 100,
-              label: toTimeString(_value.toInt()),
-              onChangeEnd: (value) {
-                handler.seek(Duration(seconds: value.toInt()));
-              },
-              onChanged: (value) {
-                _value = value;
-                setState(() {});
-              },
-            ),
-            // media size and current posistion
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Text(_toTimeString(snapshot.data?.inSeconds)),
-                  // Text(_toTimeString(handler.duration?.inSeconds)),
-                  Text(toTimeString(current)),
-                  Text(toTimeString(left))
-                ],
-              ),
-            ),
-          ],
+        final total = handler.duration;
+        final progress = snapshot.data ?? Duration.zero;
+        return ProgressBar(
+          progress: progress,
+          buffered: progress,
+          total: total,
+          onSeek: (duration) => handler.seek(duration),
         );
       },
     );
-  }
-}
 
 String toTimeString(int? secs) {
   String timeStr = '';
@@ -476,14 +381,19 @@ String toTimeString(int? secs) {
 //
 // Mini Player for Scaffold BottomSheet
 //
-Widget buildMiniPlayer(BuildContext context) {
+StreamBuilder<AudioProcessingState?> buildMiniPlayer(BuildContext context) {
   final handler = context.read<LoqueAudioHandler>();
   return StreamBuilder<AudioProcessingState?>(
     stream: handler.playbackState.map((s) => s.processingState).distinct(),
     builder: (context, snapshot) {
-      if (snapshot.hasData && snapshot.data == AudioProcessingState.ready) {
+      if (snapshot.hasData &&
+          [
+            AudioProcessingState.loading,
+            AudioProcessingState.buffering,
+            AudioProcessingState.ready
+          ].contains(snapshot.data)) {
         // debugPrint('miniplayer.queueIndex: ${snapshot.data}');
-        final tag = handler.getCurrentTag();
+
         return Container(
           padding: const EdgeInsets.only(left: 8.0),
           decoration: BoxDecoration(
@@ -507,18 +417,28 @@ Widget buildMiniPlayer(BuildContext context) {
                       builder: (context) => const PlayerView(),
                     );
                   },
-                  child: Text(
-                    tag?.title ?? "",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    ),
-                  ),
+                  child: StreamBuilder<int?>(
+                      stream: handler.playbackState
+                          .map((e) => e.queueIndex)
+                          .distinct(),
+                      builder: (context, snapshot) {
+                        final tag = handler.getCurrentTag();
+                        return Text(
+                          tag?.title ?? "",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                          ),
+                        );
+                      }),
                 ),
               ),
-              const PlayButton(),
+              // const PlayButton(),
+              buildPlayButton(handler),
             ],
           ),
         );
