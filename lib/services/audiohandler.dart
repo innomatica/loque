@@ -228,8 +228,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   Future<void> removeQueueItemAt(int index) async {
     log('handler.removeQueueItemAt: $index');
-    // save current seek position
-    await _updateSeekPos();
     // take current sequence
     final sequence = _player.sequence ?? <IndexedAudioSource>[];
     // index must be in the valid range
@@ -327,6 +325,9 @@ class LoqueAudioHandler extends BaseAudioHandler
         // then back to playing
         await _player.play();
       }
+      // if (start && !_player.playing) {
+      //   await _player.play();
+      // }
     }
   }
 
