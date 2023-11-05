@@ -216,18 +216,8 @@ class LoqueLogic extends ChangeNotifier {
     if (seekPos > 5) {
       final index = _episodes.indexWhere((e) => e.id == episodeId);
       if (index != -1) {
-        if (_episodes[index].mediaDuration != null &&
-            seekPos > (_episodes[index].mediaDuration! - 60)) {
-          // debugPrint('we reached the end of the episode');
-          // we are at the end of the episode => mark played
-          // debugPrint('updateSeekPos.setPlayed');
-          // FIXME: this is not reliable
-          // await setPlayed(episodeId);
-        } else {
-          _episodes[index].mediaSeekPos = seekPos;
-          // debugPrint('updateSeekPos.db.save');
-          await db.saveEpisode(_episodes[index]);
-        }
+        _episodes[index].mediaSeekPos = seekPos;
+        await db.saveEpisode(_episodes[index]);
       }
       notifyListeners();
     }

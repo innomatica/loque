@@ -41,38 +41,51 @@ class LoqueAudioHandler extends BaseAudioHandler
   LoqueAudioHandler() {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     // listen to playerStateStream
-    _subPlayerState = _player.playerStateStream.listen((PlayerState state) {
-      // log('playerState: ${state.playing}  ${state.processingState}');
+    _subPlayerState =
+        _player.playerStateStream.listen((PlayerState state) async {
+      log('playerState: ${state.playing}  ${state.processingState}');
       if (state.processingState == ProcessingState.loading &&
           _player.currentIndex == 0) {
+        log('start of the queue');
         // broadcast initial mediaItem
         mediaItem.add(_player.sequence?[0].tag);
-      } else if (state.processingState == ProcessingState.completed) {
-        // end of the queue
-        stop();
+      } else if (state.processingState == ProcessingState.completed &&
+          state.playing == true) {
+        log('end of the queue');
+        await stop();
+        await _setPlayed(_player.currentIndex);
       }
     });
     // listen to currentIndexStream
     _subCurrentIndex = _player.currentIndexStream.listen((int? index) async {
-      // log('currentIndexState: $index');
+      log('currentIndexState: $index');
       // detecting change of media
       if (index != null &&
-          index >= 0 &&
+          index > 0 &&
           _player.processingState != ProcessingState.idle &&
           _player.processingState != ProcessingState.completed) {
         // broadcast subsequent mediaItems
-        // log('new media loaded');
+        log('new media loaded.index:$index, state:${_player.processingState}');
+        // broadcast mediaItem
         mediaItem.add(_player.sequence?[index].tag);
         // set as played
-        _setPlayed(index - 1);
+        await _setPlayed(index - 1);
+        // broadcast queue
+        if (_player.sequence?.isNotEmpty == true) {
+          queue.add(_player.sequence!.map((s) => s.tag as MediaItem).toList());
+        }
       }
     });
   }
 
+  void setLogic(LoqueLogic logic) {
+    _logic = logic;
+  }
+
   Future<void> dispose() async {
     log('handler.dispose');
-    _subPlayerState.cancel();
-    _subCurrentIndex.cancel();
+    await _subPlayerState.cancel();
+    await _subCurrentIndex.cancel();
     await _player.dispose();
   }
 
@@ -139,38 +152,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   Future<void> seek(Duration position) => _player.seek(position);
 
-  // TODO: save before seek: is this unnecessary?
-  /*
-  // Future<void> seek(Duration position) async {
-  //   log('handler.seek');
-  //   await _updateSeekPos();
-  //   await _player.seek(position);
-  // }
-
-  @override
-  Future<void> rewind() async {
-    log('handler.rewind');
-    await _updateSeekPos();
-    if (rewindInterval < _player.position) {
-      await _player.seek(_player.position - rewindInterval);
-    } else {
-      await _player.seek(Duration.zero);
-    }
-  }
-
-  @override
-  Future<void> fastForward() async {
-    log('handler.fastForward');
-    await _updateSeekPos();
-    if (_player.duration != null &&
-        (_player.position + fastForwardInterval) > _player.duration!) {
-      await _player.seek(_player.duration);
-    } else {
-      await _player.seek(_player.position + fastForwardInterval);
-    }
-  }
-  */
-
   //
   // QueueHandler
   // default implementations: skipToNext, skipToPrevious
@@ -190,15 +171,9 @@ class LoqueAudioHandler extends BaseAudioHandler
     }
   }
 
-  // @override
-  // Future<void> skipToNext() async {}
-
-  // @override
-  // Future<void> skipToPrevious() async {}
-
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    log('handler.addQueueItem: ${mediaItem.id}');
+    log('handler.addQueueItem: ${mediaItem.title}');
     // take current sequence
     final sequence = _player.sequence ?? <IndexedAudioSource>[];
     // check if the item is in the sequence
@@ -240,6 +215,17 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   @override
+  Future<void> removeQueueItem(MediaItem mediaItem) async {
+    log('handler.removeQueueItem: ${mediaItem.id}');
+    // take current sequence
+    final sequence = _player.sequence ?? <IndexedAudioSource>[];
+    final index = sequence.indexWhere(
+        (s) => s.tag.extras?['episodeId'] == mediaItem.extras?['episodeId']);
+    // index must be in the valid range
+    await removeQueueItemAt(index);
+  }
+
+  @override
   Future<void> removeQueueItemAt(int index) async {
     log('handler.removeQueueItemAt: $index');
     // save current seek position
@@ -263,26 +249,63 @@ class LoqueAudioHandler extends BaseAudioHandler
     }
   }
 
+  @override
+  Future playMediaItem(MediaItem mediaItem) async {
+    log('handler.playMediaItem: ${mediaItem.extras?["episodeId"]}');
+    final currentEpisodeId = getCurrentEpisodeId();
+    if (currentEpisodeId == mediaItem.extras?["episodeId"]) {
+      // asking the same episode as current one
+      if (!_player.playing) {
+        // presumably paused episode => resume play
+        log('play: restarting paused audio or first start');
+        // report episode to the logic => NO NEED
+        await play();
+      } else {
+        await pause();
+      }
+    } else {
+      // new episode
+      await _updateSeekPos();
+      final sequence = _player.sequence ?? <IndexedAudioSource>[];
+      // remove all previous dryRun
+      sequence.removeWhere((s) => s.tag.extras?['dryRun'] == true);
+      // remove all played episode
+      sequence.removeWhere((s) => s.tag.extras?['played'] == true);
+      // check if the episode is in the sequence
+      final index = sequence.indexWhere(
+          (s) => s.tag.extras?['episodeId'] == mediaItem.extras?["episodeId"]);
+      // int seekPos;
+      if (index == -1) {
+        // episode is not in the sequence => prepend
+        sequence.insert(
+            0, AudioSource.uri(Uri.parse(mediaItem.id), tag: mediaItem));
+      } else {
+        // episode is in the sequence => reorder
+        final target = sequence.removeAt(index);
+        sequence.insert(0, target);
+      }
+      await _setAudioSource(sequence, start: true);
+    }
+  }
+
   // media size in seconds
   Duration get duration => _player.duration ?? Duration.zero;
   Stream<Duration> get positionStream => _player.positionStream;
+  Stream<bool> get playingStream => _player.playingStream;
 
-  void setLogic(LoqueLogic logic) {
-    _logic = logic;
-  }
-
+  // This does not work reliably if called while playing
   Future<void> _setAudioSource(
     List<IndexedAudioSource> sequence, {
-    int? initialIndex,
+    int initialIndex = 0,
     Duration? initialPosition,
     bool start = false,
   }) async {
     bool wasPlaying = _player.playing;
     // log('_setAudioSource ------>');
     // sequence.forEach((s) => log(s.tag.title));
-    // log('<----');
+    // log('intialIndex: $initialIndex<----');
     // be sure to stop player before setAudioSource call
-    _player.stop();
+    await _player.stop();
     if (sequence.isEmpty) {
       // empty sequence should not be used for _player.setAudioSource
       queue.add([]);
@@ -290,18 +313,19 @@ class LoqueAudioHandler extends BaseAudioHandler
       await _player.setAudioSource(
         ConcatenatingAudioSource(children: sequence),
         preload: false,
-        initialIndex: initialIndex ?? 0,
+        initialIndex: initialIndex == -1 ? 0 : initialIndex,
         initialPosition: initialPosition ??
-            Duration(
-              seconds: sequence[initialIndex ?? 0].tag.extras?['seekPos'] ?? 0,
-            ),
+            (initialIndex >= 0
+                ? Duration(
+                    seconds: sequence[initialIndex].tag.extras?['seekPos'] ?? 0)
+                : Duration.zero),
       );
       // update queue
       queue.add(sequence.map((s) => s.tag as MediaItem).toList());
       // previously playing or force to start?
-      if (wasPlaying || start) {
+      if ((wasPlaying || start) && initialIndex != -1) {
         // then back to playing
-        _player.play();
+        await _player.play();
       }
     }
   }
@@ -372,48 +396,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   //
-  // Play episode: user deliverately chose an episode to play
-  //
-  Future playEpisode(Episode episode, {bool dryRun = false}) async {
-    log('handler.playEpisode: ${episode.id}');
-    final currentEpisodeId = getCurrentEpisodeId();
-    if (currentEpisodeId == episode.id) {
-      // asking the same episode as current one
-      if (!_player.playing) {
-        // presumably paused episode => resume play
-        log('play: restarting paused audio or first start');
-        // report episode to the logic => NO NEED
-        await _player.play();
-      }
-    } else {
-      // new episode
-      await _updateSeekPos();
-      final sequence = _player.sequence ?? <IndexedAudioSource>[];
-      // remove all previous dryRun
-      sequence.removeWhere((s) => s.tag.extras?['dryRun'] == true);
-      // remove all played episode
-      sequence.removeWhere((s) => s.tag.extras?['played'] == true);
-      // check if the episode is in the sequence
-      final index =
-          sequence.indexWhere((s) => s.tag.extras?['episodeId'] == episode.id);
-      // int seekPos;
-      if (index == -1) {
-        // episode is not in the sequence => prepend
-        sequence.insert(0, episode.getAudioSource());
-      } else {
-        // episode is in the sequence => reorder
-        final target = sequence.removeAt(index);
-        sequence.insert(0, target);
-      }
-      // tag dryRun to the current item
-      if (dryRun) {
-        sequence[0].tag.extras?['dryRun'] = true;
-      }
-      await _setAudioSource(sequence, start: true);
-    }
-  }
-
-  //
   // Subscribe to a channel
   //
   Future subscribe(Channel channel) async {
@@ -424,23 +406,35 @@ class LoqueAudioHandler extends BaseAudioHandler
   // Unsubscribe from a channel
   //
   Future unsubscribe(Channel channel) async {
-    final tag = getCurrentTag();
     await _logic.unsubscribe(channel);
-    // check if current episode is affected
-    if (_player.playing && tag?.extras?['channelId'] == channel.id) {
-      // pause first so the player remains paused
-      await _player.pause();
-    }
+    final tag = getCurrentTag();
     final sequence = _player.sequence;
-    // check if affected episodes are on the sequence
+    // check if any of episodes in the sequence are affected
     if (sequence?.isNotEmpty == true &&
         sequence!.any((s) => s.tag.extras['channelId'] == channel.id)) {
+      String? nextEpisodeId;
       // save current seek position
       await _updateSeekPos();
-      // remove them from the sequence
-      sequence.removeWhere((s) => s.tag.extras['channelId'] == channel.id);
-      // FIXME: do something
-      _setAudioSource(sequence);
+      // is current episode affected?
+      if (tag?.extras?['channelId'] == channel.id) {
+        // first episode after current one, that does not belong to the channel
+        final nextIdx = sequence
+            .sublist(_player.currentIndex ?? 0)
+            .indexWhere((s) => s.tag.extras?['channelId'] != channel.id);
+        if (nextIdx > -1) {
+          // find the one
+          nextEpisodeId = sequence[nextIdx].tag.extras['episodeId'];
+        }
+      } else {
+        // no need to change
+        nextEpisodeId = tag?.extras?['episodeId'];
+      }
+      // remove all affected episodes from the sequence
+      sequence.removeWhere((s) => s.tag.extras?['channelId'] == channel.id);
+      // find index to play
+      final initialIndex = sequence
+          .indexWhere((s) => s.tag?.extras?['episodeId'] == nextEpisodeId);
+      await _setAudioSource(sequence, initialIndex: initialIndex);
     }
   }
 
@@ -475,26 +469,30 @@ class LoqueAudioHandler extends BaseAudioHandler
     final index =
         sequence.indexWhere((e) => e.tag.extras?['episodeId'] == episodeId);
     log('handler.markPlayed: $currentIndex, $index');
-    await _setPlayed(index);
-    if (currentIndex == index) {
-      if (sequence.length > (index + 1)) {
-        await skipToNext();
-      } else {
-        await _player.stop();
+    if (index == -1) {
+      // not in the sequence
+      await _logic.setPlayed(episodeId);
+    } else {
+      // in the sequence
+      await _setPlayed(index);
+      if (currentIndex == index) {
+        if (sequence.length > (index + 1)) {
+          await skipToNext();
+        } else {
+          await _player.stop();
+        }
       }
     }
-    // remove it from the queue ? => don't do this: it will confuse the logic
-    // await removeQueueItemAt(index);
   }
 
-  Future _setPlayed(int index) async {
+  Future _setPlayed(int? index) async {
     final sequence = _player.sequence ?? <IndexedAudioSource>[];
-    if (index >= 0 && index < sequence.length) {
+    if (index != null && index >= 0 && index < sequence.length) {
       // this is for internal use
       final tag = sequence[index].tag;
       tag.extras?['played'] = true;
       // this is for database
-      _logic.setPlayed(tag.extras?['episodeId']);
+      await _logic.setPlayed(tag.extras?['episodeId']);
     }
   }
 
@@ -517,10 +515,4 @@ class LoqueAudioHandler extends BaseAudioHandler
   // Toggle liked flag
   //
   Future<void> toggleLiked(String episodeId) => _logic.toggleLiked(episodeId);
-
-  void _printSequence() {
-    log('_printSequence-------------->');
-    _player.sequence?.forEach((s) => log(s.tag.title));
-    log('<----------------------');
-  }
 }

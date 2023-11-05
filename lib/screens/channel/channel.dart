@@ -77,7 +77,8 @@ class _ChannelPageState extends State<ChannelPage> {
                 ),
                 onTap: () {
                   final handler = context.read<LoqueAudioHandler>();
-                  handler.playEpisode(episode, dryRun: true);
+                  handler.playMediaItem(
+                      episode.toMediaItem(extras: {'dryRun': true}));
                 },
               ),
             ],

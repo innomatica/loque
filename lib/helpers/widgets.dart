@@ -311,7 +311,7 @@ StreamBuilder<double> buildSpeedSelector(LoqueAudioHandler handler) =>
 //
 StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) =>
     StreamBuilder<Duration>(
-      // TODO: for some reason this stream does not work
+      // for some reason this does not work
       // stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
       // but this does
       stream: handler.positionStream.distinct(),
@@ -377,6 +377,45 @@ String toTimeString(int? secs) {
         : '';
     */
 }
+
+//
+// Playlist Add Button
+//
+StreamBuilder<bool> buildPlaylistAddButton(
+        LoqueAudioHandler handler, Episode episode) =>
+    StreamBuilder<bool>(
+      stream: handler.playbackState.map((s) => s.playing).distinct(),
+      builder: (context, snapshot) {
+        return IconButton(
+          icon: const Icon(Icons.playlist_add_rounded),
+          onPressed: episode.played ||
+                  (snapshot.hasData && snapshot.data == true)
+              ? null
+              : () async => await handler.addQueueItem(episode.toMediaItem()),
+        );
+      },
+    );
+
+//
+// Playlist Remove Button
+//
+StreamBuilder<bool> buildPlaylistRemoveButton(
+        LoqueAudioHandler handler, MediaItem mediaItem) =>
+    StreamBuilder<bool>(
+        // stream: handler.playbackState.map((s) => s.playing).distinct(),
+        stream: handler.playingStream,
+        builder: (context, snapshot) {
+          return SizedBox(
+            width: 32,
+            child: IconButton(
+              icon: const Icon(Icons.playlist_remove_rounded),
+              onPressed: (snapshot.hasData && snapshot.data != true) ||
+                      mediaItem.extras?['played'] != true
+                  ? () async => await handler.removeQueueItem(mediaItem)
+                  : null,
+            ),
+          );
+        });
 
 //
 // Mini Player for Scaffold BottomSheet

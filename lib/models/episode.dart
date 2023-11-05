@@ -225,7 +225,7 @@ class Episode {
     return AudioSource.uri(Uri.parse(mediaUrl), tag: toMediaItem());
   }
 
-  MediaItem toMediaItem() {
+  MediaItem toMediaItem({Map<String, Object>? extras}) {
     return MediaItem(
       id: mediaUrl,
       title: title,
@@ -234,14 +234,24 @@ class Episode {
       duration:
           mediaDuration != null ? Duration(seconds: mediaDuration!) : null,
       artUri: channelImageUrl != null ? Uri.tryParse(channelImageUrl!) : null,
-      extras: {
-        'channelId': channelId, // channel.id
-        'episodeId': id,
-        'link': link, //
-        'source': source.name,
-        'seekPos': mediaSeekPos,
-        'played': played,
-      },
+      extras: extras == null
+          ? {
+              'channelId': channelId, // channel.id
+              'episodeId': id,
+              'link': link, //
+              'source': source.name,
+              'seekPos': mediaSeekPos,
+              'played': played,
+            }
+          : {
+              'channelId': channelId, // channel.id
+              'episodeId': id,
+              'link': link, //
+              'source': source.name,
+              'seekPos': mediaSeekPos,
+              'played': played,
+              ...extras,
+            },
     );
   }
 

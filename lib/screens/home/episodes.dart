@@ -160,7 +160,8 @@ class _EpisodesViewState extends State<EpisodesView> {
                               // side: BorderSide.none,
                               onPressed: episode.played
                                   ? null
-                                  : () => handler.playEpisode(episode),
+                                  : () => handler
+                                      .playMediaItem(episode.toMediaItem()),
                             )
                           // hasn't been played
                           : ActionChip(
@@ -170,7 +171,8 @@ class _EpisodesViewState extends State<EpisodesView> {
                               // side: BorderSide.none,
                               onPressed: episode.played
                                   ? null
-                                  : () => handler.playEpisode(episode),
+                                  : () => handler
+                                      .playMediaItem(episode.toMediaItem()),
                             );
                 },
               ),
@@ -200,32 +202,7 @@ class _EpisodesViewState extends State<EpisodesView> {
               //
               // playlist add
               //
-              IconButton(
-                icon: Icon(Icons.playlist_add_rounded, color: styleColor0),
-                onPressed: episode.played
-                    ? null
-                    : () async {
-                        await handler.addQueueItem(episode.toMediaItem());
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              content: Text(
-                                'Episode is added to the playlist',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-              ),
+              buildPlaylistAddButton(handler, episode),
               const SizedBox(width: 5.0),
               //
               // Popup Menu
