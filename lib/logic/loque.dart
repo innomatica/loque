@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:loqueapp/services/sharedprefs.dart';
 import 'package:loqueapp/settings/constants.dart';
@@ -14,6 +15,7 @@ class LoqueLogic extends ChangeNotifier {
   EpisodeFilter _filter = EpisodeFilter.unplayed;
   final _channels = <Channel>[];
   final _episodes = <Episode>[];
+  final _playlist = <MediaItem>[];
 
   LoqueLogic() {
     _initData();
@@ -31,6 +33,7 @@ class LoqueLogic extends ChangeNotifier {
       : _filter == EpisodeFilter.liked
           ? _episodes.where((e) => e.liked == true).toList()
           : _episodes;
+  List<MediaItem> get playlist => _playlist;
 
   void _initData() async {
     // _loadPlaylist();
@@ -285,5 +288,74 @@ class LoqueLogic extends ChangeNotifier {
     // debugPrint(_filter.name);
 
     notifyListeners();
+  }
+
+  //
+  // Playlist
+  //
+  void playlistAdd(MediaItem item) {
+    if (!_playlist.any((m) => m.id == item.id)) {
+      _playlist.add(item);
+      notifyListeners();
+    }
+  }
+
+  void playlistInsert(int index, MediaItem item) {
+    MediaItem target = item;
+    int index = _playlist.indexWhere((m) => m.id == item.id);
+    // already in the list?
+    if (index != -1) {
+      // replace the item with existing one
+      target = _playlist.removeAt(index);
+    }
+    _playlist.insert(0, target);
+    notifyListeners();
+  }
+
+  MediaItem? playlistRemoveAt(int index) {
+    MediaItem? target;
+    if (index >= 0 && index < _playlist.length) {
+      target = _playlist.removeAt(index);
+      notifyListeners();
+    }
+    return target;
+  }
+
+  MediaItem? playlistRemove(MediaItem item) {
+    MediaItem? target;
+    final index = _playlist.indexWhere((m) => m.id == item.id);
+    if (index != -1) {
+      target = _playlist.removeAt(index);
+      notifyListeners();
+    }
+    return target;
+  }
+
+  List<MediaItem> playlistRemoveByChannelId(String channelId) {
+    _playlist.removeWhere((m) => m.extras?['channelId'] == channelId);
+    notifyListeners();
+    return _playlist;
+  }
+
+  bool playlistReorder(int oldIndex, int newIndex) {
+    if (oldIndex >= 0 &&
+        newIndex >= 0 &&
+        oldIndex < _playlist.length &&
+        newIndex < _playlist.length) {
+      final target = _playlist.removeAt(oldIndex);
+      _playlist.insert(newIndex, target);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  void playlistPurge({bool silently = true}) {
+    // move garbages
+    playlist.removeWhere(
+        (m) => m.extras?['played'] == true || m.extras?['dryRun'] == true);
+    if (!silently) {
+      notifyListeners();
+    }
   }
 }
