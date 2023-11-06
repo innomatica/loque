@@ -52,4 +52,8 @@ class SearchLogic extends ChangeNotifier {
     }
     return false;
   }
+
+  //
+  // PRX Shows
+  Future getPRXShows() async {}
 }

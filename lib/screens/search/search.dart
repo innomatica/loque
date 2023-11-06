@@ -45,21 +45,6 @@ class _SearchPageState extends State<SearchPage> {
                 const EdgeInsets.only(left: 8.0, top: 16.0, bottom: 8.0),
             actionsPadding: const EdgeInsets.only(
                 left: 8.0, right: 12.0, top: 4.0, bottom: 16.0),
-            // title: CheckboxListTile(
-            //   title: const Text(
-            //     'All categories',
-            //     style: TextStyle(fontWeight: FontWeight.w500),
-            //   ),
-            //   value: allCategorise,
-            //   onChanged: (value) {
-            //     allCategorise = value ?? false;
-            //     setState(() {
-            //       for (final e in categories) {
-            //         e['value'] = allCategorise;
-            //       }
-            //     });
-            //   },
-            // ),
             content: SizedBox(
               width: double.maxFinite,
               //
@@ -157,6 +142,31 @@ class _SearchPageState extends State<SearchPage> {
         });
       }
     });
+  }
+
+  //
+  // Show Curated List
+  Future showCurated() async {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+                content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: Text('PRX Shows'),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('NPR Podcasts & Shows'),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('Loque Selected'),
+                ),
+              ],
+            )));
   }
 
   //
@@ -327,6 +337,14 @@ class _SearchPageState extends State<SearchPage> {
                 child: const Icon(Icons.trending_up_rounded),
               ),
               //
+              // Trending
+              //
+              FilledButton.tonal(
+                onPressed: showCurated,
+                // child: const Text("Trending"),
+                child: const Icon(Icons.favorite_border_outlined),
+              ),
+              //
               // RSS
               //
               FilledButton.tonal(
@@ -340,7 +358,7 @@ class _SearchPageState extends State<SearchPage> {
               FilledButton.tonal(
                 onPressed: browseAndFind,
                 // child: const Text("Browse and Find"),
-                child: const Icon(Icons.travel_explore_rounded),
+                child: const Icon(Icons.public_rounded),
               ),
             ],
           ),

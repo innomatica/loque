@@ -33,6 +33,7 @@ class _ChannelPageState extends State<ChannelPage> {
             daysSince: SharedPrefsService.dataRetentionPeriod)
         : getEpisodesFromRssChannel(widget.channel,
             daysSince: SharedPrefsService.dataRetentionPeriod);
+    debugPrint(widget.channel.toString());
   }
 
 //

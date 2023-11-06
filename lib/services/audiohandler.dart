@@ -248,7 +248,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       }
     } else {
       // new episode
-      await _updateSeekPos();
+      await stop();
       _logic.playlistPurge();
       _logic.playlistInsert(0, mediaItem);
       await _updateAudioSource(start: true);
@@ -271,10 +271,11 @@ class LoqueAudioHandler extends BaseAudioHandler
         initialIndex < 0 || initialIndex >= playlist.length ? 0 : initialIndex;
     // TODO: played check should be done somewhere else
     if (playlist.isEmpty || playlist[initialIndex].extras?['played'] == true) {
+      // log('playlist is empty or current episode is played');
       // update queue
       queue.add([]);
       // stop player unconditionally
-      await _player.stop();
+      await stop();
     } else {
       // set audio source with the playlist
       await _player.setAudioSource(

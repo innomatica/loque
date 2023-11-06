@@ -1,0 +1,155 @@
+[
+  {
+    "title": "Because News",
+    "url": "https://www.cbc.ca/podcasting/includes/becausenews.xml",
+    "itunesId": "1030012459",
+    "author": "CBC",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/BN-promo.jpg",
+    "categories": "Comedy",
+    "language": "en"
+  },
+  {
+    "title": "Blocked and Reported",
+    "url": "https://api.substack.com/feed/podcast/500230.rss",
+    "itunesId": "1504298199",
+    "author": "Katie Herzog and Jesse Singal",
+    "imageUrl": "https://substackcdn.com/feed/podcast/500230/627648b7e4e67b5365cc93a29fce9fdd.jpg",
+    "categories": "Society, Culture, News",
+    "language": "en"
+  },
+  {
+    "title": "LINUX Unplugged",
+    "url": "https://feeds.fireside.fm/linuxunplugged/rss",
+    "itunesId": "687598126",
+    "author": "Jupiter Broadcasting",
+    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/f/f31a453c-fa15-491f-8618-3f71f1d565e5/cover.jpg",
+    "categories": "Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "Late Night Linux",
+    "url": "https://latenightlinux.com/feed/mp3",
+    "itunesId": "1189978971",
+    "author": "Late Night Linux",
+    "imageUrl": "http://latenightlinux.com/wp-content/uploads/latenightlinux.jpg",
+    "categories": "Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "Laugh Out Loud",
+    "url": "https://www.cbc.ca/podcasting/includes/laughoutloud.xml",
+    "itunesId": "331599764",
+    "author": "CBC",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/promo-laughoutloud-new.jpg",
+    "categories": "Comedy",
+    "language": "en"
+  },
+  {
+    "title": "Radiolab",
+    "url": "https://feeds.feedburner.com/radiolab",
+    "itunesId": "152249110",
+    "author": "WNYC Studios",
+    "imageUrl": "https://media.wnyc.org/i/1400/1400/l/80/2022/05/Radiolab_ShowArt_correct.jpg",
+    "categories": "Science, Natural, Society, Culture, Documentary, History",
+    "language": "en"
+  },
+  {
+    "title": "Science Friday",
+    "url": "https://feeds.feedburner.com/science-friday/",
+    "itunesId": "73329284",
+    "author": "WNYC Studios",
+    "imageUrl": "https://image.simplecastcdn.com/images/ac8e2039-dfef-4938-b66a-c2f58f4b7599/c01bb987-b09c-4e1a-b8ba-5cd859951535/3000x3000/sciencefriday-wnycstudios-1400.jpg?aid=rss_feed",
+    "categories": "Science, Natural, Life, Earth",
+    "language": "en"
+  },
+  {
+    "title": "Science Weekly",
+    "url": "https://www.theguardian.com/science/series/science/podcast.xml",
+    "itunesId": "136697669",
+    "author": "The Guardian",
+    "imageUrl": "https://uploads.guim.co.uk/2021/11/17/ScienceWeekly_FINAL_3000.jpeg",
+    "categories": "Science",
+    "language": "en"
+  },
+  {
+    "title": "Self-Hosted",
+    "url": "https://feeds.fireside.fm/selfhosted/rss",
+    "itunesId": "1477997392",
+    "author": "Jupiter Broadcasting",
+    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/7/7296e34a-2697-479a-adfb-ad32329dd0b0/cover.jpg",
+    "categories": "Technology, Leisure, Hobbies",
+    "language": "en"
+  },
+  {
+    "title": "Short Wave",
+    "url": "https://feeds.npr.org/510351/podcast.xml",
+    "itunesId": "1482575855",
+    "author": "NPR",
+    "imageUrl": "https://media.npr.org/assets/img/2022/09/23/short-wave_tile_npr-network-01_sq-517382b4b8fd0ab48ea9c781253f9992eab733dc.jpg?s=1400&c=66&f=jpg",
+    "categories": "Science, News, Daily",
+    "language": "en"
+  },
+  {
+    "title": "TED Radio Hour",
+    "url": "https://feeds.npr.org/510298/podcast.xml",
+    "itunesId": "523121474",
+    "author": "NPR",
+    "imageUrl": "https://media.npr.org/assets/img/2022/09/23/ted-radio-hour_tile_npr-network-01_sq-75eeb1db55c439c11197a2eb1ca921fe3b1943cc.jpg?s=1400&c=66&f=jpg",
+    "categories": "Technology, Science, Social, Society, Culture",
+    "language": "en"
+  },
+  {
+    "title": "The Debaters",
+    "url": "https://feeds.fireside.fm/selfhosted/rss",
+    "itunesId": "1404480773",
+    "author": "Jupiter Broadcasting",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
+    "categories": "Technology, Leisure, Hobbies",
+    "language": "en"
+  },
+  {
+    "title": "The Naked Scientists",
+    "url": "https://www.thenakedscientists.com/naked_scientists_podcast.xml",
+    "itunesId": "74171648",
+    "author": "The Naked Scientists",
+    "imageUrl": "https://www.thenakedscientists.com/sites/default/files/media/media/images/NS_Podcasts_1400.png",
+    "categories": "Science, Life, Natural, Health, Fitness, Medicine",
+    "language": "en"
+  },
+  {
+    "title": "The Pulse",
+    "url": "https://feeds.npr.org/510371/podcast.xml",
+    "itunesId": "772127662",
+    "author": "NPR",
+    "imageUrl": "https://media.npr.org/assets/img/2023/04/28/thepulse-3000x3000_nprnetwork_sq-3d76f68f8584a6cf99220148b39152d8419a66aa.jpg?s=1400&c=66&f=jpg",
+    "categories": "Science, Health, Fitness, Technology",
+    "language": "en"
+  },
+  {
+    "title": "The Science Show",
+    "url": "https://www.abc.net.au/feeds/13868682/podcast.xml",
+    "itunesId": "73330054",
+    "author": "ABC listen",
+    "imageUrl": "https://live-production.wcms.abc-cdn.net.au/e7b00f88152341adf356466ffa745abe.jpg?src",
+    "categories": "Science, Natural",
+    "language": "en"
+  },
+  {
+    "title": "The Vergecast",
+    "url": "https://feeds.megaphone.fm/vergecast",
+    "itunesId": "430333725",
+    "author": "The Verge",
+    "imageUrl": "https://megaphone.imgix.net/podcasts/e4c412e6-e1f0-11e8-9bde-83f9d376f059/image/Podcast_Tile_6000x6000px.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
+    "categories": "Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "Today, Explained",
+    "url": "https://feeds.megaphone.fm/VMP5705694065",
+    "itunesId": "1346207297",
+    "author": "Vox Media",
+    "imageUrl": "https://megaphone.imgix.net/podcasts/23d52a2a-1c5f-11ea-9a0e-b70170f2a827/image/uploads_2F1588357113366-jjsdfzx6x4m-c0339c10f9b113a5fcc93436e66e5ef4_2FTodayExplained+V2_Tile_3000x3000+_281_29.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
+    "categories": "News",
+    "language": "en"
+  }
+]
