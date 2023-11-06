@@ -17,6 +17,8 @@ const urlInstruction = 'https://innomatica.github.io/loque/manual/';
 const urlAppIconSource = 'https://www.flaticon.com/free-icons/podcast';
 const urlStoreImageSource =
     'https://www.pexels.com/photo/rode-podmic-audio-microphone-in-a-podcast-studio-11884525/';
+const urlCuratedData =
+    'https://raw.githubusercontent.com/innomatica/loque/master/extra/data/curated.json';
 
 // sleep timer setting
 const sleepTimeouts = [30, 20, 10, 5, 60];

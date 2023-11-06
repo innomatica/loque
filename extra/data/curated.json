@@ -18,6 +18,15 @@
     "language": "en"
   },
   {
+    "title": "CANADALAND",
+    "url": "https://feeds.acast.com/public/shows/630ceae33fe37400122828c6",
+    "itunesId": "721048994",
+    "author": "CANADALAND",
+    "imageUrl": "https://assets.pippa.io/shows/630ceae33fe37400122828c6/show-cover.jpg",
+    "categories": "Canada, News, Politics",
+    "language": "en"
+  },
+  {
     "title": "LINUX Unplugged",
     "url": "https://feeds.fireside.fm/linuxunplugged/rss",
     "itunesId": "687598126",
@@ -90,12 +99,30 @@
     "language": "en"
   },
   {
+    "title": "Snap Judgment",
+    "url": "https://snap.feed.snapjudgment.org",
+    "itunesId": "283657561",
+    "author": "Snap Judgment and PRX",
+    "imageUrl": "https://f.prxu.org/320/images/811f6dfd-4a94-4352-86dc-e4be1df13573/SnapIcon_3000x3000.png",
+    "categories": "Arts, Performing",
+    "language": "en"
+  },
+  {
     "title": "TED Radio Hour",
     "url": "https://feeds.npr.org/510298/podcast.xml",
     "itunesId": "523121474",
     "author": "NPR",
     "imageUrl": "https://media.npr.org/assets/img/2022/09/23/ted-radio-hour_tile_npr-network-01_sq-75eeb1db55c439c11197a2eb1ca921fe3b1943cc.jpg?s=1400&c=66&f=jpg",
     "categories": "Technology, Science, Social, Society, Culture",
+    "language": "en"
+  },
+  {
+    "title": "The Backbench",
+    "url": "https://feeds.acast.com/public/shows/73fb297d-023b-5595-a03d-88c27dbc7890",
+    "itunesId": "1344871955",
+    "author": "CANADALAND",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
+    "categories": "News, Politics, Commentary, Government",
     "language": "en"
   },
   {
@@ -150,6 +177,15 @@
     "author": "Vox Media",
     "imageUrl": "https://megaphone.imgix.net/podcasts/23d52a2a-1c5f-11ea-9a0e-b70170f2a827/image/uploads_2F1588357113366-jjsdfzx6x4m-c0339c10f9b113a5fcc93436e66e5ef4_2FTodayExplained+V2_Tile_3000x3000+_281_29.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
     "categories": "News",
+    "language": "en"
+  },
+  {
+    "title": "Wait Wait... Don't Tell Me!",
+    "url": "https://feeds.npr.org/344098539/podcast.xml",
+    "itunesId": "121493804",
+    "author": "NPR",
+    "imageUrl": "https://media.npr.org/assets/img/2022/09/23/waitwait-don-t-tell-me_tile_npr-network-01_sq-d51413832c7ccf5301741d7f1ee2e1853fed9597.jpg?s=1400&c=66&f=jpg",
+    "categories": "Comedy, Leisure, Games",
     "language": "en"
   }
 ]

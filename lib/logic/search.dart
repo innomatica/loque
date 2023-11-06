@@ -54,6 +54,18 @@ class SearchLogic extends ChangeNotifier {
   }
 
   //
-  // PRX Shows
-  Future getPRXShows() async {}
+  // Get channel(s) by Url
+  //
+  Future getPodcastByUrl(String url) async {
+    final res = await getPodcastByFeedUrl(url);
+    // debugPrint('getPodcastByUrl: $res');
+    if (res is Channel) {
+      // _channels.clear();
+      final idx = _channels.indexWhere((c) => c.id == res.id);
+      if (idx == -1) {
+        _channels.insert(0, res);
+        notifyListeners();
+      }
+    }
+  }
 }

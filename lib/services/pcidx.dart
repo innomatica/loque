@@ -118,10 +118,10 @@ Future<List<Channel>> getTrendingPodcasts({
           .toList();
     }
   }
-  return [];
+  return <Channel>[];
 }
 
-Future getPodcastByFeedId(int feedId) async {
+Future<List<Channel>> getPodcastByFeedId(int feedId) async {
   final url = Uri(
     scheme: "https",
     host: apiHost,
@@ -141,10 +141,10 @@ Future getPodcastByFeedId(int feedId) async {
           .toList();
     }
   }
-  return [];
+  return <Channel>[];
 }
 
-Future getPodcastByFeedUrl(String feedUrl) async {
+Future<Channel?> getPodcastByFeedUrl(String feedUrl) async {
   final url = Uri(
     scheme: "https",
     host: apiHost,
@@ -154,16 +154,16 @@ Future getPodcastByFeedUrl(String feedUrl) async {
   // debugPrint(url.toString());
 
   final res = await _fetchData(url);
+  // debugPrint(res.toString());
   if (res != null) {
     final decoded = jsonDecode(res);
     // note that it returns "true" / "false" instead of true / false
-    if (decoded?['status'] == "true" && decoded?['feeds'] is List) {
-      return decoded!['feeds']
-          .map<Channel>((e) => Channel.fromPcIdx(e))
-          .toList();
+    if (decoded?['status'] == "true" &&
+        decoded?['feed'] is Map<String, dynamic>) {
+      return Channel.fromPcIdx(decoded['feed']);
     }
   }
-  return [];
+  return null;
 }
 
 Future<List<Episode>> getEpisodesFromPcIdx(
@@ -208,5 +208,5 @@ Future<List<Episode>> getEpisodesFromPcIdx(
           .toList();
     }
   }
-  return [];
+  return <Episode>[];
 }

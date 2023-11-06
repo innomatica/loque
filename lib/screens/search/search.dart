@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 import '../../helpers/widgets.dart';
 import '../../logic/search.dart';
 import '../../models/channel.dart';
+import '../../settings/constants.dart';
 import 'browser.dart';
 
 class SearchPage extends StatefulWidget {
@@ -148,25 +152,45 @@ class _SearchPageState extends State<SearchPage> {
   // Show Curated List
   Future showCurated() async {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-                content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text('PRX Shows'),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('NPR Podcasts & Shows'),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('Loque Selected'),
-                ),
-              ],
-            )));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Loque Favored'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: FutureBuilder(
+              future: http.get(Uri.parse(urlCuratedData)),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final res = snapshot.data!;
+                  if (res.statusCode == 200) {
+                    final channels = jsonDecode(res.body);
+                    final search = context.read<SearchLogic>();
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: channels.length,
+                      itemBuilder: (context, index) => Card(
+                        child: ListTile(
+                          title: Text(channels[index]["title"]),
+                          subtitle: Text(
+                            channels[index]["categories"],
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary),
+                          ),
+                          onTap: () {
+                            search.getPodcastByUrl(channels[index]['url']);
+                          },
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const Text('Server failure');
+                  }
+                }
+                return Container();
+              }),
+        ),
+      ),
+    );
   }
 
   //
