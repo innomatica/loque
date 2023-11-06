@@ -240,142 +240,89 @@ class EpisodeMenu extends StatelessWidget {
 // Play Button
 //
 StreamBuilder<bool> buildPlayButton(LoqueAudioHandler handler,
-        {double? size, Color? color}) =>
-    StreamBuilder<bool>(
-      // stream: handler.playingStream,
-      stream: handler.playbackState.map((s) => s.playing).distinct(),
-      builder: (context, snapshot) {
-        // debugPrint('snapshot:${snapshot.data}');
-        return snapshot.hasData && snapshot.data == true
-            ? IconButton(
-                icon: Icon(Icons.pause_rounded, size: size, color: color),
-                onPressed: () {
-                  handler.pause();
-                },
-              )
-            : IconButton(
-                icon: Icon(Icons.play_arrow_rounded, size: size, color: color),
-                onPressed: () {
-                  handler.play();
-                },
-              );
-      },
-    );
+    {double? size, Color? color}) {
+  return StreamBuilder<bool>(
+    stream: handler.playbackState.map((s) => s.playing).distinct(),
+    builder: (context, snapshot) => snapshot.hasData && snapshot.data == true
+        ? IconButton(
+            icon: Icon(Icons.pause_rounded, size: size, color: color),
+            onPressed: () async => await handler.pause(),
+          )
+        : IconButton(
+            icon: Icon(Icons.play_arrow_rounded, size: size, color: color),
+            onPressed: () async => await handler.play(),
+          ),
+  );
+}
 
 //
 // Forward 30 sec
 //
-IconButton buildForwardButton(LoqueAudioHandler handler, {double? size}) =>
-    IconButton(
-      icon: Icon(Icons.forward_30_rounded, size: size),
-      onPressed: () => handler.fastForward(),
-    );
+IconButton buildForwardButton(LoqueAudioHandler handler, {double? size}) {
+  return IconButton(
+    icon: Icon(Icons.forward_30_rounded, size: size),
+    onPressed: () async => await handler.fastForward(),
+  );
+}
 
 //
 // Rewind 30 sec
 //
-IconButton buildRewindButton(LoqueAudioHandler handler, {double? size}) =>
-    IconButton(
-      icon: Icon(Icons.replay_30_rounded, size: size),
-      onPressed: () => handler.rewind(),
-    );
+IconButton buildRewindButton(LoqueAudioHandler handler, {double? size}) {
+  return IconButton(
+    icon: Icon(Icons.replay_30_rounded, size: size),
+    onPressed: () async => await handler.rewind(),
+  );
+}
 
 //
 // Playback Speed Button
 //
 const speeds = <double>[0.5, 0.8, 1.0, 1.2, 1.5];
 
-StreamBuilder<double> buildSpeedSelector(LoqueAudioHandler handler) =>
-    StreamBuilder<double>(
-      stream: handler.playbackState.map((s) => s.speed).distinct(),
-      builder: (context, snapshot) {
-        return DropdownButton<double>(
-          value: snapshot.data ?? 1.0,
-          iconSize: 0,
-          isDense: true,
-          onChanged: (double? value) {
-            handler.setSpeed(value ?? 1.0);
-          },
-          items: speeds.map<DropdownMenuItem<double>>((double value) {
-            return DropdownMenuItem<double>(
-              value: value,
-              child: Text('$value x'),
-            );
-          }).toList(),
-        );
-      },
-    );
+StreamBuilder<double> buildSpeedSelector(LoqueAudioHandler handler) {
+  return StreamBuilder<double>(
+    stream: handler.playbackState.map((s) => s.speed).distinct(),
+    builder: (context, snapshot) {
+      return DropdownButton<double>(
+        value: snapshot.data ?? 1.0,
+        iconSize: 0,
+        isDense: true,
+        onChanged: (double? value) {
+          handler.setSpeed(value ?? 1.0);
+        },
+        items: speeds
+            .map<DropdownMenuItem<double>>(
+              (double value) => DropdownMenuItem<double>(
+                value: value,
+                child: Text('$value x'),
+              ),
+            )
+            .toList(),
+      );
+    },
+  );
+}
 
 //
 // Progress Bar
 //
-StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) =>
-    StreamBuilder<Duration>(
-      // for some reason this does not work
-      // stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
-      // but this does
-      stream: handler.positionStream.distinct(),
-      builder: (context, snapshot) {
-        final total = handler.duration;
-        final progress = snapshot.data ?? Duration.zero;
-        return ProgressBar(
-          progress: progress,
-          buffered: progress,
-          total: total,
-          onSeek: (duration) => handler.seek(duration),
-        );
-      },
-    );
-
-String toTimeString(int? secs) {
-  String timeStr = '';
-  if (secs is int) {
-    if (secs < 0) {
-      timeStr = '00:00';
-    } else if (secs < 10) {
-      timeStr = '00:0$secs';
-    } else if (secs < 60) {
-      timeStr = '00:$secs';
-    } else if (secs < 3600) {
-      final mins = secs ~/ 60;
-      final rems = secs % 60;
-      if (mins < 10) {
-        timeStr = '0$mins:';
-      } else {
-        timeStr = '$mins:';
-      }
-      if (rems < 10) {
-        timeStr = '${timeStr}0$rems';
-      } else {
-        timeStr = '$timeStr$rems';
-      }
-    } else {
-      final hrs = secs ~/ 3600;
-      final mins = (secs % 3600) ~/ 60;
-      final rems = secs % 60;
-      if (mins < 10) {
-        timeStr = '$hrs:0$mins:';
-      } else {
-        timeStr = '$hrs:$mins:';
-      }
-      if (rems < 10) {
-        timeStr = '${timeStr}0$rems';
-      } else {
-        timeStr = '$timeStr$rems';
-      }
-    }
-  }
-  return timeStr;
-
-  /*
-    return secs is int
-        ? secs < 60
-            ? '$secs'
-            : secs < 3600
-                ? '${secs ~/ 60}:${secs % 60}'
-                : '${secs ~/ 3600}:${(secs % 3600) ~/ 60}:${secs % 60}'
-        : '';
-    */
+StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) {
+  return StreamBuilder<Duration>(
+    // for some reason this does not work
+    // stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
+    // but this does
+    stream: handler.positionStream.distinct(),
+    builder: (context, snapshot) {
+      final total = handler.duration;
+      final progress = snapshot.data ?? Duration.zero;
+      return ProgressBar(
+        progress: progress,
+        total: total,
+        onSeek: (duration) async => await handler.seek(duration),
+      );
+    },
+  );
 }
 
 //
@@ -431,8 +378,7 @@ StreamBuilder<AudioProcessingState?> buildMiniPlayer(BuildContext context) {
             AudioProcessingState.buffering,
             AudioProcessingState.ready
           ].contains(snapshot.data)) {
-        // debugPrint('miniplayer.queueIndex: ${snapshot.data}');
-
+        // debugPrint('miniplayer.processingState: ${snapshot.data}');
         return Container(
           padding: const EdgeInsets.only(left: 8.0),
           decoration: BoxDecoration(
@@ -462,6 +408,7 @@ StreamBuilder<AudioProcessingState?> buildMiniPlayer(BuildContext context) {
                           .distinct(),
                       builder: (context, snapshot) {
                         final tag = handler.getCurrentTag();
+                        debugPrint('tag: $tag');
                         return Text(
                           tag?.title ?? "",
                           maxLines: 1,
