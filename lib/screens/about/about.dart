@@ -22,128 +22,101 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Widget _buildBody() {
-    return ListView(
-      children: [
-        ListTile(
-          title: Text(
-            'Version',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+    final titleStyle = TextStyle(color: Theme.of(context).colorScheme.tertiary);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView(
+        children: [
+          // Version
+          ListTile(
+            title: Text('Version', style: titleStyle),
+            subtitle: const Text(appVersion),
           ),
-          subtitle: const Text(appVersion),
-        ),
-        ListTile(
-          title: Text(
-            'Questions and Answers',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // Open Source
+          ListTile(
+            title: Text('Open Source', style: titleStyle),
+            subtitle: const Text('Visit source repository'),
+            onTap: () => launchUrl(Uri.parse(urlSourceRepo)),
           ),
-          subtitle: const Text('How to Use This App'),
-          onTap: () {
-            launchUrl(Uri.parse(urlInstruction),
-                mode: LaunchMode.externalApplication);
-          },
-        ),
-        ListTile(
-          title: Text(
-            'Visit Our Store',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // Instructions
+          ListTile(
+            title: Text('Instructions', style: titleStyle),
+            subtitle: const Text('How to Use This App'),
+            onTap: () => launchUrl(Uri.parse(urlInstruction)),
           ),
-          subtitle: const Text('Review Apps, Report Bugs, Share Your Thoughts'),
-          onTap: () {
-            final url = _getStoreUrl();
-            if (url != null) {
-              launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-            }
-          },
-        ),
-        ListTile(
-          title: Text(
-            'Recommend to Others',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // Play Store
+          ListTile(
+            title: Text('Play Store', style: titleStyle),
+            subtitle: const Text('Review Apps, Report Bugs'),
+            onTap: () {
+              final url = _getStoreUrl();
+              if (url != null) {
+                launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              }
+            },
           ),
-          subtitle: const Text('Show QR Code'),
-          onTap: () {
-            final url = _getStoreUrl();
-            if (url != null) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return SimpleDialog(
-                    title: Center(
-                      child: Text(
-                        'Visit Our Store',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
+          // QR Code
+          ListTile(
+            title: Text('Play Store QR Code', style: titleStyle),
+            subtitle: const Text('Recommend to Others'),
+            onTap: () {
+              final url = _getStoreUrl();
+              if (url != null) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return SimpleDialog(
+                      title: Center(
+                        child: Text('Visit Our Store', style: titleStyle),
                       ),
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Image.asset(playStoreUrlQrCode),
-                      )
-                    ],
-                  );
-                },
-              );
-            }
-          },
-        ),
-        ListTile(
-          title: Text(
-            'Contact Us',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: Image.asset(playStoreUrlQrCode),
+                        )
+                      ],
+                    );
+                  },
+                );
+              }
+            },
           ),
-          subtitle: const Text(urlHomePage),
-          onTap: () {
-            launchUrl(Uri.parse(urlHomePage),
-                mode: LaunchMode.externalApplication);
-          },
-        ),
-        ListTile(
-          title: Text(
-            'App Icons',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // About
+          ListTile(
+            title: Text('About Us', style: titleStyle),
+            subtitle: const Text(urlHomePage),
+            onTap: () => launchUrl(Uri.parse(urlHomePage)),
           ),
-          subtitle:
-              const Text("Microphone icons created by Freepik - Flaticon"),
-          onTap: () {
-            launchUrl(Uri.parse(urlAppIconSource));
-          },
-        ),
-        ListTile(
-          title: Text(
-            'Store Background Image',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // App Icons
+          ListTile(
+            title: Text('App Icons', style: titleStyle),
+            subtitle:
+                const Text("Microphone icons created by Freepik - Flaticon"),
+            onTap: () => launchUrl(Uri.parse(urlAppIconSource)),
           ),
-          subtitle: const Text("Photo by dlxmedia.hu from Pexels"),
-          onTap: () {
-            launchUrl(Uri.parse(urlStoreImageSource));
-          },
-        ),
-        ListTile(
-          title: Text(
-            'Disclaimer',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // Store Image
+          ListTile(
+            title: Text('Store Background Image', style: titleStyle),
+            subtitle: const Text("Photo by dlxmedia.hu from Pexels"),
+            onTap: () => launchUrl(Uri.parse(urlStoreImageSource)),
           ),
-          subtitle: const Text(
-              'The Company assumes no responsibility for errors or omissions '
-              'in the contents of the Service. (tap for the full text).'),
-          onTap: () {
-            launchUrl(Uri.parse(urlDisclaimer));
-          },
-        ),
-        // Privacy
-        ListTile(
-          title: Text(
-            'Privacy Policy',
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          // Disclaimer
+          ListTile(
+            title: Text('Disclaimer', style: titleStyle),
+            subtitle: const Text(
+                'The Company assumes no responsibility for errors or omissions '
+                'in the contents of the Service. (tap to see the full text).'),
+            onTap: () => launchUrl(Uri.parse(urlDisclaimer)),
           ),
-          subtitle: const Text('We do not collect any Persional Data. '
-              'We do not collect any Usage Data (tap for the full text).'),
-          onTap: () {
-            launchUrl(Uri.parse(urlPrivacyPolicy));
-          },
-        ),
-      ],
+          // Privacy
+          ListTile(
+            title: Text('Privacy Policy', style: titleStyle),
+            subtitle: const Text('We do not collect any Persional Data. '
+                'We do not collect any Usage Data (tap to see the full text).'),
+            onTap: () => launchUrl(Uri.parse(urlPrivacyPolicy)),
+          ),
+        ],
+      ),
     );
   }
 

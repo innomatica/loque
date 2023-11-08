@@ -11,6 +11,7 @@ const urlHomePage = 'https://www.innomatic.ca';
 const playStoreUrlQrCode = 'assets/images/com.innomatic.loqueapp.png';
 
 // urls for app
+const urlSourceRepo = 'https://github.com/innomatica/loque';
 const urlPrivacyPolicy = 'https://innomatica.github.io/loque/privacy/';
 const urlDisclaimer = 'https://innomatica.github.io/loque/disclaimer/';
 const urlInstruction = 'https://innomatica.github.io/loque/manual/';

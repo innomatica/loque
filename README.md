@@ -1,9 +1,10 @@
 # loqueapp
 
-A Simple Podcast App backed by [PodcastIndex.org](https://podcastindex.org) and also by RSS feeds.
+A Simple Podcast App based on [PodcastIndex.org](https://podcastindex.org).
 
 ## TODO
 
-- progress bar not responding to the actual seek position. => use plugin
+- mark played has a bug
+  - if the episode is not the current one but one in the future, it will be marked but then be played afterall.
 
 

@@ -417,6 +417,9 @@ class LoqueAudioHandler extends BaseAudioHandler
       await _logic.setPlayed(episodeId);
     } else {
       // in the sequence
+      // FIXME: this does not work unless it is skipped automatically
+      // when actually played
+      // use removeMediaItemAt instead
       await _setPlayed(index);
       if (currentIndex == index) {
         if (sequence.length > (index + 1)) {
