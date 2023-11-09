@@ -154,7 +154,9 @@ class _SearchPageState extends State<SearchPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Loque Favored'),
+        title: const Text('Loque Favorites'),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
         content: SizedBox(
           width: double.maxFinite,
           child: FutureBuilder(

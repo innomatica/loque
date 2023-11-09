@@ -261,7 +261,6 @@ class LoqueAudioHandler extends BaseAudioHandler
     // validate initialIndex
     initialIndex =
         initialIndex < 0 || initialIndex >= playlist.length ? 0 : initialIndex;
-    // TODO: played check should be done somewhere else
     if (playlist.isEmpty || playlist[initialIndex].extras?['played'] == true) {
       // log('playlist is empty or current episode is played');
       // update queue
@@ -417,16 +416,17 @@ class LoqueAudioHandler extends BaseAudioHandler
       await _logic.setPlayed(episodeId);
     } else {
       // in the sequence
-      // FIXME: this does not work unless it is skipped automatically
-      // when actually played
-      // use removeMediaItemAt instead
       await _setPlayed(index);
+      // handle differently depending on the postion in the sequence
       if (currentIndex == index) {
         if (sequence.length > (index + 1)) {
           await skipToNext();
         } else {
           await _player.stop();
         }
+      } else if (currentIndex < index) {
+        // in case of future media, it must be removed from the sequence
+        removeQueueItemAt(index);
       }
     }
   }
