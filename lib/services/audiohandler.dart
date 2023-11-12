@@ -89,7 +89,8 @@ class LoqueAudioHandler extends BaseAudioHandler
       } else {
         log('Non PlayerException Error: $e');
       }
-      stop();
+      // do not call this here
+      // stop();
     });
   }
 
