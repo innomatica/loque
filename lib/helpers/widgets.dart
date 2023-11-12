@@ -408,7 +408,7 @@ StreamBuilder<AudioProcessingState?> buildMiniPlayer(BuildContext context) {
                           .distinct(),
                       builder: (context, snapshot) {
                         final tag = handler.getCurrentTag();
-                        debugPrint('tag: $tag');
+                        // debugPrint('tag: $tag');
                         return Text(
                           tag?.title ?? "",
                           maxLines: 1,

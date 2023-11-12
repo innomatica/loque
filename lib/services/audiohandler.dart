@@ -37,6 +37,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   late final LoqueLogic _logic;
   late final StreamSubscription _subPlayerState;
   late final StreamSubscription _subCurrentIndex;
+  late final StreamSubscription _subPlaybackEvent;
 
   LoqueAudioHandler() {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
@@ -79,6 +80,17 @@ class LoqueAudioHandler extends BaseAudioHandler
         }
       }
     });
+    // listen to playbackEventStream
+    _subPlaybackEvent = _player.playbackEventStream.listen((event) {},
+        onError: (Object e, StackTrace st) {
+      if (e is PlayerException) {
+        log('Error code: ${e.code}');
+        log('Error message: ${e.message}');
+      } else {
+        log('Non PlayerException Error: $e');
+      }
+      stop();
+    });
   }
 
   void setLogic(LoqueLogic logic) {
@@ -89,6 +101,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     // log('handler.dispose');
     await _subPlayerState.cancel();
     await _subCurrentIndex.cancel();
+    await _subPlaybackEvent.cancel();
     await _player.dispose();
   }
 
@@ -240,7 +253,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       }
     } else {
       // new episode
-      await stop();
+      // await stop();
       _logic.playlistPurge();
       _logic.playlistInsert(0, mediaItem);
       await _updateAudioSource(start: true);
@@ -258,32 +271,44 @@ class LoqueAudioHandler extends BaseAudioHandler
     bool start = false,
   }) async {
     final playlist = _logic.playlist;
+    final wasPlaying = _player.playing;
+    // stop player unconditionally
+    await stop();
     // validate initialIndex
     initialIndex =
         initialIndex < 0 || initialIndex >= playlist.length ? 0 : initialIndex;
     if (playlist.isEmpty || playlist[initialIndex].extras?['played'] == true) {
-      // log('playlist is empty or current episode is played');
+      // log('playlist is empty or current episode is begin played');
       // update queue
       queue.add([]);
       // stop player unconditionally
-      await stop();
+      // await stop();
     } else {
-      // set audio source with the playlist
-      await _player.setAudioSource(
-        ConcatenatingAudioSource(
-            children: playlist
-                .map((m) => AudioSource.uri(Uri.parse(m.id), tag: m))
-                .toList()),
-        preload: false,
-        initialIndex: initialIndex,
-        initialPosition: initialPosition ??
-            Duration(seconds: playlist[initialIndex].extras?['seekPos'] ?? 0),
-      );
-      // update queue
-      queue.add(playlist);
-      // start player if required
-      if (start && !_player.playing) {
-        await _player.play();
+      try {
+        // set audio source with the playlist
+        await _player.setAudioSource(
+          ConcatenatingAudioSource(
+              children: playlist
+                  .map((m) => AudioSource.uri(Uri.parse(m.id), tag: m))
+                  .toList()),
+          preload: false,
+          initialIndex: initialIndex,
+          initialPosition: initialPosition ??
+              Duration(seconds: playlist[initialIndex].extras?['seekPos'] ?? 0),
+        );
+        // update queue
+        queue.add(playlist);
+        // start player if required
+        if (start || wasPlaying) {
+          await _player.play();
+        }
+      } on PlayerException catch (e) {
+        log('Error code: %{e.code}');
+        log('Error message: ${e.message}');
+      } on PlayerInterruptedException catch (e) {
+        log('Connection aborted: ${e.message}');
+      } catch (e) {
+        log(e.toString());
       }
     }
   }
