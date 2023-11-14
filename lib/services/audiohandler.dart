@@ -87,7 +87,7 @@ class LoqueAudioHandler extends BaseAudioHandler
         log('Error code: ${e.code}');
         log('Error message: ${e.message}');
       } else {
-        log('Non PlayerException Error: $e');
+        log('PlabackEvent error: $e');
       }
       // do not call this here
       // stop();
