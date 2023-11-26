@@ -45,7 +45,7 @@ class _EpisodePageState extends State<EpisodePage> {
                             // title
                             Text(
                               widget.episode.title,
-                              maxLines: 3,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 16.0,
