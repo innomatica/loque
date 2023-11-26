@@ -16,9 +16,6 @@ class EpisodesView extends StatefulWidget {
 }
 
 class _EpisodesViewState extends State<EpisodesView> {
-//
-// Episode Tile on the Playlist
-//
   Widget _buildEpisodeTile(BuildContext context, Episode episode) {
     // debugPrint('episode: $episode');
     final handler = context.read<LoqueAudioHandler>();
@@ -27,7 +24,9 @@ class _EpisodesViewState extends State<EpisodesView> {
         ? Theme.of(context).disabledColor
         : Theme.of(context).colorScheme.tertiary;
     const chipVisualDensity = VisualDensity(horizontal: -4, vertical: -4);
-
+    //
+    // Episode Tile
+    //
     return Padding(
       padding: const EdgeInsets.only(
           top: 16.0, left: 12.0, right: 12.0, bottom: 4.0),
@@ -48,7 +47,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                 Row(
                   children: [
                     LoqueImage(episode.channelImageUrl,
-                        width: 38, height: 38, disabled: episode.played),
+                        width: 40, height: 40, disabled: episode.played),
                     const SizedBox(width: 8.0),
                     Flexible(
                       child: Column(
@@ -97,20 +96,9 @@ class _EpisodesViewState extends State<EpisodesView> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                //
-                // const SizedBox(height: 4.0),
-                //
-                // description
-                //
-                // Text(
-                //   episode.getDescription(),
-                //   maxLines: 2,
-                //   overflow: TextOverflow.ellipsis,
-                // ),
               ],
             ),
           ),
-
           //
           // Buttons
           //
@@ -176,38 +164,24 @@ class _EpisodesViewState extends State<EpisodesView> {
                             );
                 },
               ),
-              //
-              // media size (and download button)
-              //
-              // ActionChip(
-              //   visualDensity: chipVisualDensity,
-              //   // labelPadding: const EdgeInsets.only(left: 8.0),
-              //   avatar: const Icon(Icons.download),
-              //   side: BorderSide.none,
-              //   label: Text(episode.getBytesString()),
-              //   onPressed: episode.played ? null : () {},
-              // ),
               const Expanded(child: SizedBox()),
               //
               // liked
               //
               IconButton(
                 icon: episode.liked
-                    ? Icon(Icons.thumb_up_alt, color: styleColor0)
-                    : Icon(Icons.thumb_up_alt_outlined, color: styleColor0),
-                onPressed: () async {
-                  await handler.toggleLiked(episode.id);
-                },
+                    ? const Icon(Icons.thumb_up_alt)
+                    : const Icon(Icons.thumb_up_alt_outlined),
+                onPressed: () async => await handler.toggleLiked(episode.id),
               ),
               //
               // playlist add
               //
               buildPlaylistAddButton(handler, episode),
-              const SizedBox(width: 5.0),
               //
-              // Popup Menu
+              // played
               //
-              EpisodeMenu(episode),
+              buildCheckPlayedButton(handler, episode),
             ],
           ),
         ],
@@ -245,9 +219,11 @@ class _EpisodesViewState extends State<EpisodesView> {
               separatorBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Divider(
-                    height: 0,
-                    thickness: 0,
-                    color: Theme.of(context).colorScheme.secondary),
+                  height: 0,
+                  thickness: 0,
+                  color:
+                      Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                ),
               ),
             ),
           )

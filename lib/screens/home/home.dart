@@ -26,6 +26,26 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   //
+  // Scaffold Filter Button
+  //
+  Widget _buildFilterButton() {
+    final logic = context.watch<LoqueLogic>();
+    return _selectedIndex == 0
+        ? IconButton(
+            // visualDensity: VisualDensity.compact,
+            icon: logic.filter == EpisodeFilter.unplayed
+                ? const Icon(Icons.filter_list_rounded)
+                : logic.filter == EpisodeFilter.all
+                    ? const Icon(Icons.menu_rounded)
+                    : const Icon(Icons.thumb_up_alt_outlined),
+            onPressed: () {
+              logic.rotateEpisodeFilter();
+            },
+          )
+        : const SizedBox(width: 0, height: 0);
+  }
+
+  //
   // Scaffold Menu Button
   //
   Widget _buildMenuButton() {
@@ -177,21 +197,15 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Loque"),
         actions: [
+          // timer
           _sleepTimer != null && _sleepTimer!.isActive
               ? _buildSleepTimerButton()
               : Container(),
-          //
           // filter button
-          //
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.filter_alt_outlined),
-            onPressed: () {
-              final logic = context.read<LoqueLogic>();
-              logic.rotateEpisodeFilter();
-            },
-          ),
+          _buildFilterButton(),
+          // menu button
           _buildMenuButton(),
+          const SizedBox(width: 4.0),
         ],
       ),
       body: _buildBody(context),

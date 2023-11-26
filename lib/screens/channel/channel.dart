@@ -4,7 +4,6 @@ import 'package:loqueapp/services/pcidx.dart';
 import 'package:loqueapp/services/rss.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
@@ -285,32 +284,12 @@ class _ChannelPageState extends State<ChannelPage> {
           ],
         ),
         actions: [
-          PopupMenuButton<String>(
-            // child: const Icon(Icons.more_vert),
-            itemBuilder: (context) {
-              return <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'share',
-                  child: Text('Share this episode'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'webpage',
-                  child: Text('Visit web page'),
-                ),
-              ];
-            },
-            onSelected: (item) {
-              if (item == 'share') {
-                Share.share(widget.channel.url);
-              } else if (item == 'webpage') {
-                // NOTE: channel.link is null most of the case
-                if (widget.channel.link is String &&
-                    widget.channel.link!.isNotEmpty) {
-                  launchUrl(Uri.parse(widget.channel.link!));
-                }
-              }
-            },
-          ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            onPressed: () => Share.share(widget.channel.link?.isNotEmpty == true
+                ? widget.channel.link!
+                : widget.channel.url),
+          )
         ],
       ),
       body: _buildBody(context),

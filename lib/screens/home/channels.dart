@@ -13,42 +13,9 @@ class ChannelsView extends StatefulWidget {
 }
 
 class _ChannelsViewState extends State<ChannelsView> {
-  Widget _buildInstruction() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'You have no subscriptions',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          const Text(
-            'Tap + button and add podcasts, or',
-            style: TextStyle(fontSize: 16.0),
-          ),
-          const SizedBox(height: 16.0),
-          Text(
-            'Check "How To" from the menu',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final channels = context.watch<LoqueLogic>().channels;
-
     return Stack(
       children: [
         channels.isNotEmpty
@@ -58,7 +25,11 @@ class _ChannelsViewState extends State<ChannelsView> {
                 // childAspectRatio: 0.80,
                 children: channels.map((e) => ChannelCard(e)).toList(),
               )
-            : _buildInstruction(),
+            : Center(
+                child: Icon(Icons.subscriptions_rounded,
+                    size: 80,
+                    color: Theme.of(context).colorScheme.surfaceVariant),
+              ),
         Positioned(
             right: 20.0,
             bottom: 20.0,

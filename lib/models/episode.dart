@@ -75,7 +75,8 @@ class Episode {
         mediaDuration: episode['duration'],
         mediaSeekPos: 0,
         mediaDownload: false,
-        imageUrl: episode['image'],
+        imageUrl:
+            episode['image']?.isNotEmpty ? episode['image'] : channel.imageUrl,
         channelId: channel.id,
         channelTitle: channel.title,
         channelImageUrl: channel.imageUrl,

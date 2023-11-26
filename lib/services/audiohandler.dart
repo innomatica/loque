@@ -44,15 +44,28 @@ class LoqueAudioHandler extends BaseAudioHandler
     // listen to playerStateStream
     _subPlayerState =
         _player.playerStateStream.listen((PlayerState state) async {
-      // log('playerState: ${state.playing}  ${state.processingState}');
-      if (state.processingState == ProcessingState.loading &&
-          _player.currentIndex == 0) {
-        // log('start of the queue');
-        // broadcast initial mediaItem
-        mediaItem.add(_player.sequence?[0].tag);
+      log('playerState: ${state.playing}  ${state.processingState}');
+      if (state.processingState == ProcessingState.loading && state.playing) {
+        //
+        // (A) broadcast mediaItem when loading
+        //     - (PROS) it is called only once each media
+        //     - (CONS) _player has no duration info at this point
+        //
+        // broadcast mediaItem
+        // final tag = _player.sequence?[_player.currentIndex ?? 0].tag;
+        // mediaItem.add(tag);
       } else if (state.processingState == ProcessingState.ready &&
-          _player.playing) {
-        _updateSeekPos(tagOnly: true);
+          state.playing) {
+        log('ready & playing');
+        //
+        // (B) broadcast mediaItem when ready
+        //     - (PROS) it may be called multiple times when seek is used
+        //     - (CONS) _player has accurate duration info
+        //
+        // broadcast mediaItem
+        final tag = _player.sequence?[_player.currentIndex ?? 0].tag;
+        mediaItem.add(tag?.copyWith(duration: _player.duration));
+        // _updateSeekPos(tagOnly: true);
       } else if (state.processingState == ProcessingState.completed &&
           state.playing == true) {
         // log('end of the queue');
@@ -62,22 +75,20 @@ class LoqueAudioHandler extends BaseAudioHandler
     });
     // listen to currentIndexStream
     _subCurrentIndex = _player.currentIndexStream.listen((int? index) async {
-      // log('currentIndexState: $index');
+      log('currentIndexState: $index, processingState: ${_player.processingState}');
       // detecting change of media
       if (index != null &&
           index > 0 &&
-          _player.processingState != ProcessingState.idle &&
-          _player.processingState != ProcessingState.completed) {
-        // broadcast subsequent mediaItems
-        // log('new media loaded.index:$index, state:${_player.processingState}');
+          _player.processingState == ProcessingState.ready) {
         // broadcast mediaItem
-        mediaItem.add(_player.sequence?[index].tag);
+        final tag = _player.sequence?[index].tag;
+        mediaItem.add(tag?.copyWith(duration: _player.duration));
         // set as played
         await _setPlayed(index - 1);
-        // broadcast queue
-        if (_player.sequence?.isNotEmpty == true) {
-          queue.add(_player.sequence!.map((s) => s.tag as MediaItem).toList());
-        }
+        // FIXME: why? broadcast queue
+        // if (_player.sequence?.isNotEmpty == true) {
+        //   queue.add(_player.sequence!.map((s) => s.tag as MediaItem).toList());
+        // }
       }
     });
     // listen to playbackEventStream
@@ -323,7 +334,6 @@ class LoqueAudioHandler extends BaseAudioHandler
     if (tag != null) {
       // this is for internal use
       tag.extras?['seekPos'] = _player.position.inSeconds;
-      // TODO: utlize tag for seekPos
       if (!tagOnly) {
         // this is for to database
         final episodeId = tag.extras?['episodeId'];
@@ -394,7 +404,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   //
   Future unsubscribe(Channel channel) async {
     await _logic.unsubscribe(channel);
-
     await _updateSeekPos();
     // find unaffected episode from remaining playlist
     List<MediaItem> playlist = _logic.playlist;
@@ -481,6 +490,17 @@ class LoqueAudioHandler extends BaseAudioHandler
       await _player.seek(Duration.zero);
     }
     await _logic.setUnplayed(episodeId);
+  }
+
+  //
+  // Toggle played marker
+  //
+  Future togglePlayed(Episode episode) async {
+    if (episode.played) {
+      await markUnplayed(episode.id);
+    } else {
+      await markPlayed(episode.id);
+    }
   }
 
   //

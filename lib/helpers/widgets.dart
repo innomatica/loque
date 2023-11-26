@@ -4,8 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/channel.dart';
 import '../models/episode.dart';
@@ -50,7 +48,7 @@ class LoqueImage extends StatelessWidget {
             ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4.0),
-        child: imageUrl != null && imageUrl != ''
+        child: imageUrl?.isNotEmpty == true
             ? Image(
                 image: CachedNetworkImageProvider(imageUrl!),
                 width: width,
@@ -184,59 +182,6 @@ class ChannelCard extends StatelessWidget {
 }
 
 //
-// Episode Popup Menu Button
-//
-class EpisodeMenu extends StatelessWidget {
-  final Episode episode;
-  const EpisodeMenu(this.episode, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-
-    return PopupMenuButton<String>(
-      child: Icon(
-        Icons.more_horiz,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      itemBuilder: (context) {
-        return <PopupMenuEntry<String>>[
-          const PopupMenuItem<String>(
-            value: 'played',
-            child: Text('Mark as played'),
-          ),
-          const PopupMenuItem<String>(
-            value: 'unplayed',
-            child: Text('Mark as unplayed'),
-          ),
-          const PopupMenuItem<String>(
-            value: 'share',
-            child: Text('Share this episode'),
-          ),
-          const PopupMenuItem<String>(
-            value: 'webpage',
-            child: Text('Visit web page'),
-          ),
-        ];
-      },
-      onSelected: (item) {
-        if (item == 'played') {
-          handler.markPlayed(episode.id);
-        } else if (item == 'unplayed') {
-          handler.markUnplayed(episode.id);
-        } else if (item == 'share') {
-          Share.share('${episode.link}');
-        } else if (item == 'webpage') {
-          if (episode.link is String) {
-            launchUrl(Uri.parse(episode.link!));
-          }
-        }
-      },
-    );
-  }
-}
-
-//
 // Play Button
 //
 StreamBuilder<bool> buildPlayButton(LoqueAudioHandler handler,
@@ -363,6 +308,17 @@ StreamBuilder<bool> buildPlaylistRemoveButton(
             ),
           );
         });
+
+//
+// Check/Uncheck Played Button
+//
+Widget buildCheckPlayedButton(LoqueAudioHandler handler, Episode episode) =>
+    IconButton(
+      onPressed: () async => await handler.togglePlayed(episode),
+      icon: episode.played
+          ? const Icon(Icons.unpublished_outlined)
+          : const Icon(Icons.check_circle_outline),
+    );
 
 //
 // Mini Player for Scaffold BottomSheet

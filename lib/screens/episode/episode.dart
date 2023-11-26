@@ -16,6 +16,7 @@ class EpisodePage extends StatefulWidget {
 
 class _EpisodePageState extends State<EpisodePage> {
   Widget _buildBody(BuildContext context) {
+    // debugPrint('episode:${widget.episode.toString()}');
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -24,42 +25,60 @@ class _EpisodePageState extends State<EpisodePage> {
             // title block
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LoqueImage(
-                    widget.episode.imageUrl,
-                    width: 90.0,
-                    height: 90.0,
-                  ),
+                // episode image
+                LoqueImage(
+                  widget.episode.imageUrl,
+                  width: 90.0,
+                  height: 90.0,
                 ),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // title
-                      Text(
-                        widget.episode.title,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.0,
-                          color: Theme.of(context).colorScheme.tertiary,
+                const SizedBox(width: 8.0),
+                // title, published, ...
+                Expanded(
+                  child: SizedBox(
+                    height: 90.0,
+                    child: Stack(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // title
+                            Text(
+                              widget.episode.title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.0,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ),
+                            // published
+                            Text(
+                              widget.episode.published.toString().split('.')[0],
+                              style: const TextStyle(fontSize: 14.0),
+                            ),
+                            // media  duration
+                            Text(
+                              widget.episode.getDurationString(),
+                              style: const TextStyle(fontSize: 14.0),
+                            ),
+                          ],
                         ),
-                      ),
-                      // published
-                      Text(
-                        widget.episode.published.toString().split('.')[0],
-                        style: const TextStyle(fontSize: 14.0),
-                      ),
-                      // media  duration
-                      Text(
-                        widget.episode.getDurationString(),
-                        style: const TextStyle(fontSize: 14.0),
-                      ),
-                    ],
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.link_rounded),
+                            onPressed: widget.episode.link?.isEmpty == true
+                                ? null
+                                : () =>
+                                    launchUrl(Uri.parse(widget.episode.link!)),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -108,31 +127,10 @@ class _EpisodePageState extends State<EpisodePage> {
           ],
         ),
         actions: [
-          PopupMenuButton<String>(
-            // child: const Icon(Icons.more_vert),
-            itemBuilder: (context) {
-              return <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'share',
-                  child: Text('Share this episode'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'webpage',
-                  child: Text('Visit web page'),
-                ),
-              ];
-            },
-            onSelected: (item) {
-              if (item == 'share') {
-                Share.share(widget.episode.mediaUrl);
-              } else if (item == 'webpage') {
-                if (widget.episode.link is String &&
-                    widget.episode.link!.isNotEmpty) {
-                  launchUrl(Uri.parse(widget.episode.link!));
-                }
-              }
-            },
-          ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            onPressed: () => Share.share(widget.episode.mediaUrl),
+          )
         ],
       ),
       body: _buildBody(context),

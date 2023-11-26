@@ -34,6 +34,7 @@ class LoqueLogic extends ChangeNotifier {
           ? _episodes.where((e) => e.liked == true).toList()
           : _episodes;
   List<MediaItem> get playlist => _playlist;
+  EpisodeFilter get filter => _filter;
 
   void _initData() async {
     // _loadPlaylist();
@@ -286,7 +287,6 @@ class LoqueLogic extends ChangeNotifier {
     _filter =
         EpisodeFilter.values[(_filter.index + 1) % EpisodeFilter.values.length];
     // debugPrint(_filter.name);
-
     notifyListeners();
   }
 

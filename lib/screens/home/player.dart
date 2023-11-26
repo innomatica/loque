@@ -39,7 +39,7 @@ class _PlayerViewState extends State<PlayerView> {
   @override
   Widget build(BuildContext context) {
     final handler = context.read<LoqueAudioHandler>();
-    final episode = handler.getCurrentEpisode();
+    // final episode = handler.getCurrentEpisode();
 
     return StreamBuilder<int?>(
       // stream: handler.sequenceStateStream,
@@ -94,7 +94,6 @@ class _PlayerViewState extends State<PlayerView> {
                       buildRewindButton(handler, size: 32),
                       buildPlayButton(handler, size: 32),
                       buildForwardButton(handler, size: 32),
-                      episode != null ? EpisodeMenu(episode) : const SizedBox(),
                     ],
                   ),
                 ),
