@@ -40,6 +40,10 @@ class LoqueAudioHandler extends BaseAudioHandler
   late final StreamSubscription _subPlaybackEvent;
 
   LoqueAudioHandler() {
+    //
+    // DO NOT CALL _player functions here such as seek, which may throw
+    // exceptions by creating events inside an event handler
+    //
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     // listen to playerStateStream
     _subPlayerState =

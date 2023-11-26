@@ -2,10 +2,8 @@
 
 A Simple Podcast App based on [PodcastIndex.org](https://podcastindex.org).
 
-## TODO
+## Limitations
 
-- bug: seek pos not saved if
-  - play one epside half way
-  - pause
-  - start a new episode
-  - see the first started where it left when it is time to play
+Media seek position is not observed by background audio: this seems to be a limitation of the exoplayer. The result is that when epside A is played half-way 
+and new episode B is played, then finished, episode A start at the beginning not at the position when it is left.
+
