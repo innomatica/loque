@@ -69,13 +69,20 @@ class _BrowserState extends State<Browser> {
       fontWeight: FontWeight.w600,
       // color: Theme.of(context).colorScheme.primary,
     );
-    return WillPopScope(
-      onWillPop: () async {
+    // return WillPopScope(
+    //   onWillPop: () async {
+    //     if (await _controller.canGoBack()) {
+    //       _controller.goBack();
+    //       return Future.value(false);
+    //     } else {
+    //       return Future.value(true);
+    //     }
+    //   },
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (_) async {
         if (await _controller.canGoBack()) {
           _controller.goBack();
-          return Future.value(false);
-        } else {
-          return Future.value(true);
         }
       },
       child: Scaffold(
