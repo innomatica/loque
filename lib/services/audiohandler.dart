@@ -23,6 +23,7 @@ Future<LoqueAudioHandler> initAudioService() async {
       androidNotificationChannelId: 'com.innomatic.loque.channel.audio',
       androidNotificationChannelName: 'Loque playback',
       androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
       androidNotificationIcon: 'drawable/app_icon',
       fastForwardInterval: fastForwardInterval,
       rewindInterval: rewindInterval,
@@ -434,11 +435,11 @@ class LoqueAudioHandler extends BaseAudioHandler
     final currentIndex = _player.currentIndex ?? 0;
     // log('handler.reorderPlaylist: $oldIndex, $newIndex, $currentIndex');
     // do not allow reorder if current media is to be affected
-    if (oldIndex > currentIndex && newIndex > currentIndex) {
-      await _updateSeekPos();
-      _logic.playlistReorder(oldIndex, newIndex);
-      await _updateAudioSource(initialIndex: currentIndex);
-    }
+    // if (oldIndex > currentIndex && newIndex > currentIndex) {
+    await _updateSeekPos();
+    _logic.playlistReorder(oldIndex, newIndex);
+    await _updateAudioSource(initialIndex: currentIndex);
+    // }
   }
 
   //

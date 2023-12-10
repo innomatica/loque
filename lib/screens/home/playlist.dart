@@ -13,14 +13,25 @@ class PlayListView extends StatefulWidget {
 }
 
 class _PlayListViewState extends State<PlayListView> {
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPlaylist(playlist) {
     final handler = context.read<LoqueAudioHandler>();
-    final logic = context.watch<LoqueLogic>();
-    final playlist = logic.playlist;
-    return playlist.isNotEmpty
-        ? ReorderableListView(
+    return StreamBuilder<bool>(
+      stream: handler.playbackState.stream.map((s) => s.playing).distinct(),
+      builder: (context, snapshot) {
+        return IgnorePointer(
+          // prevent reorder during playing
+          ignoring: snapshot.data == true,
+          child: ReorderableListView(
             padding: const EdgeInsets.symmetric(horizontal: 8),
+            onReorder: (int oldIndex, int newIndex) {
+              debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
+              setState(() {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                handler.reorderQueue(oldIndex, newIndex);
+              });
+            },
             children: <Widget>[
               for (int index = 0; index < playlist.length; index += 1)
                 ListTile(
@@ -58,32 +69,26 @@ class _PlayListViewState extends State<PlayListView> {
                   // Delete Episode from the Playlist
                   //
                   trailing: buildPlaylistRemoveButton(handler, playlist[index]),
-                  onTap: () {
-                    // if (handler.playbackState.value.playing) {
-                    //   handler.pause();
-                    // } else {
-                    //   handler.playMediaItem(playlist[index]);
-                    // }
-                    handler.playMediaItem(playlist[index]);
-                  },
+                  onTap: () => handler.playMediaItem(playlist[index]),
                 ),
             ],
-            //
-            // Reorder Playlist
-            //
-            onReorder: (int oldIndex, int newIndex) {
-              debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
-              setState(() {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                handler.reorderQueue(oldIndex, newIndex);
-              });
-            },
-          )
-        : Center(
-            child: Icon(Icons.playlist_play_rounded,
-                size: 100, color: Theme.of(context).colorScheme.surfaceVariant),
-          );
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBackground() {
+    return Center(
+      child: Icon(Icons.playlist_play_rounded,
+          size: 100, color: Theme.of(context).colorScheme.surfaceVariant),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final logic = context.watch<LoqueLogic>();
+    final playlist = logic.playlist;
+    return playlist.isNotEmpty ? _buildPlaylist(playlist) : _buildBackground();
   }
 }
