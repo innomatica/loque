@@ -130,7 +130,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       controls: [
         MediaControl.rewind,
         if (_player.playing) MediaControl.pause else MediaControl.play,
-        MediaControl.stop,
+        // MediaControl.stop,
         MediaControl.fastForward,
       ],
       // additional actions enabled in the notification
@@ -290,7 +290,8 @@ class LoqueAudioHandler extends BaseAudioHandler
     final playlist = _logic.playlist;
     final wasPlaying = _player.playing;
     // stop player unconditionally
-    await stop();
+    // await stop();
+    await pause();
     // validate initialIndex
     initialIndex =
         initialIndex < 0 || initialIndex >= playlist.length ? 0 : initialIndex;
@@ -462,7 +463,8 @@ class LoqueAudioHandler extends BaseAudioHandler
         if (sequence.length > (index + 1)) {
           await skipToNext();
         } else {
-          await _player.stop();
+          // await _player.stop();
+          await _player.pause();
         }
       } else if (currentIndex < index) {
         // in case of future media, it must be removed from the sequence
