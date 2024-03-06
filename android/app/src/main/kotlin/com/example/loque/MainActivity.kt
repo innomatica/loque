@@ -1,4 +1,4 @@
-package com.example.loque
+package com.innomatic.loqueapp
 
 import io.flutter.embedding.android.FlutterActivity
 
