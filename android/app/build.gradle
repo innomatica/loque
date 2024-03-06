@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.example.loqueapp"
+    namespace "com.innomatic.loqueapp"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
