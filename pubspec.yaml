@@ -46,7 +46,7 @@ dependencies:
   just_audio: ^0.9.35
   audio_service: ^0.18.12
   url_launcher: ^6.1.14
-  share_plus: ^7.2.1
+  share_plus: ^8.0.3
   flutter_widget_from_html_core: ^0.14.4
   async: ^2.11.0
   shared_preferences: ^2.2.2
