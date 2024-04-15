@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
-import '../../services/audiohandler.dart';
 
 class PlayListView extends StatefulWidget {
   const PlayListView({super.key});
@@ -14,9 +13,10 @@ class PlayListView extends StatefulWidget {
 
 class _PlayListViewState extends State<PlayListView> {
   Widget _buildPlaylist(playlist) {
-    final handler = context.read<LoqueAudioHandler>();
+    final logic = context.read<LoqueLogic>();
     return StreamBuilder<bool>(
-      stream: handler.playbackState.stream.map((s) => s.playing).distinct(),
+      stream:
+          logic.handler.playbackState.stream.map((s) => s.playing).distinct(),
       builder: (context, snapshot) {
         return IgnorePointer(
           // prevent reorder during playing
@@ -29,7 +29,8 @@ class _PlayListViewState extends State<PlayListView> {
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
-                handler.reorderQueue(oldIndex, newIndex);
+                // FIXME: this was deleted
+                // logic.handler.reorderQueue(oldIndex, newIndex);
               });
             },
             children: <Widget>[
@@ -37,7 +38,7 @@ class _PlayListViewState extends State<PlayListView> {
                 ListTile(
                   visualDensity: VisualDensity.compact,
                   enabled: playlist[index].extras?['played'] != true,
-                  shape: index == handler.playbackState.value.queueIndex
+                  shape: index == logic.handler.playbackState.value.queueIndex
                       ? RoundedRectangleBorder(
                           side: BorderSide(
                               color: Theme.of(context).colorScheme.primary),
@@ -68,8 +69,10 @@ class _PlayListViewState extends State<PlayListView> {
                   //
                   // Delete Episode from the Playlist
                   //
-                  trailing: buildPlaylistRemoveButton(handler, playlist[index]),
-                  onTap: () => handler.playMediaItem(playlist[index]),
+                  trailing:
+                      buildPlaylistRemoveButton(logic.handler, playlist[index]),
+                  // FIXME
+                  onTap: () => logic.handler.playMediaItem(playlist[index]),
                 ),
             ],
           ),

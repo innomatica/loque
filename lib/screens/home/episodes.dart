@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:loqueapp/helpers/widgets.dart';
 
@@ -5,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import '../../logic/loque.dart';
 import '../../models/episode.dart';
-import '../../services/audiohandler.dart';
 import '../episode/episode.dart';
 
 class EpisodesView extends StatefulWidget {
@@ -18,11 +18,12 @@ class EpisodesView extends StatefulWidget {
 class _EpisodesViewState extends State<EpisodesView> {
   Widget _buildEpisodeTile(BuildContext context, Episode episode) {
     // debugPrint('episode: $episode');
-    final handler = context.read<LoqueAudioHandler>();
+    final logic = context.read<LoqueLogic>();
     final styleColor0 = episode.played ? Theme.of(context).disabledColor : null;
     final styleColor2 = episode.played
         ? Theme.of(context).disabledColor
         : Theme.of(context).colorScheme.tertiary;
+    // : Colors.amber;
     const chipVisualDensity = VisualDensity(horizontal: -4, vertical: -4);
     //
     // Episode Tile
@@ -102,88 +103,99 @@ class _EpisodesViewState extends State<EpisodesView> {
           //
           // Buttons
           //
-          Row(
-            children: [
-              //
-              // media duration and play function
-              //
-              StreamBuilder<bool>(
-                // stream: handler.playingStream,
-                stream: handler.playbackState.map((s) => s.playing).distinct(),
-                builder: (context, snapshot) {
-                  // debugPrint('snapshot: ${snapshot.data}');
-                  return snapshot.hasData &&
-                          snapshot.data == true &&
-                          handler.getCurrentEpisodeId() == episode.id
-                      // now playing
-                      ? ActionChip(
-                          visualDensity: chipVisualDensity,
-                          avatar: Icon(
-                            Icons.pause_rounded,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          label: Text(
-                            'playing ... ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14.0,
+          StreamBuilder<PlaybackState>(
+              stream: logic.handler.playbackState,
+              builder: (context, snapshot) {
+                final state = snapshot.data;
+                final tag = logic.handler.getTagFromQueue(state?.queueIndex);
+                return Row(
+                  children: [
+                    //
+                    // play button chip
+                    //
+                    episode.id == tag?.extras?['episodeId'] &&
+                            state?.playing == true
+                        ? ActionChip(
+                            visualDensity: chipVisualDensity,
+                            avatar: Icon(
+                              Icons.pause_rounded,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
-                          ),
-                          side: BorderSide.none,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          onPressed: () {
-                            handler.pause();
-                          },
-                        )
-                      // not playing
-                      : (episode.mediaSeekPos ?? 0) > 0
-                          // played before
-                          ? ActionChip(
-                              visualDensity: chipVisualDensity,
-                              avatar:
-                                  const Icon(Icons.slow_motion_video_rounded),
-                              label: Text(episode.getDurationString()),
-                              // side: BorderSide.none,
-                              onPressed: episode.played
-                                  ? null
-                                  : () => handler
-                                      .playMediaItem(episode.toMediaItem()),
-                            )
-                          // hasn't been played
-                          : ActionChip(
-                              visualDensity: chipVisualDensity,
-                              avatar: const Icon(Icons.play_circle_rounded),
-                              label: Text(episode.getDurationString()),
-                              // side: BorderSide.none,
-                              onPressed: episode.played
-                                  ? null
-                                  : () => handler
-                                      .playMediaItem(episode.toMediaItem()),
-                            );
-                },
-              ),
-              const Expanded(child: SizedBox()),
-              //
-              // liked
-              //
-              IconButton(
-                icon: episode.liked
-                    ? const Icon(Icons.thumb_up_alt)
-                    : const Icon(Icons.thumb_up_alt_outlined),
-                onPressed: () async => await handler.toggleLiked(episode.id),
-              ),
-              //
-              // playlist add
-              //
-              buildPlaylistAddButton(handler, episode),
-              //
-              // played
-              //
-              buildCheckPlayedButton(handler, episode),
-            ],
-          ),
+                            label: Text(
+                              'playing ... ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.0,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                            side: BorderSide.none,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            onPressed: () async {
+                              await logic.pause();
+                            },
+                          )
+                        // not playing => start playing
+                        : (episode.mediaSeekPos ?? 0) > 0
+                            // played before but paused
+                            ? ActionChip(
+                                visualDensity: chipVisualDensity,
+                                avatar:
+                                    const Icon(Icons.slow_motion_video_rounded),
+                                label: Text(episode.getDurationString()),
+                                // side: BorderSide.none,
+                                onPressed: episode.played
+                                    ? null
+                                    : () async {
+                                        logic.playEpisode(episode);
+                                      },
+                              )
+                            // hasn't been played yet
+                            : ActionChip(
+                                visualDensity: chipVisualDensity,
+                                avatar: const Icon(Icons.play_circle_rounded),
+                                label: Text(episode.getDurationString()),
+                                // side: BorderSide.none,
+                                onPressed: episode.played
+                                    ? null
+                                    : () async {
+                                        logic.playEpisode(episode);
+                                      },
+                              ),
+                    const Expanded(child: SizedBox()),
+                    //
+                    // liked
+                    //
+                    IconButton(
+                      icon: episode.liked
+                          ? const Icon(Icons.thumb_up_alt)
+                          : const Icon(Icons.thumb_up_alt_outlined),
+                      onPressed: () => logic.toggleLiked(episode.id),
+                    ),
+                    //
+                    // playlist add
+                    //
+                    IconButton(
+                      icon: const Icon(Icons.playlist_add_rounded),
+                      onPressed: episode.played || state?.playing == true
+                          ? null
+                          : () async => await logic.handler
+                              .addQueueItem(episode.toMediaItem()),
+                    ),
+                    //
+                    // played
+                    //
+                    // buildCheckPlayedButton(logic, episode),
+                    IconButton(
+                      onPressed: () async => await logic.togglePlayed(episode),
+                      icon: episode.played
+                          ? const Icon(Icons.unpublished_outlined)
+                          : const Icon(Icons.check_circle_outline),
+                    ),
+                  ],
+                );
+              }),
         ],
       ),
     );

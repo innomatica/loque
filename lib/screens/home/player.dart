@@ -1,10 +1,15 @@
 import 'package:async/async.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 import 'package:flutter/material.dart';
+import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/widgets.dart';
-import '../../services/audiohandler.dart';
+import '../../logic/loque.dart';
+
+const speeds = <double>[0.5, 0.8, 1.0, 1.2, 1.5];
 
 class PlayerView extends StatefulWidget {
   const PlayerView({super.key});
@@ -38,15 +43,15 @@ class _PlayerViewState extends State<PlayerView> {
 
   @override
   Widget build(BuildContext context) {
-    final handler = context.read<LoqueAudioHandler>();
-    // final episode = handler.getCurrentEpisode();
+    final logic = context.read<LoqueLogic>();
 
-    return StreamBuilder<int?>(
-      // stream: handler.sequenceStateStream,
-      stream: handler.playbackState.map((s) => s.queueIndex).distinct(),
+    return StreamBuilder<PlaybackState?>(
+      stream: logic.handler.playbackState,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final tag = handler.getCurrentTag();
+          final state = snapshot.data!;
+          final tag = logic.handler.getTagFromQueue(state.queueIndex);
+          debugPrint('playerview.state: $state, tag: $tag');
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -80,20 +85,68 @@ class _PlayerViewState extends State<PlayerView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16.0),
+                //
                 // progress bar
-                buildProgressBar(handler),
-                const SizedBox(height: 16.0),
+                //
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24.0),
+                  child: buildProgressBar(logic.handler),
+                ),
+                //
                 // other player widgets
+                //
                 Container(
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      buildSpeedSelector(handler),
-                      buildRewindButton(handler, size: 32),
-                      buildPlayButton(handler, size: 32),
-                      buildForwardButton(handler, size: 32),
+                      //
+                      // speed selector
+                      //
+                      DropdownButton<double>(
+                        value: state.speed,
+                        iconSize: 0,
+                        isDense: true,
+                        onChanged: (double? value) {
+                          logic.handler.setSpeed(value ?? 1.0);
+                        },
+                        items: speeds
+                            .map<DropdownMenuItem<double>>(
+                              (double value) => DropdownMenuItem<double>(
+                                value: value,
+                                child: Text('$value x'),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      //
+                      // rewind button
+                      //
+                      IconButton(
+                        icon: const Icon(Icons.replay_30_rounded, size: 32),
+                        onPressed: () async => await logic.handler.rewind(),
+                      ),
+                      //
+                      // play / pause button
+                      //
+                      state.playing
+                          ? IconButton(
+                              icon: const Icon(Icons.pause_rounded, size: 32),
+                              onPressed: () => logic.handler.pause(),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.play_arrow_rounded,
+                                  size: 32),
+                              onPressed: () => logic.handler.play(),
+                            ),
+                      //
+                      // fast forward
+                      //
+                      IconButton(
+                        icon: const Icon(Icons.forward_30_rounded, size: 32),
+                        onPressed: () async =>
+                            await logic.handler.fastForward(),
+                      )
                     ],
                   ),
                 ),
@@ -106,4 +159,24 @@ class _PlayerViewState extends State<PlayerView> {
       },
     );
   }
+}
+
+//
+// Progress Bar
+// NOTE: PlaybackState.updatePosition is not updating frequently. So we need
+// separate streambuilder here.
+//
+StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) {
+  return StreamBuilder<Duration>(
+    stream: handler.positionStream.distinct(),
+    builder: (context, snapshot) {
+      final total = handler.duration;
+      final progress = snapshot.data ?? Duration.zero;
+      return ProgressBar(
+        progress: progress,
+        total: total,
+        onSeek: (duration) async => await handler.seek(duration),
+      );
+    },
+  );
 }

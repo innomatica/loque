@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/audiohandler.dart';
 import 'package:loqueapp/services/pcidx.dart';
 import 'package:loqueapp/services/rss.dart';
 import 'package:provider/provider.dart';
@@ -76,9 +75,11 @@ class _ChannelPageState extends State<ChannelPage> {
                   child: Icon(Icons.play_arrow_outlined),
                 ),
                 onTap: () {
-                  final handler = context.read<LoqueAudioHandler>();
-                  handler.playMediaItem(
-                      episode.toMediaItem(extras: {'dryRun': true}));
+                  final logic = context.read<LoqueLogic>();
+                  // FIXME: dryRun has to be handled.
+                  logic.playEpisode(episode);
+                  // logic.handler.playMediaItem(
+                  //     episode.toMediaItem(extras: {'dryRun': true}));
                 },
               ),
             ],
@@ -182,11 +183,11 @@ class _ChannelPageState extends State<ChannelPage> {
                         InputChip(
                           selected: isSubscribed,
                           onSelected: (value) {
-                            final handler = context.read<LoqueAudioHandler>();
+                            final logic = context.read<LoqueLogic>();
                             if (value) {
-                              handler.subscribe(widget.channel);
+                              logic.subscribe(widget.channel);
                             } else {
-                              handler.unsubscribe(widget.channel);
+                              logic.unsubscribe(widget.channel);
                             }
                           },
                           visualDensity: VisualDensity.compact,

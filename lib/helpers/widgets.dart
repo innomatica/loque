@@ -1,12 +1,11 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
+import '../logic/loque.dart';
 import '../models/channel.dart';
-import '../models/episode.dart';
 import '../screens/channel/channel.dart';
 import '../screens/home/player.dart';
 
@@ -182,113 +181,6 @@ class ChannelCard extends StatelessWidget {
 }
 
 //
-// Play Button
-//
-StreamBuilder<bool> buildPlayButton(LoqueAudioHandler handler,
-    {double? size, Color? color}) {
-  return StreamBuilder<bool>(
-    stream: handler.playbackState.map((s) => s.playing).distinct(),
-    builder: (context, snapshot) => snapshot.hasData && snapshot.data == true
-        ? IconButton(
-            icon: Icon(Icons.pause_rounded, size: size, color: color),
-            onPressed: () async => await handler.pause(),
-          )
-        : IconButton(
-            icon: Icon(Icons.play_arrow_rounded, size: size, color: color),
-            onPressed: () async => await handler.play(),
-          ),
-  );
-}
-
-//
-// Forward 30 sec
-//
-IconButton buildForwardButton(LoqueAudioHandler handler, {double? size}) {
-  return IconButton(
-    icon: Icon(Icons.forward_30_rounded, size: size),
-    onPressed: () async => await handler.fastForward(),
-  );
-}
-
-//
-// Rewind 30 sec
-//
-IconButton buildRewindButton(LoqueAudioHandler handler, {double? size}) {
-  return IconButton(
-    icon: Icon(Icons.replay_30_rounded, size: size),
-    onPressed: () async => await handler.rewind(),
-  );
-}
-
-//
-// Playback Speed Button
-//
-const speeds = <double>[0.5, 0.8, 1.0, 1.2, 1.5];
-
-StreamBuilder<double> buildSpeedSelector(LoqueAudioHandler handler) {
-  return StreamBuilder<double>(
-    stream: handler.playbackState.map((s) => s.speed).distinct(),
-    builder: (context, snapshot) {
-      return DropdownButton<double>(
-        value: snapshot.data ?? 1.0,
-        iconSize: 0,
-        isDense: true,
-        onChanged: (double? value) {
-          handler.setSpeed(value ?? 1.0);
-        },
-        items: speeds
-            .map<DropdownMenuItem<double>>(
-              (double value) => DropdownMenuItem<double>(
-                value: value,
-                child: Text('$value x'),
-              ),
-            )
-            .toList(),
-      );
-    },
-  );
-}
-
-//
-// Progress Bar
-//
-StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) {
-  return StreamBuilder<Duration>(
-    // for some reason this does not work
-    // stream: handler.playbackState.map((s) => s.updatePosition).distinct(),
-    // but this does
-    stream: handler.positionStream.distinct(),
-    builder: (context, snapshot) {
-      final total = handler.duration;
-      final progress = snapshot.data ?? Duration.zero;
-      return ProgressBar(
-        progress: progress,
-        total: total,
-        onSeek: (duration) async => await handler.seek(duration),
-      );
-    },
-  );
-}
-
-//
-// Playlist Add Button
-//
-StreamBuilder<bool> buildPlaylistAddButton(
-        LoqueAudioHandler handler, Episode episode) =>
-    StreamBuilder<bool>(
-      stream: handler.playbackState.map((s) => s.playing).distinct(),
-      builder: (context, snapshot) {
-        return IconButton(
-          icon: const Icon(Icons.playlist_add_rounded),
-          onPressed: episode.played ||
-                  (snapshot.hasData && snapshot.data == true)
-              ? null
-              : () async => await handler.addQueueItem(episode.toMediaItem()),
-        );
-      },
-    );
-
-//
 // Playlist Remove Button
 //
 StreamBuilder<bool> buildPlaylistRemoveButton(
@@ -310,83 +202,81 @@ StreamBuilder<bool> buildPlaylistRemoveButton(
         });
 
 //
-// Check/Uncheck Played Button
-//
-Widget buildCheckPlayedButton(LoqueAudioHandler handler, Episode episode) =>
-    IconButton(
-      onPressed: () async => await handler.togglePlayed(episode),
-      icon: episode.played
-          ? const Icon(Icons.unpublished_outlined)
-          : const Icon(Icons.check_circle_outline),
-    );
-
-//
 // Mini Player for Scaffold BottomSheet
 //
-StreamBuilder<AudioProcessingState?> buildMiniPlayer(BuildContext context) {
-  final handler = context.read<LoqueAudioHandler>();
-  return StreamBuilder<AudioProcessingState?>(
-    stream: handler.playbackState.map((s) => s.processingState).distinct(),
+StreamBuilder buildMiniPlayer(BuildContext context) {
+  final logic = context.read<LoqueLogic>();
+  return StreamBuilder<PlaybackState?>(
+    // stream:
+    //     logic.handler.playbackState.map((s) => s.processingState).distinct(),
+    stream: logic.handler.playbackState,
     builder: (context, snapshot) {
-      if (snapshot.hasData &&
-          [
-            AudioProcessingState.loading,
-            AudioProcessingState.buffering,
-            AudioProcessingState.ready
-          ].contains(snapshot.data)) {
-        // debugPrint('miniplayer.processingState: ${snapshot.data}');
-        return Container(
-          padding: const EdgeInsets.only(left: 8.0),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10.0),
-              topRight: Radius.circular(10.0),
-            ),
-            color: Theme.of(context)
-                .colorScheme
-                .secondaryContainer
-                .withOpacity(0.35),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (context) => const PlayerView(),
-                    );
-                  },
-                  child: StreamBuilder<int?>(
-                      stream: handler.playbackState
-                          .map((e) => e.queueIndex)
-                          .distinct(),
-                      builder: (context, snapshot) {
-                        final tag = handler.getCurrentTag();
-                        // debugPrint('tag: $tag');
-                        return Text(
-                          tag?.title ?? "",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
-                          ),
-                        );
-                      }),
-                ),
+      if (snapshot.hasData) {
+        final state = snapshot.data!;
+        final tag = logic.handler.getTagFromQueue(state.queueIndex);
+        debugPrint('miniplayer.state: $state, tag: $tag');
+        if ([
+          AudioProcessingState.loading,
+          AudioProcessingState.buffering,
+          AudioProcessingState.ready
+        ].contains(state.processingState)) {
+          return Container(
+            padding: const EdgeInsets.only(left: 8.0),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
               ),
-              // const PlayButton(),
-              buildPlayButton(handler),
-            ],
-          ),
-        );
-      } else {
-        return const SizedBox(height: 0.0);
-      } // show nothing when no sequence is on stage
+              color: Theme.of(context)
+                  .colorScheme
+                  .secondaryContainer
+                  .withOpacity(0.35),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => const PlayerView(),
+                      );
+                    },
+                    //
+                    // title
+                    //
+                    child: Text(
+                      tag?.title ?? "",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
+                ),
+                //
+                // play button
+                //
+                state.playing
+                    ? IconButton(
+                        icon: const Icon(Icons.pause_rounded),
+                        onPressed: () => logic.handler.pause(),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        onPressed: () => logic.handler.play(),
+                      ),
+              ],
+            ),
+          );
+        }
+      }
+      // show nothing when the player is idle, completed, or error state
+      return const SizedBox(height: 0.0);
     },
   );
 }

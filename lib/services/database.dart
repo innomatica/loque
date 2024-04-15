@@ -43,6 +43,7 @@ const sqlCreateEpisodes = """
     source TEXT NOT NULL,
     info TEXT NOT NULL,
     played INTEGER NOT NULL,
+    lastPlayed INTEGER,
     liked INTEGER NOT NULL,
     link TEXT,
     description TEXT,
@@ -71,17 +72,29 @@ const sqlCreateTables = [
   // sqlCreateSettings,
 ];
 
+const sqlAlterEpisodesV1ToV2 = """
+  ALTER TABLE $tableEpisodes ADD COLUMN
+  lastPlayed INTEGER;
+""";
+
 Database? _db;
+const dbVersion = 2;
 
 Future<Database> _open() async {
   return _db ??
       await openDatabase(
         '$appName.database',
-        version: 1,
+        version: dbVersion,
         onCreate: (db, version) async {
           debugPrint('creating database');
           for (final statement in sqlCreateTables) {
             await db.execute(statement);
+          }
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          debugPrint('upgrade version from $oldVersion to $newVersion');
+          if ((oldVersion == 1) && (newVersion == 2)) {
+            await db.execute(sqlAlterEpisodesV1ToV2);
           }
         },
       );

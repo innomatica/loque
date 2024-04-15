@@ -18,15 +18,15 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SearchLogic()),
-        ChangeNotifierProvider(create: (_) => LoqueLogic()),
-        Provider<LoqueAudioHandler>(
-          create: (context) {
-            // inject dependency without ProxyProvider
-            handler.setLogic(context.read<LoqueLogic>());
-            return handler;
-          },
-          dispose: (context, value) => handler.dispose(),
-        ),
+        ChangeNotifierProvider(create: (_) => LoqueLogic(handler)),
+        // Provider<LoqueAudioHandler>(
+        //   create: (context) {
+        //     // inject dependency without ProxyProvider
+        //     handler.setLogic(context.read<LoqueLogic>());
+        //     return handler;
+        //   },
+        //   dispose: (context, value) => handler.dispose(),
+        // ),
       ],
       child: const MyApp(),
     ),
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(
         builder: (ColorScheme? lightScheme, ColorScheme? darkScheme) {
       return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Loque',
         theme: AppTheme.lightTheme(lightScheme),
         darkTheme: AppTheme.darkTheme(darkScheme),
         home: const HomePage(),

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/widgets.dart';
@@ -61,9 +60,9 @@ class _HomePageState extends State<HomePage> {
             const Duration(minutes: 1),
             (timer) async {
               if (timer.tick == _sleepTimeout) {
-                final handler = context.read<LoqueAudioHandler>();
+                final logic = context.read<LoqueLogic>();
                 // timeout
-                await handler.stop();
+                await logic.stop();
                 _sleepTimer!.cancel();
                 // is this safe?
                 _sleepTimer = null;

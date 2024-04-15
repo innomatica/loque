@@ -21,6 +21,7 @@ class Episode {
   String? description;
   String? guid;
   DateTime? published;
+  DateTime? lastPlayed;
   String? mediaType;
   int? mediaBytes;
   int? mediaDuration;
@@ -44,6 +45,7 @@ class Episode {
       this.description,
       this.guid,
       this.published,
+      this.lastPlayed,
       this.mediaType,
       this.mediaBytes,
       this.mediaDuration,
@@ -142,7 +144,8 @@ class Episode {
       link: map['link'],
       description: map['description'],
       guid: map['guid'],
-      published: DateTime.tryParse(map['published']),
+      published: DateTime.tryParse(map['published'] ?? ""),
+      lastPlayed: DateTime.tryParse(map['lastPlayed'] ?? ""),
       mediaType: map['mediaType'],
       mediaBytes: map['mediaBytes'],
       mediaDuration: map['mediaDuration'],
@@ -154,6 +157,28 @@ class Episode {
       played: map['played'] == 1,
       liked: map['liked'] == 1,
     );
+  }
+
+  factory Episode.fromMediaItem(MediaItem mediaItem) {
+    if (mediaItem.extras != null) {
+      return Episode(
+        id: mediaItem.extras!['episodeId'],
+        title: mediaItem.title,
+        mediaUrl: mediaItem.id,
+        channelId: mediaItem.extras!['channelId'],
+        channelTitle: mediaItem.album ?? '',
+        source: PodcastSource.values
+            .firstWhere((e) => e.name == mediaItem.extras!['source']),
+        info: {},
+        played: mediaItem.extras!['played'],
+        liked: mediaItem.extras!['liked'],
+        mediaDuration: mediaItem.duration?.inSeconds ?? 0,
+        channelImageUrl: mediaItem.artUri?.toString(),
+        mediaSeekPos: mediaItem.extras!['seekPos'],
+        link: mediaItem.extras!['link'],
+      );
+    }
+    throw Exception({"message": "invalid mediaItem"});
   }
 
   String getDescription() {
@@ -208,6 +233,7 @@ class Episode {
       "description": description,
       "guid": guid,
       "published": published?.toString(),
+      "lastPlayed": lastPlayed?.toString(),
       "mediaType": mediaType,
       "mediaBytes": mediaBytes,
       "mediaDuration": mediaDuration,
@@ -243,6 +269,7 @@ class Episode {
               'source': source.name,
               'seekPos': mediaSeekPos,
               'played': played,
+              'liked': liked,
             }
           : {
               'channelId': channelId, // channel.id
@@ -251,6 +278,7 @@ class Episode {
               'source': source.name,
               'seekPos': mediaSeekPos,
               'played': played,
+              'liked': liked,
               ...extras,
             },
     );
@@ -271,6 +299,7 @@ class Episode {
       // "description": description,
       "guid": guid,
       "published": published?.toString(),
+      "lastPlayed": lastPlayed?.toString(),
       "mediaType": mediaType,
       "mediaBytes": mediaBytes,
       "mediaDuration": mediaDuration,
