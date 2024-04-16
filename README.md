@@ -9,4 +9,4 @@ and new episode B is played, then finished, episode A start at the beginning not
 
 ## TODO
 
-- Replace AudioHandler's PlaybackState stream with AudioPlayer's stream in the widgets
+- when index changed handle set played flag and seek position. currently only the last one in the queue is marked correctly

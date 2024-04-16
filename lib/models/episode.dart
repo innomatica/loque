@@ -21,7 +21,6 @@ class Episode {
   String? description;
   String? guid;
   DateTime? published;
-  DateTime? lastPlayed;
   String? mediaType;
   int? mediaBytes;
   int? mediaDuration;
@@ -45,7 +44,6 @@ class Episode {
       this.description,
       this.guid,
       this.published,
-      this.lastPlayed,
       this.mediaType,
       this.mediaBytes,
       this.mediaDuration,
@@ -145,7 +143,6 @@ class Episode {
       description: map['description'],
       guid: map['guid'],
       published: DateTime.tryParse(map['published'] ?? ""),
-      lastPlayed: DateTime.tryParse(map['lastPlayed'] ?? ""),
       mediaType: map['mediaType'],
       mediaBytes: map['mediaBytes'],
       mediaDuration: map['mediaDuration'],
@@ -233,7 +230,6 @@ class Episode {
       "description": description,
       "guid": guid,
       "published": published?.toString(),
-      "lastPlayed": lastPlayed?.toString(),
       "mediaType": mediaType,
       "mediaBytes": mediaBytes,
       "mediaDuration": mediaDuration,
@@ -299,7 +295,6 @@ class Episode {
       // "description": description,
       "guid": guid,
       "published": published?.toString(),
-      "lastPlayed": lastPlayed?.toString(),
       "mediaType": mediaType,
       "mediaBytes": mediaBytes,
       "mediaDuration": mediaDuration,

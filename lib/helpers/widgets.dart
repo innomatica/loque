@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/loque.dart';
@@ -181,40 +180,17 @@ class ChannelCard extends StatelessWidget {
 }
 
 //
-// Playlist Remove Button
-//
-StreamBuilder<bool> buildPlaylistRemoveButton(
-        LoqueAudioHandler handler, MediaItem mediaItem) =>
-    StreamBuilder<bool>(
-        // stream: handler.playbackState.map((s) => s.playing).distinct(),
-        stream: handler.playingStream,
-        builder: (context, snapshot) {
-          return SizedBox(
-            width: 32,
-            child: IconButton(
-              icon: const Icon(Icons.playlist_remove_rounded),
-              onPressed: (snapshot.hasData && snapshot.data != true) ||
-                      mediaItem.extras?['played'] != true
-                  ? () async => await handler.removeQueueItem(mediaItem)
-                  : null,
-            ),
-          );
-        });
-
-//
 // Mini Player for Scaffold BottomSheet
 //
 StreamBuilder buildMiniPlayer(BuildContext context) {
   final logic = context.read<LoqueLogic>();
   return StreamBuilder<PlaybackState?>(
-    // stream:
-    //     logic.handler.playbackState.map((s) => s.processingState).distinct(),
-    stream: logic.handler.playbackState,
+    stream: logic.playbackState,
     builder: (context, snapshot) {
       if (snapshot.hasData) {
         final state = snapshot.data!;
-        final tag = logic.handler.getTagFromQueue(state.queueIndex);
-        debugPrint('miniplayer.state: $state, tag: $tag');
+        final tag = logic.currentTag;
+        // debugPrint('miniplayer.state: $state, tag: $tag');
         if ([
           AudioProcessingState.loading,
           AudioProcessingState.buffering,
@@ -264,11 +240,11 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                 state.playing
                     ? IconButton(
                         icon: const Icon(Icons.pause_rounded),
-                        onPressed: () => logic.handler.pause(),
+                        onPressed: () => logic.pause(),
                       )
                     : IconButton(
                         icon: const Icon(Icons.play_arrow_rounded),
-                        onPressed: () => logic.handler.play(),
+                        onPressed: () => logic.play(),
                       ),
               ],
             ),

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../settings/constants.dart';
@@ -28,7 +27,7 @@ class SharedPrefsService {
   static String getSeachEngineUrl(String query) {
     final searchEngine =
         _prefs.getString(spKeySearchEngine) ?? defaultSearchEngine;
-    debugPrint('searchEngine:$searchEngine');
+    // debugPrint('searchEngine:$searchEngine');
     switch (searchEngine) {
       case 'Google':
         return 'https://google.com/search?q=$query+podcast+rss';

@@ -49,7 +49,7 @@ Future<List<Episode>> getEpisodesFromRssChannel(
 
   List<Episode> episodes = [];
 
-  debugPrint(channel.toString());
+  // debugPrint(channel.toString());
   try {
     final res = await http.get(Uri.parse(channel.url));
     if (res.statusCode < 400) {

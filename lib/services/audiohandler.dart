@@ -1,10 +1,5 @@
-//
-// IMPORTANT NOTICE:
-// 1. Do not call any time consuming routines here
-// 2. Distinguish usage of player.sequence vs logic.playlist
-//
 import 'dart:async';
-import 'dart:developer';
+// import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
@@ -161,40 +156,33 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
+    // log('playMediaItem: $mediaItem');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     final index = audioSource.children
         .indexWhere((c) => (c as UriAudioSource).tag.id == mediaItem.id);
-    if (index == -1) {
-      log('playMediaItem: new mediaItem inserted to top');
-      await audioSource.insert(0, _mediaItemToAudioSource(mediaItem));
-    } else {
-      log('playMediaItem.existing mediaItem moved from $index to top');
-      await audioSource.move(index, 0);
+    if (index >= 0 && index < audioSource.length) {
+      // we remove existing one to reflect potential changes
+      await audioSource.removeAt(index);
     }
+    await audioSource.insert(0, _mediaItemToAudioSource(mediaItem));
     // update queue
     queue.add(queueFromAudioSource);
-    log('queue: ${queue.value}');
+    // log('queue: ${queue.value}');
     await skipToQueueItem(0);
     _player.play();
   }
 
-  // MediaItem? get currentMediaItem => mediaItem.value;
+  MediaItem? get currentMediaItem => mediaItem.value;
   String? get currentEpisodeId => mediaItem.value?.extras?['episodeId'];
 
-  MediaItem? getTagFromQueue(int? index) {
-    final qval = queue.value;
-    return index != null && index >= 0 && index < qval.length
-        ? qval[index]
-        : null;
-  }
-
-  // FIXME: directly expose player properties
+  // expose player properties
+  AudioPlayer get player => _player;
   Duration get duration => _player.duration ?? Duration.zero;
   bool get playing => _player.playing;
   Duration get position => _player.position;
   AudioSource? get audioSource => _player.audioSource;
 
-  // FIXME: expose player streams
+  // expose player streams
   ProcessingState get processingState => _player.processingState;
   Stream<bool> get playingStream => _player.playingStream;
   Stream<int?> get currentIndexStream => _player.currentIndexStream;
@@ -211,7 +199,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   Future<void> skipToQueueItem(int index) async {
     final qval = queue.value;
-    // log('skipToQueueItem: $index, $qval');
     if (index >= 0 && index < qval.length) {
       // start at the last position
       await _player.seek(Duration(seconds: qval[index].extras?['seekPos'] ?? 0),
@@ -221,6 +208,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   UriAudioSource _mediaItemToAudioSource(MediaItem mediaItem) =>
       AudioSource.uri(Uri.parse(mediaItem.id), tag: mediaItem);
+
   List<MediaItem> get queueFromAudioSource =>
       _player.audioSource is ConcatenatingAudioSource
           ? (_player.audioSource as ConcatenatingAudioSource)
@@ -231,8 +219,8 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    // FIXME: add to the audio source
-    // _sequence.add(_mediaItemToAudioSource(mediaItem));
+    (_player.audioSource as ConcatenatingAudioSource)
+        .add(_mediaItemToAudioSource(mediaItem));
     // broadcast change
     final qval = queue.value..add(mediaItem);
     queue.add(qval);
@@ -240,8 +228,8 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    // FIXME: add to the sequence
-    // _sequence.addAll(mediaItems.map(_mediaItemToAudioSource));
+    (_player.audioSource as ConcatenatingAudioSource)
+        .addAll(mediaItems.map((m) => _mediaItemToAudioSource(m)).toList());
     // broadcast change
     final qval = queue.value..addAll(mediaItems);
     queue.add(qval);
@@ -249,8 +237,8 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
-    // FIXME: insert into the sequeunce
-    // _sequence.insert(index, _mediaItemToAudioSource(mediaItem));
+    (_player.audioSource as ConcatenatingAudioSource)
+        .insert(index, _mediaItemToAudioSource(mediaItem));
     // broadcast change
     final qval = queue.value..insert(index, mediaItem);
     queue.add(qval);
@@ -258,24 +246,22 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> removeQueueItem(MediaItem mediaItem) async {
-    // remove from the sequence
-    // FIXME: _sequence.remove(_mediaItemToAudioSource(mediaItem));
-    // broadcast change
-    final qval = queue.value..remove(mediaItem);
-    queue.add(qval);
+    final qval = queue.value;
+    final index = qval.indexWhere((e) => e.id == mediaItem.id);
+    if (index != -1) {
+      await removeQueueItemAt(index);
+    }
   }
 
   @override
   Future<void> removeQueueItemAt(int index) async {
-    // FIXME
-    /*
-    if (index > 0 && index <= _sequence.length) {
-      // remove from the sequence
-      _sequence.removeAt(index);
-      // broadcast change
-      final qval = queue.value..removeAt(index);
-      queue.add(qval);
-    }
-    */
+    (_player.audioSource as ConcatenatingAudioSource).removeAt(index);
+    final qval = queue.value..removeAt(index);
+    queue.add(qval);
+  }
+
+  Future<void> clearQueue() async {
+    (_player.audioSource as ConcatenatingAudioSource).clear();
+    queue.add([]);
   }
 }

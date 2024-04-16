@@ -31,7 +31,7 @@ class _ChannelPageState extends State<ChannelPage> {
             daysSince: SharedPrefsService.dataRetentionPeriod)
         : getEpisodesFromRssChannel(widget.channel,
             daysSince: SharedPrefsService.dataRetentionPeriod);
-    debugPrint(widget.channel.toString());
+    // debugPrint(widget.channel.toString());
   }
 
 //
@@ -77,9 +77,7 @@ class _ChannelPageState extends State<ChannelPage> {
                 onTap: () {
                   final logic = context.read<LoqueLogic>();
                   // FIXME: dryRun has to be handled.
-                  logic.playEpisode(episode);
-                  // logic.handler.playMediaItem(
-                  //     episode.toMediaItem(extras: {'dryRun': true}));
+                  logic.play(episode);
                 },
               ),
             ],

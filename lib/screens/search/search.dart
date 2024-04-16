@@ -96,7 +96,7 @@ class _SearchPageState extends State<SearchPage> {
                     onChanged: (value) {
                       language = value;
                       setState(() {});
-                      debugPrint(language);
+                      // debugPrint(language);
                     },
                   ),
                   // search button

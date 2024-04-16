@@ -1,7 +1,8 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:loqueapp/helpers/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 
 class PlayListView extends StatefulWidget {
@@ -12,16 +13,15 @@ class PlayListView extends StatefulWidget {
 }
 
 class _PlayListViewState extends State<PlayListView> {
-  Widget _buildPlaylist(playlist) {
+  @override
+  Widget build(BuildContext context) {
     final logic = context.read<LoqueLogic>();
-    return StreamBuilder<bool>(
-      stream:
-          logic.handler.playbackState.stream.map((s) => s.playing).distinct(),
+    return StreamBuilder<List<MediaItem>>(
+      stream: logic.queue,
       builder: (context, snapshot) {
-        return IgnorePointer(
-          // prevent reorder during playing
-          ignoring: snapshot.data == true,
-          child: ReorderableListView(
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          final playlist = snapshot.data!;
+          return ReorderableListView(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             onReorder: (int oldIndex, int newIndex) {
               debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
@@ -29,16 +29,16 @@ class _PlayListViewState extends State<PlayListView> {
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
-                // FIXME: this was deleted
-                // logic.handler.reorderQueue(oldIndex, newIndex);
+                // TODO: do something about the audiosource and the queue
               });
             },
             children: <Widget>[
               for (int index = 0; index < playlist.length; index += 1)
                 ListTile(
                   visualDensity: VisualDensity.compact,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
                   enabled: playlist[index].extras?['played'] != true,
-                  shape: index == logic.handler.playbackState.value.queueIndex
+                  shape: index == logic.playbackState.value.queueIndex
                       ? RoundedRectangleBorder(
                           side: BorderSide(
                               color: Theme.of(context).colorScheme.primary),
@@ -46,52 +46,49 @@ class _PlayListViewState extends State<PlayListView> {
                         )
                       : null,
                   key: Key('$index'),
-                  // title: channel name
-                  title: Text(
-                    playlist[index].album ?? '',
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      letterSpacing: 0.0,
-                      overflow: TextOverflow.ellipsis,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  // subtitle: episode name
-                  subtitle: Text(
-                    playlist[index].title,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      letterSpacing: 0.0,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  title: Row(
+                    children: [
+                      LoqueImage(
+                        playlist[index].artUri.toString(),
+                        width: 40.0,
+                        height: 40.0,
+                      ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          playlist[index].title,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            // fontSize: 14.0,
+                            // fontWeight: FontWeight.w300,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   //
                   // Delete Episode from the Playlist
                   //
-                  trailing:
-                      buildPlaylistRemoveButton(logic.handler, playlist[index]),
-                  // FIXME
-                  onTap: () => logic.handler.playMediaItem(playlist[index]),
+                  trailing: SizedBox(
+                    width: 32,
+                    child: IconButton(
+                      icon: const Icon(Icons.playlist_remove_rounded),
+                      onPressed: () async =>
+                          await logic.removePlaylistItem(playlist[index]),
+                    ),
+                  ),
+                  onTap: () => logic.playPlaylistItem(playlist[index]),
                 ),
             ],
-          ),
-        );
+          );
+        } else {
+          return Center(
+            child: Icon(Icons.playlist_play_rounded,
+                size: 100, color: Theme.of(context).colorScheme.surfaceVariant),
+          );
+        }
       },
     );
-  }
-
-  Widget _buildBackground() {
-    return Center(
-      child: Icon(Icons.playlist_play_rounded,
-          size: 100, color: Theme.of(context).colorScheme.surfaceVariant),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final logic = context.watch<LoqueLogic>();
-    final playlist = logic.playlist;
-    return playlist.isNotEmpty ? _buildPlaylist(playlist) : _buildBackground();
   }
 }

@@ -3,7 +3,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/widgets.dart';
@@ -46,12 +45,12 @@ class _PlayerViewState extends State<PlayerView> {
     final logic = context.read<LoqueLogic>();
 
     return StreamBuilder<PlaybackState?>(
-      stream: logic.handler.playbackState,
+      stream: logic.playbackState,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final state = snapshot.data!;
-          final tag = logic.handler.getTagFromQueue(state.queueIndex);
-          debugPrint('playerview.state: $state, tag: $tag');
+          final tag = logic.currentTag;
+          // debugPrint('playerview.state: $state, tag: $tag');
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -90,7 +89,7 @@ class _PlayerViewState extends State<PlayerView> {
                 //
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 24.0),
-                  child: buildProgressBar(logic.handler),
+                  child: buildProgressBar(logic),
                 ),
                 //
                 // other player widgets
@@ -107,9 +106,8 @@ class _PlayerViewState extends State<PlayerView> {
                         value: state.speed,
                         iconSize: 0,
                         isDense: true,
-                        onChanged: (double? value) {
-                          logic.handler.setSpeed(value ?? 1.0);
-                        },
+                        onChanged: (double? value) =>
+                            logic.setSpeed(value ?? 1.0),
                         items: speeds
                             .map<DropdownMenuItem<double>>(
                               (double value) => DropdownMenuItem<double>(
@@ -124,7 +122,7 @@ class _PlayerViewState extends State<PlayerView> {
                       //
                       IconButton(
                         icon: const Icon(Icons.replay_30_rounded, size: 32),
-                        onPressed: () async => await logic.handler.rewind(),
+                        onPressed: () async => await logic.rewind(),
                       ),
                       //
                       // play / pause button
@@ -132,20 +130,19 @@ class _PlayerViewState extends State<PlayerView> {
                       state.playing
                           ? IconButton(
                               icon: const Icon(Icons.pause_rounded, size: 32),
-                              onPressed: () => logic.handler.pause(),
+                              onPressed: () => logic.pause(),
                             )
                           : IconButton(
                               icon: const Icon(Icons.play_arrow_rounded,
                                   size: 32),
-                              onPressed: () => logic.handler.play(),
+                              onPressed: () => logic.play(),
                             ),
                       //
                       // fast forward
                       //
                       IconButton(
                         icon: const Icon(Icons.forward_30_rounded, size: 32),
-                        onPressed: () async =>
-                            await logic.handler.fastForward(),
+                        onPressed: () async => await logic.fastForward(),
                       )
                     ],
                   ),
@@ -166,16 +163,16 @@ class _PlayerViewState extends State<PlayerView> {
 // NOTE: PlaybackState.updatePosition is not updating frequently. So we need
 // separate streambuilder here.
 //
-StreamBuilder<Duration> buildProgressBar(LoqueAudioHandler handler) {
+StreamBuilder<Duration> buildProgressBar(LoqueLogic logic) {
   return StreamBuilder<Duration>(
-    stream: handler.positionStream.distinct(),
+    stream: logic.positionStream.distinct(),
     builder: (context, snapshot) {
-      final total = handler.duration;
+      final total = logic.duration;
       final progress = snapshot.data ?? Duration.zero;
       return ProgressBar(
         progress: progress,
         total: total,
-        onSeek: (duration) async => await handler.seek(duration),
+        onSeek: (duration) async => await logic.seek(duration),
       );
     },
   );

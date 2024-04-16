@@ -104,10 +104,10 @@ class _EpisodesViewState extends State<EpisodesView> {
           // Buttons
           //
           StreamBuilder<PlaybackState>(
-              stream: logic.handler.playbackState,
+              stream: logic.playbackState,
               builder: (context, snapshot) {
                 final state = snapshot.data;
-                final tag = logic.handler.getTagFromQueue(state?.queueIndex);
+                final tag = logic.currentTag;
                 return Row(
                   children: [
                     //
@@ -148,7 +148,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                                 onPressed: episode.played
                                     ? null
                                     : () async {
-                                        logic.playEpisode(episode);
+                                        logic.play(episode);
                                       },
                               )
                             // hasn't been played yet
@@ -160,7 +160,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                                 onPressed: episode.played
                                     ? null
                                     : () async {
-                                        logic.playEpisode(episode);
+                                        logic.play(episode);
                                       },
                               ),
                     const Expanded(child: SizedBox()),
@@ -178,10 +178,14 @@ class _EpisodesViewState extends State<EpisodesView> {
                     //
                     IconButton(
                       icon: const Icon(Icons.playlist_add_rounded),
-                      onPressed: episode.played || state?.playing == true
+                      onPressed: episode.played ||
+                              (episode.id == logic.currentEpisodeId &&
+                                      state != null &&
+                                      state.playing) ==
+                                  true
                           ? null
-                          : () async => await logic.handler
-                              .addQueueItem(episode.toMediaItem()),
+                          : () async =>
+                              await logic.addEpisodeToPlaylist(episode),
                     ),
                     //
                     // played
