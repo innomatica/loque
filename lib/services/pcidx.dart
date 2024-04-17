@@ -25,6 +25,7 @@ Future<String?> _fetchData(Uri url) async {
       "X-Auth-Date": apiHeaderTime,
       "Authorization": authHash,
     });
+    // debugPrint('fetchData: ${res.body}');
 
     if (res.statusCode == 200) {
       return (res.body);
@@ -106,9 +107,9 @@ Future<List<Channel>> getTrendingPodcasts({
     path: '/api/1.0/podcasts/trending',
     queryParameters: params,
   );
-  // debugPrint(url.toString());
 
   final res = await _fetchData(url);
+  // debugPrint('getTrendingPodcasts: ${url.toString()}, $res');
   if (res != null) {
     final decoded = jsonDecode(res);
     // note that it returns "true" / "false" instead of true / false

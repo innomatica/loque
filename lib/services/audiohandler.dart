@@ -1,5 +1,5 @@
 import 'dart:async';
-// import 'dart:developer';
+import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
@@ -146,10 +146,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   Future<void> pause() => _player.pause();
   @override
-  Future<void> stop() async {
-    await _player.stop();
-    return super.stop();
-  }
+  Future<void> stop() => _player.stop();
 
   @override
   Future<void> setSpeed(double speed) => _player.setSpeed(speed);
@@ -181,6 +178,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   bool get playing => _player.playing;
   Duration get position => _player.position;
   AudioSource? get audioSource => _player.audioSource;
+  int? get currentIndex => _player.currentIndex;
 
   // expose player streams
   ProcessingState get processingState => _player.processingState;
@@ -195,7 +193,6 @@ class LoqueAudioHandler extends BaseAudioHandler
   Future<void> seek(Duration position) => _player.seek(position);
 
   // QueueHandler implements skipToNext, skipToPrevious
-  // https://pub.dev/documentation/audio_service/latest/audio_service/QueueHandler-mixin.html
   @override
   Future<void> skipToQueueItem(int index) async {
     final qval = queue.value;
@@ -203,6 +200,21 @@ class LoqueAudioHandler extends BaseAudioHandler
       // start at the last position
       await _player.seek(Duration(seconds: qval[index].extras?['seekPos'] ?? 0),
           index: index);
+    } else if (index == qval.length) {
+      if (_player.playing) {
+        log('handler.skipToQueue.stopping');
+        await stop();
+      }
+      log('handler.skipToQueue.clearinQueue');
+      await clearQueue();
+    }
+  }
+
+  @override
+  Future<void> skipToNext() async {
+    log('handler.skipToNext: $_player.currentIndex');
+    if (_player.currentIndex != null) {
+      skipToQueueItem(_player.currentIndex! + 1);
     }
   }
 
@@ -258,10 +270,15 @@ class LoqueAudioHandler extends BaseAudioHandler
     (_player.audioSource as ConcatenatingAudioSource).removeAt(index);
     final qval = queue.value..removeAt(index);
     queue.add(qval);
+    if (qval.isEmpty) {
+      mediaItem.add(null);
+    }
   }
 
   Future<void> clearQueue() async {
+    log('handler.clearQueue');
     (_player.audioSource as ConcatenatingAudioSource).clear();
     queue.add([]);
+    mediaItem.add(null);
   }
 }

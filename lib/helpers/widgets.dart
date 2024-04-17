@@ -244,7 +244,7 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                       )
                     : IconButton(
                         icon: const Icon(Icons.play_arrow_rounded),
-                        onPressed: () => logic.play(),
+                        onPressed: () => logic.play(null),
                       ),
               ],
             ),

@@ -86,10 +86,10 @@ class LoqueLogic extends ChangeNotifier {
           // 2. sometimes just before actual playing
         }
       } else if (state.processingState == ProcessingState.completed) {
-        // endo of playing: note that it may occur twice in succession, one with
-        // playing=true then followed by playing=false
-        if (state.playing == true) {
-          markPlayed(currentEpisodeId);
+        // end of playing
+        // note that state.playing=false occurs frequently and has to be avoided
+        if (state.playing) {
+          await _handler.pause();
           clearPlaylist();
         }
       }
@@ -99,10 +99,15 @@ class LoqueLogic extends ChangeNotifier {
     _subBufferedPos =
         handler.player.bufferedPositionStream.listen((Duration duration) {
       debugPrint('\n\t=======> bufferedPosition: ${duration.inSeconds} vs '
-          '${(_handler.duration).inSeconds}<=======\n');
+          '${(_handler.duration).inSeconds} <=======\n');
+      // check if buffered position is sufficiently close to the end
       if (_handler.duration.inSeconds > 0 &&
           duration.inSeconds >= (_handler.duration.inSeconds - 10)) {
-        markPlayed(currentEpisodeId, pause: false);
+        // we are setting the flag in prior, so some delay is desirable
+        if (currentEpisodeId != null) {
+          setPlayed(currentEpisodeId!,
+              delay: _handler.duration.inSeconds - _handler.position.inSeconds);
+        }
       }
     });
 
@@ -125,8 +130,8 @@ class LoqueLogic extends ChangeNotifier {
   //
   // get Episode data from the episode list
   //
-  Episode _getEpisodeById(String episodeId) =>
-      _episodes.firstWhere((e) => e.id == episodeId);
+  Episode? _getEpisodeById(String episodeId) =>
+      _episodes.cast<Episode?>().firstWhere((e) => e!.id == episodeId);
 
   //
   // Fetch episodes for the channel
@@ -165,28 +170,33 @@ class LoqueLogic extends ChangeNotifier {
     }
   }
 
-  Future<void> play([Episode? episode]) async {
-    if (episode == null) {
-      // resume paused episode
-      resume();
+  Future<void> play(Episode? episode, {bool dryRun = false}) async {
+    debugPrint('logic.play ${episode?.id} vs $currentEpisodeId: $dryRun');
+    if (dryRun) {
+      // TODO: implement this
     } else {
-      if (currentEpisodeId == episode.id) {
-        // currently playing or paused
-        _handler.playing ? pause() : resume();
+      if (episode == null) {
+        // resume paused episode
+        resume();
       } else {
-        if (_handler.playing && currentEpisode != null) {
-          // save position before move on to play new episode
-          _updateEpisodePosition(currentEpisode!);
+        if (currentEpisodeId == episode.id) {
+          // currently playing or paused
+          _handler.playing ? pause() : resume();
+        } else {
+          if (_handler.playing && currentEpisode != null) {
+            // save position before move on to play new episode
+            _updateEpisodePosition(currentEpisode!);
+          }
+          _handler.playMediaItem(episode.toMediaItem());
         }
-        _handler.playMediaItem(episode.toMediaItem());
       }
     }
   }
 
   Future<void> _updateEpisodePosition(Episode episode) async {
     episode.mediaSeekPos = _handler.position.inSeconds;
-    // update duration
-    episode.mediaDuration = _handler.duration.inSeconds;
+    // update duration: Don't do this!
+    // episode.mediaDuration = _handler.duration.inSeconds;
     await db.saveEpisode(episode);
     notifyListeners();
   }
@@ -323,56 +333,42 @@ class LoqueLogic extends ChangeNotifier {
     // _dbepsods.removeWhere((e) => e.channelId == channel.id);
     // delete corresponding episodes from the database
     await db.deleteEpisodesByChannelId(channel.id);
+
+    // finally remove playlistitems
+    await removePlaylistItemsByChannelId(channel.id);
     notifyListeners();
   }
 
   //
-  // Mark episode played: User interaction
+  // Set episode played flag
   //
-  Future markPlayed(String? episodeId, {bool pause = true}) async {
-    if (episodeId != null) {
-      // the episide is currently playing
-      if (currentEpisodeId == episodeId && _handler.playing && pause) {
-        // assume that user is done
-        await _handler.pause();
-      }
-      // debugPrint('logic.setPlayed: $episodeId');
-      final episode = _getEpisodeById(episodeId);
+  Future setPlayed(String episodeId, {int delay = 0}) async {
+    // debugPrint('setPlayed: $episodeId, $delay');
+    final episode = _getEpisodeById(episodeId);
+    if (episode != null) {
       // set played
       episode.played = true;
       // set seek pos back to zero
       episode.mediaSeekPos = 0;
       await db.saveEpisode(episode);
+      Timer(Duration(seconds: delay), () => notifyListeners());
+    }
+  }
+
+  //
+  // Clear episode played flag
+  //
+  Future clearPlayed(String episodeId) async {
+    final episode = _getEpisodeById(episodeId);
+    if (episode != null) {
+      // set unplayed
+      episode.played = false;
+      // set seek pos to zero
+      episode.mediaSeekPos = 0;
+      await db.saveEpisode(episode);
       notifyListeners();
     }
   }
-
-  //
-  // Clear played marker
-  //
-  Future markUnplayed(String episodeId) async {
-    // if the episode is currently playing
-    if (currentEpisodeId == episodeId) {
-      // assume that user does not want to play current episode
-      await _handler.pause();
-      // rewind to the beginning
-      await _handler.seek(Duration.zero);
-    }
-
-    final episode = _getEpisodeById(episodeId);
-    // set unplayed
-    episode.played = false;
-    // set seek pos to zero
-    episode.mediaSeekPos = 0;
-    await db.saveEpisode(episode);
-    notifyListeners();
-  }
-
-  //
-  // Toggle played marker
-  //
-  Future togglePlayed(Episode episode) =>
-      episode.played ? markUnplayed(episode.id) : markPlayed(episode.id);
 
   //
   // Toggle liked flag
@@ -381,10 +377,12 @@ class LoqueLogic extends ChangeNotifier {
     if (episodeId is String) {
       // debugPrint('logic.markLiked: $episodeId');
       final episode = _getEpisodeById(episodeId);
-      // toggle liked
-      episode.liked = !episode.liked;
-      await db.saveEpisode(episode);
-      notifyListeners();
+      if (episode != null) {
+        // toggle liked
+        episode.liked = !episode.liked;
+        await db.saveEpisode(episode);
+        notifyListeners();
+      }
     }
   }
 
@@ -399,12 +397,17 @@ class LoqueLogic extends ChangeNotifier {
   }
 
   //
-  // Playlist
+  // Playlist(Queue) related
   //
   Future<void> addEpisodeToPlaylist(Episode episode) =>
       _handler.addQueueItem(episode.toMediaItem());
 
-  Future<void> playPlaylistItem(MediaItem? mediaItem) async {
+  Future<void> skipToNext() async {
+    // debugPrint('logic.skipToNext');
+    _handler.skipToNext();
+  }
+
+  Future<void> playMediaItem(MediaItem? mediaItem) async {
     if (mediaItem != null) {
       // find episode for the media
       final episodeId = mediaItem.extras!['episodeId'];
@@ -419,8 +422,34 @@ class LoqueLogic extends ChangeNotifier {
     _handler.removeQueueItem(mediaItem);
   }
 
+  Future<void> removePlaylistItemByEpisodeId(String id) async {
+    // debugPrint('logic.removePlaylistItemByEpisodeId');
+    final qval = queue.value;
+    final index = qval.indexWhere((m) => m.extras!['episodeId'] == id);
+    if (index != -1) {
+      _handler.removeQueueItemAt(index);
+    }
+  }
+
+  //
+  // remove mediaItem from queue by channel id
+  //
+  Future<void> removePlaylistItemsByChannelId(String id) async {
+    int index;
+    do {
+      var qval = queue.value;
+      index = qval.indexWhere((m) => m.extras!['channelId'] == id);
+      if (index != -1) {
+        // NOTE: this should be done one by one since it modifies list size.
+        await removePlaylistItem(qval[index]);
+      }
+    } while (index != -1);
+  }
+
   Future<void> clearPlaylist() async {
-    debugPrint('clearPlaylist');
-    _handler.clearQueue();
+    // debugPrint('logic.clearPlaylist');
+    if (queue.value.isNotEmpty) {
+      _handler.clearQueue();
+    }
   }
 }

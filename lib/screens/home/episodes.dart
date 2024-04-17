@@ -190,9 +190,19 @@ class _EpisodesViewState extends State<EpisodesView> {
                     //
                     // played
                     //
-                    // buildCheckPlayedButton(logic, episode),
                     IconButton(
-                      onPressed: () async => await logic.togglePlayed(episode),
+                      onPressed: episode.played
+                          ? () => logic.clearPlayed(episode.id)
+                          : () {
+                              logic.setPlayed(episode.id);
+                              if (episode.id == logic.currentEpisodeId) {
+                                // currently playing
+                                logic.skipToNext();
+                              } else {
+                                // if it is on the playlist remove it
+                                logic.removePlaylistItemByEpisodeId(episode.id);
+                              }
+                            },
                       icon: episode.played
                           ? const Icon(Icons.unpublished_outlined)
                           : const Icon(Icons.check_circle_outline),

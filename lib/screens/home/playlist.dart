@@ -29,7 +29,7 @@ class _PlayListViewState extends State<PlayListView> {
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
-                // TODO: do something about the audiosource and the queue
+                // TODO: do something about the playlist
               });
             },
             children: <Widget>[
@@ -78,7 +78,7 @@ class _PlayListViewState extends State<PlayListView> {
                           await logic.removePlaylistItem(playlist[index]),
                     ),
                   ),
-                  onTap: () => logic.playPlaylistItem(playlist[index]),
+                  onTap: () => logic.playMediaItem(playlist[index]),
                 ),
             ],
           );

@@ -34,6 +34,7 @@ class SearchLogic extends ChangeNotifier {
       daysSince: SharedPrefsService.dataRetentionPeriod,
       maxResults: SharedPrefsService.maxSearchResults,
     );
+    // debugPrint('trending:$language, $categories, $res');
     _channels.clear();
     _channels.addAll(res);
     notifyListeners();

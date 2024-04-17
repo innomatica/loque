@@ -69,17 +69,16 @@ class _ChannelPageState extends State<ChannelPage> {
               Text(episode.getDurationString(), style: infoTextStyle),
               const Expanded(child: SizedBox()),
               // play (dry run)
-              InkWell(
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                  child: Icon(Icons.play_arrow_outlined),
-                ),
-                onTap: () {
-                  final logic = context.read<LoqueLogic>();
-                  // FIXME: dryRun has to be handled.
-                  logic.play(episode);
-                },
-              ),
+              // InkWell(
+              //   child: const Padding(
+              //     padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+              //     child: Icon(Icons.play_arrow_outlined),
+              //   ),
+              //   onTap: () {
+              //     final logic = context.read<LoqueLogic>();
+              //     logic.play(episode, dryRun: true);
+              //   },
+              // ),
             ],
           ),
           // title

@@ -135,7 +135,7 @@ class _PlayerViewState extends State<PlayerView> {
                           : IconButton(
                               icon: const Icon(Icons.play_arrow_rounded,
                                   size: 32),
-                              onPressed: () => logic.play(),
+                              onPressed: () => logic.play(null),
                             ),
                       //
                       // fast forward

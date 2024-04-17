@@ -256,7 +256,7 @@ class _SearchPageState extends State<SearchPage> {
             suffix: IconButton(
               onPressed: () {
                 if (url.isNotEmpty) {
-                  debugPrint('url: $url');
+                  // debugPrint('url: $url');
                   Navigator.of(context).pop({"url": url});
                 }
               },
