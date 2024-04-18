@@ -156,27 +156,27 @@ class Episode {
     );
   }
 
-  factory Episode.fromMediaItem(MediaItem mediaItem) {
-    if (mediaItem.extras != null) {
-      return Episode(
-        id: mediaItem.extras!['episodeId'],
-        title: mediaItem.title,
-        mediaUrl: mediaItem.id,
-        channelId: mediaItem.extras!['channelId'],
-        channelTitle: mediaItem.album ?? '',
-        source: PodcastSource.values
-            .firstWhere((e) => e.name == mediaItem.extras!['source']),
-        info: {},
-        played: mediaItem.extras!['played'],
-        liked: mediaItem.extras!['liked'],
-        mediaDuration: mediaItem.duration?.inSeconds ?? 0,
-        channelImageUrl: mediaItem.artUri?.toString(),
-        mediaSeekPos: mediaItem.extras!['seekPos'],
-        link: mediaItem.extras!['link'],
-      );
-    }
-    throw Exception({"message": "invalid mediaItem"});
-  }
+  // factory Episode.fromMediaItem(MediaItem mediaItem) {
+  //   if (mediaItem.extras != null) {
+  //     return Episode(
+  //       id: mediaItem.extras!['episodeId'],
+  //       title: mediaItem.title,
+  //       mediaUrl: mediaItem.id,
+  //       channelId: mediaItem.extras!['channelId'],
+  //       channelTitle: mediaItem.album ?? '',
+  //       source: PodcastSource.values
+  //           .firstWhere((e) => e.name == mediaItem.extras!['source']),
+  //       info: {},
+  //       played: mediaItem.extras!['played'],
+  //       liked: mediaItem.extras!['liked'],
+  //       mediaDuration: mediaItem.duration?.inSeconds ?? 0,
+  //       channelImageUrl: mediaItem.artUri?.toString(),
+  //       mediaSeekPos: mediaItem.extras!['seekPos'],
+  //       link: mediaItem.extras!['link'],
+  //     );
+  //   }
+  //   throw Exception({"message": "invalid mediaItem"});
+  // }
 
   String getDescription() {
     return (description ?? "")

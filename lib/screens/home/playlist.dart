@@ -25,12 +25,19 @@ class _PlayListViewState extends State<PlayListView> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             onReorder: (int oldIndex, int newIndex) {
               debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
-              setState(() {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                // TODO: do something about the playlist
-              });
+              // only future items are to be reordered
+              final queueIndex = logic.playbackState.value.queueIndex;
+              if (queueIndex != null &&
+                  queueIndex < oldIndex &&
+                  queueIndex < newIndex) {
+                debugPrint('allowed to reorder');
+                setState(() {
+                  if (oldIndex < newIndex) {
+                    newIndex -= 1;
+                  }
+                  logic.reorderPlaylist(oldIndex, newIndex);
+                });
+              }
             },
             children: <Widget>[
               for (int index = 0; index < playlist.length; index += 1)
@@ -46,6 +53,9 @@ class _PlayListViewState extends State<PlayListView> {
                         )
                       : null,
                   key: Key('$index'),
+                  //
+                  // Title
+                  //
                   title: Row(
                     children: [
                       LoqueImage(

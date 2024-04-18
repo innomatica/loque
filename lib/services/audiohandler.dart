@@ -153,19 +153,22 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
-    // log('playMediaItem: $mediaItem');
+    log('playMediaItem: $mediaItem');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     final index = audioSource.children
         .indexWhere((c) => (c as UriAudioSource).tag.id == mediaItem.id);
+    final targetIdx = currentIndex ?? 0;
     if (index >= 0 && index < audioSource.length) {
       // we remove existing one to reflect potential changes
+      log('removing the item from $index');
       await audioSource.removeAt(index);
     }
-    await audioSource.insert(0, _mediaItemToAudioSource(mediaItem));
+    log('inserting the item into ${currentIndex ?? 0}');
+    await audioSource.insert(targetIdx, _mediaItemToAudioSource(mediaItem));
     // update queue
     queue.add(queueFromAudioSource);
     // log('queue: ${queue.value}');
-    await skipToQueueItem(0);
+    await skipToQueueItem(targetIdx);
     _player.play();
   }
 
@@ -196,16 +199,15 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   Future<void> skipToQueueItem(int index) async {
     final qval = queue.value;
+    log('skipToQueueItem: $index');
     if (index >= 0 && index < qval.length) {
       // start at the last position
       await _player.seek(Duration(seconds: qval[index].extras?['seekPos'] ?? 0),
           index: index);
     } else if (index == qval.length) {
       if (_player.playing) {
-        log('handler.skipToQueue.stopping');
         await stop();
       }
-      log('handler.skipToQueue.clearinQueue');
       await clearQueue();
     }
   }
@@ -276,9 +278,50 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   Future<void> clearQueue() async {
-    log('handler.clearQueue');
+    // log('handler.clearQueue');
     (_player.audioSource as ConcatenatingAudioSource).clear();
     queue.add([]);
     mediaItem.add(null);
+  }
+
+  Future<void> reorderQueue(int oldIndex, int newIndex) async {
+    final qval = queue.value;
+    if (oldIndex >= 0 &&
+        oldIndex < qval.length &&
+        newIndex >= 0 &&
+        newIndex <= qval.length) {
+      // handle audiosource
+      final audioSource = (_player.audioSource as ConcatenatingAudioSource);
+      final targetChild = audioSource.children[oldIndex];
+      await audioSource.removeAt(oldIndex);
+      await audioSource.insert(newIndex, targetChild);
+      // handle queue
+      final item = qval.removeAt(oldIndex);
+      qval.insert(newIndex, item);
+      queue.add(qval);
+    }
+  }
+
+  void setPlayed(String episodeId, {int delay = 0}) {
+    // log('handler.setPlayed: $episodeId, $delay');
+    final qval = queue.value;
+    final index = qval.indexWhere((m) => m.extras!['episodeId'] == episodeId);
+    if (index != -1) {
+      Timer(Duration(seconds: delay), () {
+        qval[index].extras!['played'] = true;
+        // TODO: if this is located in the later part of the queue,
+        // you may want it to be removed from the queue
+        queue.add(qval);
+      });
+    }
+  }
+
+  void clearPlayed(String episodeId) {
+    final qval = queue.value;
+    final index = qval.indexWhere((m) => m.extras!['episodeId'] == episodeId);
+    if (index != -1) {
+      qval[index].extras!['played'] = false;
+      queue.add(qval);
+    }
   }
 }

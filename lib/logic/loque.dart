@@ -69,9 +69,9 @@ class LoqueLogic extends ChangeNotifier {
     // listen to playerStateStream
     _subPlayerState =
         _handler.playerStateStream.listen((PlayerState state) async {
-      debugPrint(
-          '\n\t=======> playerState: ${state.playing}  ${state.processingState} '
-          '$currentEpisodeId <=======\n');
+      // debugPrint(
+      //     '\n\t=======> playerState: ${state.playing}  ${state.processingState} '
+      //     '$currentEpisodeId <=======\n');
       if (state.processingState == ProcessingState.loading) {
         // media is being loaded: state.playing must be false
         // currentIndex becomes valid
@@ -98,8 +98,8 @@ class LoqueLogic extends ChangeNotifier {
     // listen to the buffered position
     _subBufferedPos =
         handler.player.bufferedPositionStream.listen((Duration duration) {
-      debugPrint('\n\t=======> bufferedPosition: ${duration.inSeconds} vs '
-          '${(_handler.duration).inSeconds} <=======\n');
+      // debugPrint('\n\t=======> bufferedPosition: ${duration.inSeconds} vs '
+      //     '${(_handler.duration).inSeconds} <=======\n');
       // check if buffered position is sufficiently close to the end
       if (_handler.duration.inSeconds > 0 &&
           duration.inSeconds >= (_handler.duration.inSeconds - 10)) {
@@ -195,9 +195,12 @@ class LoqueLogic extends ChangeNotifier {
 
   Future<void> _updateEpisodePosition(Episode episode) async {
     episode.mediaSeekPos = _handler.position.inSeconds;
-    // update duration: Don't do this!
-    // episode.mediaDuration = _handler.duration.inSeconds;
     await db.saveEpisode(episode);
+    // update duration only if it is nonzero and we do not save it honoring
+    // the original data
+    if (_handler.duration.inSeconds > 0) {
+      episode.mediaDuration = _handler.duration.inSeconds;
+    }
     notifyListeners();
   }
 
@@ -343,15 +346,19 @@ class LoqueLogic extends ChangeNotifier {
   // Set episode played flag
   //
   Future setPlayed(String episodeId, {int delay = 0}) async {
-    // debugPrint('setPlayed: $episodeId, $delay');
+    // debugPrint('logic.setPlayed: $episodeId, $delay');
     final episode = _getEpisodeById(episodeId);
     if (episode != null) {
-      // set played
-      episode.played = true;
-      // set seek pos back to zero
-      episode.mediaSeekPos = 0;
-      await db.saveEpisode(episode);
-      Timer(Duration(seconds: delay), () => notifyListeners());
+      Timer(Duration(seconds: delay), () async {
+        // set played
+        episode.played = true;
+        // set seek pos back to zero
+        episode.mediaSeekPos = 0;
+        await db.saveEpisode(episode);
+        notifyListeners();
+      });
+      // do the same thing to the mediaItem in the queue
+      _handler.setPlayed(episodeId, delay: delay);
     }
   }
 
@@ -367,6 +374,10 @@ class LoqueLogic extends ChangeNotifier {
       episode.mediaSeekPos = 0;
       await db.saveEpisode(episode);
       notifyListeners();
+      // do the same thing to the mediaItem in the queue
+      // DON'T DO THIS: this will confuse the user. They can re-add the
+      // episode manually.
+      // _handler.clearPlayed(episodeId);
     }
   }
 
@@ -430,6 +441,9 @@ class LoqueLogic extends ChangeNotifier {
       _handler.removeQueueItemAt(index);
     }
   }
+
+  Future<void> reorderPlaylist(int oldIndex, int newIndex) =>
+      _handler.reorderQueue(oldIndex, newIndex);
 
   //
   // remove mediaItem from queue by channel id

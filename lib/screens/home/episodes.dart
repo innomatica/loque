@@ -8,6 +8,8 @@ import '../../logic/loque.dart';
 import '../../models/episode.dart';
 import '../episode/episode.dart';
 
+const chipWidth = 100.0;
+
 class EpisodesView extends StatefulWidget {
   const EpisodesView({super.key});
 
@@ -115,18 +117,23 @@ class _EpisodesViewState extends State<EpisodesView> {
                     //
                     episode.id == tag?.extras?['episodeId'] &&
                             state?.playing == true
+                        // currently playing
                         ? ActionChip(
                             visualDensity: chipVisualDensity,
                             avatar: Icon(
                               Icons.pause_rounded,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
-                            label: Text(
-                              'playing ... ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14.0,
-                                color: Theme.of(context).colorScheme.onPrimary,
+                            label: SizedBox(
+                              width: chipWidth,
+                              child: Text(
+                                'playing ... ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14.0,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
                               ),
                             ),
                             side: BorderSide.none,
@@ -143,7 +150,9 @@ class _EpisodesViewState extends State<EpisodesView> {
                                 visualDensity: chipVisualDensity,
                                 avatar:
                                     const Icon(Icons.slow_motion_video_rounded),
-                                label: Text(episode.getDurationString()),
+                                label: SizedBox(
+                                    width: chipWidth,
+                                    child: Text(episode.getDurationString())),
                                 // side: BorderSide.none,
                                 onPressed: episode.played
                                     ? null
@@ -155,7 +164,9 @@ class _EpisodesViewState extends State<EpisodesView> {
                             : ActionChip(
                                 visualDensity: chipVisualDensity,
                                 avatar: const Icon(Icons.play_circle_rounded),
-                                label: Text(episode.getDurationString()),
+                                label: SizedBox(
+                                    width: chipWidth,
+                                    child: Text(episode.getDurationString())),
                                 // side: BorderSide.none,
                                 onPressed: episode.played
                                     ? null
