@@ -22,21 +22,23 @@ class LoqueLogic extends ChangeNotifier {
   final _episodes = <Episode>[];
 
   late final LoqueAudioHandler _handler;
-  late final StreamSubscription _subPlayerState;
-  late final StreamSubscription _subBufferedPos;
+  StreamSubscription? _subQueue;
 
   LoqueLogic(LoqueAudioHandler handler) {
     _handler = handler;
     _init();
   }
 
+  void _init() async {
+    _handleQueueChange();
+    await _loadChannels();
+    await refreshEpisodes();
+  }
+
   @override
   void dispose() async {
     db.close();
-
-    await _subBufferedPos.cancel();
-    await _subPlayerState.cancel();
-
+    _subQueue?.cancel();
     _handler.dispose();
     super.dispose();
   }
@@ -54,10 +56,11 @@ class LoqueLogic extends ChangeNotifier {
       .firstWhere((e) => e!.id == currentEpisodeId, orElse: () => null);
 
   // from handler
-  LoqueAudioHandler get handler => _handler;
+  // LoqueAudioHandler get handler => _handler;
   String? get currentEpisodeId => _handler.currentEpisodeId;
   MediaItem? get currentTag => _handler.currentMediaItem;
   BehaviorSubject<List<MediaItem>> get queue => _handler.queue;
+  BehaviorSubject<MediaItem?> get mediaItem => _handler.mediaItem;
   BehaviorSubject<PlaybackState> get playbackState => _handler.playbackState;
 
   // from handler._player
@@ -65,54 +68,30 @@ class LoqueLogic extends ChangeNotifier {
   AudioSource? get audioSource => _handler.audioSource;
   Stream<Duration> get positionStream => _handler.positionStream;
 
-  void _init() async {
-    // listen to playerStateStream
-    _subPlayerState =
-        _handler.playerStateStream.listen((PlayerState state) async {
-      // debugPrint(
-      //     '\n\t=======> playerState: ${state.playing}  ${state.processingState} '
-      //     '$currentEpisodeId <=======\n');
-      if (state.processingState == ProcessingState.loading) {
-        // media is being loaded: state.playing must be false
-        // currentIndex becomes valid
-      } else if (state.processingState == ProcessingState.ready) {
-        // media is ready
-        if (state.playing) {
-          // 1. new media being played
-          // 2. resume paused media
-          // 3. after seek (after buffering)
-        } else {
-          // 1. paused
-          // 2. sometimes just before actual playing
-        }
-      } else if (state.processingState == ProcessingState.completed) {
-        // end of playing
-        // note that state.playing=false occurs frequently and has to be avoided
-        if (state.playing) {
-          await _handler.pause();
-          clearPlaylist();
+  void _handleQueueChange() {
+    _subQueue = _handler.queue.listen((List<MediaItem> queue) async {
+      for (final mediaItem in queue) {
+        if (mediaItem.extras!['played'] == true) {
+          // debugPrint('${mediaItem.extras!['episodeId']} reported as played');
+          final episodeId = mediaItem.extras!['episodeId'];
+          final episode = _getEpisodeById(episodeId);
+          if (episode != null && episode.played == false) {
+            // mark played and set seekPos to zero
+            episode.played = true;
+            episode.mediaSeekPos = 0;
+            // update database
+            await db.updateEpisode(
+              values: {'played': 1, 'mediaSeekPos': 0},
+              params: {
+                'where': 'id = ?',
+                'whereArgs': [episodeId]
+              },
+            );
+          }
         }
       }
+      notifyListeners();
     });
-
-    // listen to the buffered position
-    _subBufferedPos =
-        handler.player.bufferedPositionStream.listen((Duration duration) {
-      // debugPrint('\n\t=======> bufferedPosition: ${duration.inSeconds} vs '
-      //     '${(_handler.duration).inSeconds} <=======\n');
-      // check if buffered position is sufficiently close to the end
-      if (_handler.duration.inSeconds > 0 &&
-          duration.inSeconds >= (_handler.duration.inSeconds - 10)) {
-        // we are setting the flag in prior, so some delay is desirable
-        if (currentEpisodeId != null) {
-          setPlayed(currentEpisodeId!,
-              delay: _handler.duration.inSeconds - _handler.position.inSeconds);
-        }
-      }
-    });
-
-    await _loadChannels();
-    await refreshEpisodes();
   }
 
   //
@@ -345,20 +324,25 @@ class LoqueLogic extends ChangeNotifier {
   //
   // Set episode played flag
   //
-  Future setPlayed(String episodeId, {int delay = 0}) async {
+  Future setPlayed(String episodeId) async {
     // debugPrint('logic.setPlayed: $episodeId, $delay');
     final episode = _getEpisodeById(episodeId);
     if (episode != null) {
-      Timer(Duration(seconds: delay), () async {
-        // set played
-        episode.played = true;
-        // set seek pos back to zero
-        episode.mediaSeekPos = 0;
-        await db.saveEpisode(episode);
-        notifyListeners();
-      });
-      // do the same thing to the mediaItem in the queue
-      _handler.setPlayed(episodeId, delay: delay);
+      // set played
+      episode.played = true;
+      // set seek pos back to zero
+      episode.mediaSeekPos = 0;
+      // update database
+      await db.updateEpisode(
+        values: {'played': 1, 'mediaSeekPos': 0},
+        params: {
+          'where': 'id = ?',
+          'whereArgs': [episodeId]
+        },
+      );
+      // remove item from the queue
+      _handler.removeQueueItem(episode.toMediaItem());
+      notifyListeners();
     }
   }
 
@@ -458,12 +442,5 @@ class LoqueLogic extends ChangeNotifier {
         await removePlaylistItem(qval[index]);
       }
     } while (index != -1);
-  }
-
-  Future<void> clearPlaylist() async {
-    // debugPrint('logic.clearPlaylist');
-    if (queue.value.isNotEmpty) {
-      _handler.clearQueue();
-    }
   }
 }

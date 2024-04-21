@@ -184,20 +184,20 @@ Future<List<Episode>> readEpisodes({Map<String, dynamic>? params}) async {
 }
 
 // U
-// Future updateEpisode({
-//   required Map<String, Object?> values,
-//   Map<String, dynamic>? params,
-// }) async {
-//   final db = await _open();
-//   debugPrint('database:updateEpisode: $values, $params');
-//   await db.update(
-//     tableEpisodes,
-//     values,
-//     where: params?['where'],
-//     whereArgs: params?['whereArgs'],
-//     conflictAlgorithm: ConflictAlgorithm.replace,
-//   );
-// }
+Future updateEpisode({
+  required Map<String, Object?> values,
+  Map<String, dynamic>? params,
+}) async {
+  final db = await _open();
+  debugPrint('database:updateEpisode: $values, $params');
+  await db.update(
+    tableEpisodes,
+    values,
+    where: params?['where'],
+    whereArgs: params?['whereArgs'],
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
 
 // D
 Future deleteEpisodeById(String episodeId) async {

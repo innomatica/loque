@@ -245,6 +245,7 @@ class _EpisodesViewState extends State<EpisodesView> {
   @override
   Widget build(BuildContext context) {
     final episodes = context.watch<LoqueLogic>().episodes;
+    // debugPrint('episodes: $episodes');
     return episodes.isNotEmpty
         ? RefreshIndicator(
             onRefresh: () => context.read<LoqueLogic>().refreshEpisodes(),
