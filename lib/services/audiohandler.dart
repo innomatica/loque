@@ -10,11 +10,13 @@ const rewindInterval = Duration(seconds: 30);
 Future<LoqueAudioHandler> initAudioService() async {
   return await AudioService.init<LoqueAudioHandler>(
     builder: () => LoqueAudioHandler(),
-    config: const AudioServiceConfig(
+    config: AudioServiceConfig(
       androidNotificationChannelId: 'com.innomatic.loque.channel.audio',
       androidNotificationChannelName: 'Loque playback',
       androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
+      // this will keep the foreground on during pause
+      // check: https://pub.dev/packages/audio_service
+      androidStopForegroundOnPause: false,
       androidNotificationIcon: 'drawable/app_icon',
       fastForwardInterval: fastForwardInterval,
       rewindInterval: rewindInterval,
