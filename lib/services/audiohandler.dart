@@ -10,13 +10,14 @@ const rewindInterval = Duration(seconds: 30);
 Future<LoqueAudioHandler> initAudioService() async {
   return await AudioService.init<LoqueAudioHandler>(
     builder: () => LoqueAudioHandler(),
-    config: AudioServiceConfig(
+    config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.innomatic.loque.channel.audio',
       androidNotificationChannelName: 'Loque playback',
       androidNotificationOngoing: true,
       // this will keep the foreground on during pause
       // check: https://pub.dev/packages/audio_service
-      androidStopForegroundOnPause: false,
+      // androidStopForegroundOnPause: false,
+      androidStopForegroundOnPause: true,
       androidNotificationIcon: 'drawable/app_icon',
       fastForwardInterval: fastForwardInterval,
       rewindInterval: rewindInterval,
@@ -61,14 +62,13 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handleDurationChange() {
     // subscribe to the duration change
-    _subDuration = _player.durationStream.listen((duration) {
+    _subDuration = _player.durationStream.listen((Duration? duration) {
       final index = _player.currentIndex;
       final qval = queue.value;
       if (index != null && index >= 0 && index < qval.length) {
         final item = qval[index];
-        final updated = item.copyWith(duration: duration);
         // broadcast updated mediaItem
-        mediaItem.add(updated);
+        mediaItem.add(item.copyWith(duration: duration));
         // FIXME: probably unnecessary but not certain
         // broadcast updated queue
         // qval[index] = updated;
@@ -104,13 +104,26 @@ class LoqueAudioHandler extends BaseAudioHandler
   void _handlePlyStateChange() {
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
       // log('handlePlyStateChange: $state');
-      // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
-      if (state.processingState == ProcessingState.completed && state.playing) {
-        // end of playing queue: be sure not to use (state.playing==false)
-        await _player.pause();
-        // clear queue
-        if (queue.value.isNotEmpty) {
-          await clearQueue();
+      if (state.processingState == ProcessingState.ready) {
+        if (state.playing == false) {
+          // about to start playing or paused
+          final item = mediaItem.value;
+          if (item != null) {
+            // keep the current position
+            item.extras!['seekPos'] = _player.position.inSeconds;
+            // report change
+            mediaItem.add(item);
+          }
+        }
+      } else if (state.processingState == ProcessingState.completed) {
+        // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
+        if (state.playing) {
+          // end of playing queue: be sure not to use (state.playing==false)
+          await pause();
+          // clear queue
+          if (queue.value.isNotEmpty) {
+            await clearQueue();
+          }
         }
       }
     });
@@ -151,6 +164,12 @@ class LoqueAudioHandler extends BaseAudioHandler
     );
   }
 
+  // expose player properties: used by logic
+  bool get playing => _player.playing;
+  AudioSource? get audioSource => _player.audioSource;
+  Duration get duration => _player.duration ?? Duration.zero;
+  Stream<Duration> get positionStream => _player.positionStream;
+
   // implement basic features
   @override
   Future<void> play() => _player.play();
@@ -168,13 +187,13 @@ class LoqueAudioHandler extends BaseAudioHandler
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     final index = audioSource.children
         .indexWhere((c) => (c as UriAudioSource).tag.id == mediaItem.id);
-    final targetIdx = currentIndex ?? 0;
+    final targetIdx = _player.currentIndex ?? 0;
     if (index >= 0 && index < audioSource.length) {
       // we remove existing one to reflect potential changes
       log('removing the item from $index');
       await audioSource.removeAt(index);
     }
-    log('inserting the item into ${currentIndex ?? 0}');
+    // log('inserting the item into ${_player.currentIndex ?? 0}');
     await audioSource.insert(targetIdx, _mediaItemToAudioSource(mediaItem));
     // update queue
     queue.add(queueFromAudioSource);
@@ -182,25 +201,6 @@ class LoqueAudioHandler extends BaseAudioHandler
     await skipToQueueItem(targetIdx);
     _player.play();
   }
-
-  MediaItem? get currentMediaItem => mediaItem.value;
-  String? get currentEpisodeId => mediaItem.value?.extras?['episodeId'];
-
-  // expose player properties
-  AudioPlayer get player => _player;
-  Duration get duration => _player.duration ?? Duration.zero;
-  bool get playing => _player.playing;
-  Duration get position => _player.position;
-  AudioSource? get audioSource => _player.audioSource;
-  int? get currentIndex => _player.currentIndex;
-
-  // expose player streams
-  // ProcessingState get processingState => _player.processingState;
-  // Stream<bool> get playingStream => _player.playingStream;
-  // Stream<int?> get currentIndexStream => _player.currentIndexStream;
-  Stream<Duration> get positionStream => _player.positionStream;
-  // Stream<PlayerState> get playerStateStream => _player.playerStateStream;
-  // Stream<PlaybackEvent> get playbackEventStream => _player.playbackEventStream;
 
   // SeekHandler implements fastForward, rewind, seekForward, seekBackward
   @override

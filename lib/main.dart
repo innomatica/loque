@@ -10,8 +10,11 @@ import 'services/apptheme.dart';
 import 'services/sharedprefs.dart';
 
 void main() async {
+  // flutter
   WidgetsFlutterBinding.ensureInitialized();
+  // audio handler
   final LoqueAudioHandler handler = await initAudioService();
+  // shared preference
   await SharedPrefsService.init();
 
   runApp(

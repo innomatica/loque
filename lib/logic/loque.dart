@@ -23,6 +23,7 @@ class LoqueLogic extends ChangeNotifier {
 
   late final LoqueAudioHandler _handler;
   StreamSubscription? _subQueue;
+  StreamSubscription? _subMediaItem;
 
   LoqueLogic(LoqueAudioHandler handler) {
     _handler = handler;
@@ -31,6 +32,7 @@ class LoqueLogic extends ChangeNotifier {
 
   void _init() async {
     _handleQueueChange();
+    _handleMediaItemChange();
     await _loadChannels();
     await refreshEpisodes();
   }
@@ -39,6 +41,7 @@ class LoqueLogic extends ChangeNotifier {
   void dispose() async {
     db.close();
     _subQueue?.cancel();
+    _subMediaItem?.cancel();
     _handler.dispose();
     super.dispose();
   }
@@ -56,27 +59,34 @@ class LoqueLogic extends ChangeNotifier {
       .firstWhere((e) => e!.id == currentEpisodeId, orElse: () => null);
 
   // from handler
-  // LoqueAudioHandler get handler => _handler;
-  String? get currentEpisodeId => _handler.currentEpisodeId;
-  MediaItem? get currentTag => _handler.currentMediaItem;
+  MediaItem? get currentTag => _handler.mediaItem.value;
+  String? get currentEpisodeId =>
+      _handler.mediaItem.value?.extras?['episodeId'];
   BehaviorSubject<List<MediaItem>> get queue => _handler.queue;
   BehaviorSubject<MediaItem?> get mediaItem => _handler.mediaItem;
   BehaviorSubject<PlaybackState> get playbackState => _handler.playbackState;
 
   // from handler._player
   Duration get duration => _handler.duration;
-  AudioSource? get audioSource => _handler.audioSource;
   Stream<Duration> get positionStream => _handler.positionStream;
 
+  //
+  // Queue Change Handler: called when
+  //
+  // - generic changes in the queue (add, remove, reorder)
+  // - sequence state has been changed with played flag
+  //
   void _handleQueueChange() {
-    _subQueue = _handler.queue.listen((List<MediaItem> queue) async {
-      for (final mediaItem in queue) {
+    _subQueue = _handler.queue.listen((List<MediaItem> items) async {
+      for (final mediaItem in items) {
+        // check played flag
         if (mediaItem.extras!['played'] == true) {
           // debugPrint('${mediaItem.extras!['episodeId']} reported as played');
           final episodeId = mediaItem.extras!['episodeId'];
           final episode = _getEpisodeById(episodeId);
+          // update database only if necessary
           if (episode != null && episode.played == false) {
-            // mark played and set seekPos to zero
+            // mark played and set seekPos to zero: required to update UI
             episode.played = true;
             episode.mediaSeekPos = 0;
             // update database
@@ -90,7 +100,41 @@ class LoqueLogic extends ChangeNotifier {
           }
         }
       }
+      // required to notify
       notifyListeners();
+    });
+  }
+
+  //
+  // MediaItemChange handler: called when
+  //
+  // - new episode is loaded
+  // - pause detected (player.playing = false, processingState = ready)
+  //
+  void _handleMediaItemChange() {
+    _subMediaItem = _handler.mediaItem.listen((MediaItem? mediaItem) async {
+      if (mediaItem != null) {
+        final seekPos = mediaItem.extras!['seekPos'];
+        final episodeId = mediaItem.extras!['episodeId'];
+        if (episodeId != null && seekPos != null) {
+          final episode = _getEpisodeById(episodeId);
+          if (episode != null) {
+            // update episode: required to update UI
+            episode.mediaSeekPos = seekPos;
+            // update database
+            // debugPrint('handleMediaItemChange: $episodeId, $seekPos');
+            await db.updateEpisode(
+              values: {'mediaSeekPos': seekPos},
+              params: {
+                'where': 'id = ?',
+                'whereArgs': [episodeId]
+              },
+            );
+            // required to notify
+            notifyListeners();
+          }
+        }
+      }
     });
   }
 
@@ -150,7 +194,7 @@ class LoqueLogic extends ChangeNotifier {
   }
 
   Future<void> play(Episode? episode, {bool dryRun = false}) async {
-    debugPrint('logic.play ${episode?.id} vs $currentEpisodeId: $dryRun');
+    // debugPrint('logic.play ${episode?.id} vs $currentEpisodeId: $dryRun');
     if (dryRun) {
       // TODO: implement this
     } else {
@@ -162,38 +206,18 @@ class LoqueLogic extends ChangeNotifier {
           // currently playing or paused
           _handler.playing ? pause() : resume();
         } else {
-          if (_handler.playing && currentEpisode != null) {
-            // save position before move on to play new episode
-            _updateEpisodePosition(currentEpisode!);
-          }
+          // This task is done by handler now
+          // if (_handler.playing && currentEpisode != null) {
+          //   // save position before move on to play new episode
+          //   _updateEpisodePosition(currentEpisode!);
+          // }
           _handler.playMediaItem(episode.toMediaItem());
         }
       }
     }
   }
 
-  Future<void> _updateEpisodePosition(Episode episode) async {
-    episode.mediaSeekPos = _handler.position.inSeconds;
-    await db.saveEpisode(episode);
-    // update duration only if it is nonzero and we do not save it honoring
-    // the original data
-    if (_handler.duration.inSeconds > 0) {
-      episode.mediaDuration = _handler.duration.inSeconds;
-    }
-    notifyListeners();
-  }
-
-  // Future<void> pause() => _handler.pause();
-  Future<void> pause() async {
-    await _handler.pause();
-    // update episode info
-    // final index = _episodes.indexWhere((e) => e.id == currentEpisodeId);
-    // if (index != -1) {
-    if (currentEpisode != null) {
-      // update position
-      _updateEpisodePosition(currentEpisode!);
-    }
-  }
+  Future<void> pause() => _handler.pause();
 
   //
   // 1. load episode data from the database
@@ -358,10 +382,6 @@ class LoqueLogic extends ChangeNotifier {
       episode.mediaSeekPos = 0;
       await db.saveEpisode(episode);
       notifyListeners();
-      // do the same thing to the mediaItem in the queue
-      // DON'T DO THIS: this will confuse the user. They can re-add the
-      // episode manually.
-      // _handler.clearPlayed(episodeId);
     }
   }
 

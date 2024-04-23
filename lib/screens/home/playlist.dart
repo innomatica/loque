@@ -24,13 +24,13 @@ class _PlayListViewState extends State<PlayListView> {
           return ReorderableListView(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             onReorder: (int oldIndex, int newIndex) {
-              debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
+              // debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
               // only future items are to be reordered
               final queueIndex = logic.playbackState.value.queueIndex;
               if (queueIndex != null &&
                   queueIndex < oldIndex &&
                   queueIndex < newIndex) {
-                debugPrint('allowed to reorder');
+                // debugPrint('allowed to reorder');
                 setState(() {
                   if (oldIndex < newIndex) {
                     newIndex -= 1;
