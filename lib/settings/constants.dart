@@ -1,7 +1,7 @@
 // app info
 const appId = 'com.innomatic.loqueapp';
 const appName = 'Loque';
-const appVersion = '1.2.4+27';
+const appVersion = '1.2.5+28';
 const emailDeveloper = 'nuntium.ubique@gmail.com';
 const urlGooglePlay = 'https://play.google.com/store/apps/details?id=$appId';
 const urlAppStore = null;

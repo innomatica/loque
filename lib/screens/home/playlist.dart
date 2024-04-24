@@ -26,7 +26,6 @@ class _PlayListViewState extends State<PlayListView> {
             onReorder: (int oldIndex, int newIndex) {
               // debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
               // only future items are to be reordered
-              // FIXME: avoid using playbackState directly
               final queueIndex = logic.playbackState.value.queueIndex;
               if (queueIndex != null &&
                   queueIndex < oldIndex &&
@@ -46,7 +45,6 @@ class _PlayListViewState extends State<PlayListView> {
                   visualDensity: VisualDensity.compact,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
                   enabled: playlist[index].extras?['played'] != true,
-                  // FIXME: avoid using playbackState directly
                   shape: index == logic.playbackState.value.queueIndex
                       ? RoundedRectangleBorder(
                           side: BorderSide(
