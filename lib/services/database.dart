@@ -184,7 +184,7 @@ Future<List<Episode>> readEpisodes({Map<String, dynamic>? params}) async {
 }
 
 // U
-Future updateEpisode({
+Future updateEpisodes({
   required Map<String, Object?> values,
   Map<String, dynamic>? params,
 }) async {

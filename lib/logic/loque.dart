@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-// import 'package:just_audio/just_audio.dart';
 import 'package:loqueapp/services/audiohandler.dart';
 import 'package:loqueapp/services/sharedprefs.dart';
 import 'package:loqueapp/settings/constants.dart';
@@ -74,11 +73,12 @@ class LoqueLogic extends ChangeNotifier {
   // Queue Change Handler: called when
   //
   // - generic changes in the queue (add, remove, reorder)
-  // - sequence state has been changed with played flag
+  // - sequence state has been changed => mediaItem set played
   //
   void _handleQueueChange() {
     _subQueue = _handler.queue.listen((List<MediaItem> items) async {
       for (final mediaItem in items) {
+        debugPrint('handleQueueChange.mediaItem: $mediaItem');
         // check played flag
         if (mediaItem.extras!['played'] == true) {
           // debugPrint('${mediaItem.extras!['episodeId']} reported as played');
@@ -90,7 +90,7 @@ class LoqueLogic extends ChangeNotifier {
             episode.played = true;
             episode.mediaSeekPos = 0;
             // update database
-            await db.updateEpisode(
+            await db.updateEpisodes(
               values: {'played': 1, 'mediaSeekPos': 0},
               params: {
                 'where': 'id = ?',
@@ -108,11 +108,12 @@ class LoqueLogic extends ChangeNotifier {
   //
   // MediaItemChange handler: called when
   //
-  // - new episode is loaded
-  // - pause detected (player.playing = false, processingState = ready)
+  // - before playing new episode => mediaItem seekPos updated
+  // - new episode is loaded => mediaItem duration updated
   //
   void _handleMediaItemChange() {
     _subMediaItem = _handler.mediaItem.listen((MediaItem? mediaItem) async {
+      // debugPrint('handleMediaItemChange: $mediaItem');
       if (mediaItem != null) {
         final seekPos = mediaItem.extras!['seekPos'];
         final episodeId = mediaItem.extras!['episodeId'];
@@ -123,7 +124,7 @@ class LoqueLogic extends ChangeNotifier {
             episode.mediaSeekPos = seekPos;
             // update database
             // debugPrint('handleMediaItemChange: $episodeId, $seekPos');
-            await db.updateEpisode(
+            await db.updateEpisodes(
               values: {'mediaSeekPos': seekPos},
               params: {
                 'where': 'id = ?',
@@ -183,12 +184,15 @@ class LoqueLogic extends ChangeNotifier {
   // Handler proxies
   //
   Future<void> stop() => _handler.stop();
+  Future<void> pause() => _handler.pause();
   Future<void> rewind() => _handler.rewind();
   Future<void> fastForward() => _handler.fastForward();
-  Future<void> setSpeed(double speed) => _handler.setSpeed(speed);
   Future<void> seek(Duration position) => _handler.seek(position);
+  Future<void> setSpeed(double speed) => _handler.setSpeed(speed);
+
   Future<void> resume() async {
-    if (_handler.audioSource != null) {
+    // TODO: confirm this change
+    if (_handler.queue.value.isNotEmpty) {
       _handler.play();
     }
   }
@@ -206,18 +210,22 @@ class LoqueLogic extends ChangeNotifier {
           // currently playing or paused
           _handler.playing ? pause() : resume();
         } else {
-          // This task is done by handler now
-          // if (_handler.playing && currentEpisode != null) {
-          //   // save position before move on to play new episode
-          //   _updateEpisodePosition(currentEpisode!);
+          // this must be handled by the handler and come back as mediaItem
+          // if (_handler.playing && currentEpisodeId != null) {
+          //   debugPrint('saving seekPos: ${_handler.position.inSeconds}');
+          //   // save the seekpos before move on to play new episode
+          //   await db.updateEpisodes(values: {
+          //     'mediaSeekPos': _handler.position.inSeconds
+          //   }, params: {
+          //     'where': 'id = ?',
+          //     'whereArgs': [currentEpisodeId]
+          //   });
           // }
           _handler.playMediaItem(episode.toMediaItem());
         }
       }
     }
   }
-
-  Future<void> pause() => _handler.pause();
 
   //
   // 1. load episode data from the database
@@ -349,7 +357,7 @@ class LoqueLogic extends ChangeNotifier {
   // Set episode played flag
   //
   Future setPlayed(String episodeId) async {
-    // debugPrint('logic.setPlayed: $episodeId, $delay');
+    // debugPrint('logic.setPlayed: $episodeId');
     final episode = _getEpisodeById(episodeId);
     if (episode != null) {
       // set played
@@ -357,7 +365,7 @@ class LoqueLogic extends ChangeNotifier {
       // set seek pos back to zero
       episode.mediaSeekPos = 0;
       // update database
-      await db.updateEpisode(
+      await db.updateEpisodes(
         values: {'played': 1, 'mediaSeekPos': 0},
         params: {
           'where': 'id = ?',
@@ -365,7 +373,7 @@ class LoqueLogic extends ChangeNotifier {
         },
       );
       // remove item from the queue
-      _handler.removeQueueItem(episode.toMediaItem());
+      await _handler.removeQueueItem(episode.toMediaItem());
       notifyListeners();
     }
   }
