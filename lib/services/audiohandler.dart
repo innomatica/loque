@@ -67,16 +67,20 @@ class LoqueAudioHandler extends BaseAudioHandler
     // subscribe to the duration change
     _subDuration = _player.durationStream.listen((Duration? duration) {
       final index = _player.currentIndex;
+      final sequence = _player.sequence;
+      if (index != null && sequence != null && index < sequence.length) {
+        final item = sequence[index].tag as MediaItem;
+        // broadcast mediaItem with updated duration
+        mediaItem.add(item.copyWith(duration: duration));
+      }
+      /* AVOID USING queue and mediaItem
       final qval = queue.value;
       if (index != null && index >= 0 && index < qval.length) {
         final item = qval[index];
         // broadcast mediaItem with updated duration
         mediaItem.add(item.copyWith(duration: duration));
-        // probably unnecessary but not certain
-        // broadcast updated queue
-        // qval[index] = updated;
-        // queue.add(qval);
       }
+      */
     });
   }
 
@@ -86,13 +90,14 @@ class LoqueAudioHandler extends BaseAudioHandler
       if (state.processingState == ProcessingState.ready) {
         if (state.playing == false) {
           // about to start playing or paused
-          final item = mediaItem.value;
-          if (item != null) {
-            // keep the current position
-            item.extras!['seekPos'] = _player.position.inSeconds;
-            // report change
-            mediaItem.add(item);
-          }
+          // final item = mediaItem.value;
+          // if (item != null) {
+          //   // keep the current position
+          //   item.extras!['seekPos'] = _player.position.inSeconds;
+          //   // report change
+          //   mediaItem.add(item);
+          // }
+          _updateSeekPos();
         }
       } else if (state.processingState == ProcessingState.completed) {
         // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
@@ -190,14 +195,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     // first we need to save current position if currently playing
     if (_player.playing) {
-      // update audio source
-      _updateSeekPos(_player.currentIndex, _player.position.inSeconds);
-      // report it to the logic
-      final oldItem = mediaItem.value;
-      if (oldItem != null) {
-        oldItem.extras!['seekPos'] = _player.position.inSeconds;
-        mediaItem.add(oldItem);
-      }
+      _updateSeekPos();
     }
     // then reorder audioSource if requred
     final index = audioSource.children
@@ -329,7 +327,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       queue.add(qval);
     }
     // then clear the queue
-    // this does not set the currentIndex to null or zer
+    // this does not set the currentIndex to null or zero
     // await (_player.audioSource as ConcatenatingAudioSource).clear();
     // this does set the currentIndex to zero
     await _player.setAudioSource(ConcatenatingAudioSource(children: []));
@@ -348,29 +346,37 @@ class LoqueAudioHandler extends BaseAudioHandler
       final targetChild = audioSource.children[oldIndex];
       await audioSource.removeAt(oldIndex);
       await audioSource.insert(newIndex, targetChild);
-      // handle queue
+      // broadcast queue
       final item = qval.removeAt(oldIndex);
       qval.insert(newIndex, item);
       queue.add(qval);
     }
   }
 
-  void _updateSeekPos(int? index, int? seekPos) {
-    if (index != null && seekPos != null && _player.audioSource != null) {
+  void _updateSeekPos() {
+    final index = _player.currentIndex;
+    final seekPos = _player.position.inSeconds;
+    if (index != null && _player.audioSource != null) {
       final sources =
           (_player.audioSource as ConcatenatingAudioSource).children;
-      if (index >= 0 && index < sources.length) {
-        (sources[index] as IndexedAudioSource).tag.extras['seekPos'] = seekPos;
+      if (index < sources.length) {
+        final mItem = (sources[index] as IndexedAudioSource).tag;
+        mItem.extras['seekPos'] = seekPos;
+        // broadcast the change
+        mediaItem.add(mItem);
       }
     }
   }
 
   void _updatePlayed(int? index, bool flag) {
     if (index != null && _player.audioSource != null) {
+      logDebug('updatePlayed: $index, $flag');
       final sources =
           (_player.audioSource as ConcatenatingAudioSource).children;
       if (index >= 0 && index < sources.length) {
         (sources[index] as IndexedAudioSource).tag.extras['played'] = flag;
+        // we do not broadcast it here
+        // instead it will be broadcasted at the next queue update
       }
     }
   }
