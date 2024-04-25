@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/pcidx.dart';
-import 'package:loqueapp/services/rss.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -8,6 +6,8 @@ import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 import '../../models/channel.dart';
 import '../../models/episode.dart';
+import '../../services/pcidx.dart';
+import '../../services/rss.dart';
 import '../../services/sharedprefs.dart';
 import '../episode/episode.dart';
 
@@ -31,7 +31,7 @@ class _ChannelPageState extends State<ChannelPage> {
             daysSince: SharedPrefsService.dataRetentionPeriod)
         : getEpisodesFromRssChannel(widget.channel,
             daysSince: SharedPrefsService.dataRetentionPeriod);
-    // debugPrint(widget.channel.toString());
+    // logger(widget.channel.toString());
   }
 
 //
@@ -42,7 +42,7 @@ class _ChannelPageState extends State<ChannelPage> {
     Episode episode,
     bool isSubscribed,
   ) {
-    // debugPrint('episode: $episode');
+    // logDebug('episode: $episode');
     const infoTextStyle = TextStyle(
       fontSize: 13.0,
       fontWeight: FontWeight.w600,

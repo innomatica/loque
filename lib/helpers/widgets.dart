@@ -190,7 +190,7 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
       if (snapshot.hasData) {
         final state = snapshot.data!;
         final tag = logic.currentTag;
-        // debugPrint('miniplayer.state: $state, tag: $tag');
+        // logDebug('miniplayer.state: $state, tag: $tag');
         if ([
           AudioProcessingState.loading,
           AudioProcessingState.buffering,
@@ -222,14 +222,17 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     //
                     // title
                     //
-                    child: Text(
-                      tag?.title ?? "",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                    child: Center(
+                      child: Text(
+                        tag?.title ?? "... media loading ...",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
+                        ),
                       ),
                     ),
                   ),

@@ -1,11 +1,11 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/audiohandler.dart';
 import 'package:provider/provider.dart';
 
 import 'logic/loque.dart';
 import 'logic/search.dart';
 import 'screens/home/home.dart';
+import 'services/audiohandler.dart';
 import 'services/apptheme.dart';
 import 'services/sharedprefs.dart';
 
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // debugPrint('MyApp.build');
+    // logDebug('MyApp.build');
     return DynamicColorBuilder(
         builder: (ColorScheme? lightScheme, ColorScheme? darkScheme) {
       return MaterialApp(

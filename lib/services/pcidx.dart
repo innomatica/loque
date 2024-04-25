@@ -1,10 +1,9 @@
 import 'dart:convert';
-// import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../helpers/logger.dart';
 import '../models/channel.dart';
 import '../models/episode.dart';
 import '../settings/constants.dart';
@@ -25,13 +24,13 @@ Future<String?> _fetchData(Uri url) async {
       "X-Auth-Date": apiHeaderTime,
       "Authorization": authHash,
     });
-    // debugPrint('fetchData: ${res.body}');
+    // logDebug('fetchData: ${res.body}');
 
     if (res.statusCode == 200) {
       return (res.body);
     }
   } catch (e) {
-    debugPrint(e.toString());
+    logError(e.toString());
   }
   return null;
 }
@@ -65,7 +64,7 @@ Future<List<Channel>> searchPodcasts(
       'similar': similar ? 'true' : 'false',
     },
   );
-  // debugPrint(url.toString());
+  // logDebug(url.toString());
 
   final res = await _fetchData(url);
   if (res != null) {
@@ -99,7 +98,7 @@ Future<List<Channel>> getTrendingPodcasts({
   if (language != null && language != "") {
     params['lang'] = language;
   }
-  // debugPrint('params: $params');
+  // logDebug('params: $params');
 
   final url = Uri(
     scheme: "https",
@@ -109,7 +108,7 @@ Future<List<Channel>> getTrendingPodcasts({
   );
 
   final res = await _fetchData(url);
-  // debugPrint('getTrendingPodcasts: ${url.toString()}, $res');
+  // logDebug('getTrendingPodcasts: ${url.toString()}, $res');
   if (res != null) {
     final decoded = jsonDecode(res);
     // note that it returns "true" / "false" instead of true / false
@@ -130,7 +129,7 @@ Future<List<Channel>> getPodcastByFeedId(int feedId) async {
     query: 'id=$feedId',
   );
 
-  // debugPrint(url.toString());
+  // logDebug(url.toString());
 
   final res = await _fetchData(url);
   if (res != null) {
@@ -152,10 +151,10 @@ Future<Channel?> getPodcastByFeedUrl(String feedUrl) async {
     path: '/api/1.0/podcasts/byfeedurl',
     query: 'url=$feedUrl',
   );
-  // debugPrint(url.toString());
+  // logDebug(url.toString());
 
   final res = await _fetchData(url);
-  // debugPrint(res.toString());
+  // logDebug(res.toString());
   if (res != null) {
     final decoded = jsonDecode(res);
     // note that it returns "true" / "false" instead of true / false
@@ -195,13 +194,13 @@ Future<List<Episode>> getEpisodesFromPcIdx(
     //   // 'fulltext': fulltext,
     // },
   );
-  // debugPrint(url.toString());
+  // logDebug(url.toString());
 
   final res = await _fetchData(url);
   if (res != null) {
     final decoded = jsonDecode(res);
 
-    // log('decoded: $decoded');
+    // logDebug('decoded: $decoded');
     // note that it returns "true" / "false" instead of true / false
     if (decoded?['status'] == "true" && decoded?['items'] is List) {
       return decoded!['items']

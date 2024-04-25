@@ -16,7 +16,7 @@ class EpisodePage extends StatefulWidget {
 
 class _EpisodePageState extends State<EpisodePage> {
   Widget _buildBody(BuildContext context) {
-    // debugPrint('episode:${widget.episode.toString()}');
+    // logDebug('episode:${widget.episode.toString()}');
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -97,7 +97,7 @@ class _EpisodePageState extends State<EpisodePage> {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint(widget.episode.toString());
+    // logDebug(widget.episode.toString());
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 40,

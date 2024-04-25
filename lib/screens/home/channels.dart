@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:loqueapp/helpers/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 import '../search/search.dart';
 

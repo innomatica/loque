@@ -1,8 +1,9 @@
 import 'dart:async';
-// import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+
+import '../helpers/logger.dart';
 
 const fastForwardInterval = Duration(seconds: 30);
 const rewindInterval = Duration(seconds: 30);
@@ -81,9 +82,8 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handlePlyStateChange() {
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
-      // log('handlePlyStateChange: $state');
+      logDebug('handlePlyStateChange: $state');
       if (state.processingState == ProcessingState.ready) {
-        /*
         if (state.playing == false) {
           // about to start playing or paused
           final item = mediaItem.value;
@@ -94,7 +94,6 @@ class LoqueAudioHandler extends BaseAudioHandler
             mediaItem.add(item);
           }
         }
-        */
       } else if (state.processingState == ProcessingState.completed) {
         // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
         if (state.playing) {
@@ -111,7 +110,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handleCurIndexChange() {
     _subCurIndex = _player.currentIndexStream.listen((int? index) {
-      // log('handleCurIndex.index: $index');
+      logDebug('handleCurIndex.index: $index');
       final sequence = _player.sequence;
       if (sequence != null) {
         // update the queue with the sequence
@@ -122,6 +121,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handleBufferedChange() {
     _subBuffered = _player.bufferedPositionStream.listen((Duration position) {
+      logDebug('handleBuffered.pos: ${position.inSeconds}');
       // buffered position sufficiently reaches to the end (duration)
       if (_player.duration != null &&
           (_player.duration!.inSeconds - 10) < position.inSeconds) {
@@ -186,7 +186,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   // ignore: avoid_renaming_method_parameters
   Future<void> playMediaItem(MediaItem newItem) async {
-    // log('playMediaItem: $newItem');
+    // logDebug('playMediaItem: $newItem');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     // first we need to save current position if currently playing
     if (_player.playing) {
@@ -207,11 +207,11 @@ class LoqueAudioHandler extends BaseAudioHandler
     // if the mediaItem is in the queue remove it from the queue
     if (index >= 0 && index < audioSource.length) {
       // we remove the media from its original position
-      // log('remove the item from $index');
+      // logDebug('remove the item from $index');
       await audioSource.removeAt(index);
     }
     // insert the mediaItem into the current position
-    // log('insert the item into ${_player.currentIndex ?? 0}');
+    // logDebug('insert the item into ${_player.currentIndex ?? 0}');
     await audioSource.insert(targetIdx < audioSource.length ? targetIdx : 0,
         _mediaItemToAudioSource(newItem));
     // update queue
@@ -229,8 +229,8 @@ class LoqueAudioHandler extends BaseAudioHandler
   // QueueHandler implements skipToNext, skipToPrevious
   @override
   Future<void> skipToQueueItem(int index) async {
+    // logDebug('skipToQueueItem: $index');
     final qval = queue.value;
-    // log('skipToQueueItem: $index');
     if (index >= 0 && index < qval.length) {
       // start at the last position
       await _player.seek(Duration(seconds: qval[index].extras?['seekPos'] ?? 0),
@@ -246,6 +246,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     }
   }
 
+  // FIXME: this can be deleted?
   @override
   Future<void> skipToNext() async {
     if (_player.currentIndex != null) {
@@ -293,7 +294,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> removeQueueItem(MediaItem mediaItem) async {
-    // log('removeQueueItem:$mediaItem');
+    // logDebug('removeQueueItem:$mediaItem');
     final qval = queue.value;
     final index = qval.indexWhere((e) => e.id == mediaItem.id);
     if (index != -1) {
@@ -303,7 +304,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> removeQueueItemAt(int index) async {
-    // log('removeQueuItemAt: $index');
+    // logDebug('removeQueuItemAt: $index');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     if (index >= 0 && index < audioSource.length) {
       audioSource.removeAt(index);
@@ -318,7 +319,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   Future<void> clearQueue() async {
-    // log('handler.clearQueue');
+    // logDebug('handler.clearQueue');
     final qval = queue.value;
     if (qval.isNotEmpty) {
       // report played for all remaining items in the queue
@@ -334,7 +335,6 @@ class LoqueAudioHandler extends BaseAudioHandler
     await _player.setAudioSource(ConcatenatingAudioSource(children: []));
     queue.add([]);
     mediaItem.add(null);
-    // log('clearQueue.currentIndex: ${_player.currentIndex}');
   }
 
   Future<void> reorderQueue(int oldIndex, int newIndex) async {

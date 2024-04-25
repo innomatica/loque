@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:loqueapp/services/pcidx.dart';
-import 'package:loqueapp/services/rss.dart';
 
 import '../models/channel.dart';
+import '../services/pcidx.dart';
+import '../services/rss.dart';
 import '../services/sharedprefs.dart';
 
 class SearchLogic extends ChangeNotifier {
@@ -34,7 +34,7 @@ class SearchLogic extends ChangeNotifier {
       daysSince: SharedPrefsService.dataRetentionPeriod,
       maxResults: SharedPrefsService.maxSearchResults,
     );
-    // debugPrint('trending:$language, $categories, $res');
+    // logDebug('trending:$language, $categories, $res');
     _channels.clear();
     _channels.addAll(res);
     notifyListeners();
@@ -59,7 +59,7 @@ class SearchLogic extends ChangeNotifier {
   //
   Future getPodcastByUrl(String url) async {
     final res = await getPodcastByFeedUrl(url);
-    // debugPrint('getPodcastByUrl: $res');
+    // logDebug('getPodcastByUrl: $res');
     if (res is Channel) {
       // _channels.clear();
       final idx = _channels.indexWhere((c) => c.id == res.id);

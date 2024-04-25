@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../helpers/logger.dart';
 import '../models/channel.dart';
 import '../models/episode.dart';
 import '../settings/constants.dart';
@@ -80,13 +80,13 @@ Future<Database> _open() async {
         '$appName.database',
         version: dbVersion,
         onCreate: (db, version) async {
-          debugPrint('creating database');
+          logDebug('creating database');
           for (final statement in sqlCreateTables) {
             await db.execute(statement);
           }
         },
         onUpgrade: (db, oldVersion, newVersion) async {
-          debugPrint('upgrade version from $oldVersion to $newVersion');
+          logDebug('upgrade version from $oldVersion to $newVersion');
         },
       );
 }
@@ -102,7 +102,7 @@ void close() async {
 //
 Future saveChannel(Channel channel) async {
   final db = await _open();
-  // debugPrint('database:saveChannel: $channel');
+  // logDebug('database:saveChannel: $channel');
   await db.insert(
     tableChannels,
     channel.toDbMap(),
@@ -111,7 +111,7 @@ Future saveChannel(Channel channel) async {
 }
 
 Future<List<Channel>> readChannels({Map<String, dynamic>? params}) async {
-  // debugPrint('database:readChannels');
+  // logDebug('database:readChannels');
   final db = await _open();
   final records = await db.query(
     tableChannels,
@@ -130,7 +130,7 @@ Future<List<Channel>> readChannels({Map<String, dynamic>? params}) async {
 
 // Future updateChannel(Channel channel) async {
 //   final db = await _open();
-//   debugPrint('database:updateChannel: $channel');
+//   logDebug('database:updateChannel: $channel');
 //   await db.update(
 //     tableChannels,
 //     channel.toDbMap(),
@@ -141,7 +141,7 @@ Future<List<Channel>> readChannels({Map<String, dynamic>? params}) async {
 
 Future deleteChannelById(String channelId) async {
   final db = await _open();
-  // debugPrint('database:deleteChannel: $channel');
+  // logDebug('database:deleteChannel: $channel');
   await db.delete(
     tableChannels,
     where: 'id=?',
@@ -156,7 +156,7 @@ Future deleteChannelById(String channelId) async {
 // C
 Future saveEpisode(Episode episode) async {
   final db = await _open();
-  // debugPrint('database:createEpisode: $episode');
+  // logDebug('database:createEpisode: $episode');
   await db.insert(
     tableEpisodes,
     episode.toDbMap(),
@@ -166,7 +166,7 @@ Future saveEpisode(Episode episode) async {
 
 // R
 Future<List<Episode>> readEpisodes({Map<String, dynamic>? params}) async {
-  // debugPrint('database:readEpisodes');
+  // logDebug('database:readEpisodes');
   final db = await _open();
   final records = await db.query(
     tableEpisodes,
@@ -189,7 +189,7 @@ Future updateEpisodes({
   Map<String, dynamic>? params,
 }) async {
   final db = await _open();
-  // debugPrint('database:updateEpisode: $values, $params');
+  // logDebug('database:updateEpisode: $values, $params');
   await db.update(
     tableEpisodes,
     values,
@@ -202,7 +202,7 @@ Future updateEpisodes({
 // D
 Future deleteEpisodeById(String episodeId) async {
   final db = await _open();
-  // debugPrint('database:deleteEpisode: $episodeId');
+  // logDebug('database:deleteEpisode: $episodeId');
   await db.delete(
     tableEpisodes,
     where: 'id=?',
@@ -212,7 +212,7 @@ Future deleteEpisodeById(String episodeId) async {
 
 Future deleteEpisodesByChannelId(String channelId) async {
   final db = await _open();
-  // debugPrint('database:deleteEpisode: $episode');
+  // logDebug('database:deleteEpisode: $episode');
   await db.delete(
     tableEpisodes,
     where: 'channelId=?',

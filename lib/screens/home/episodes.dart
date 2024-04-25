@@ -1,9 +1,9 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:loqueapp/helpers/widgets.dart';
 
 import 'package:provider/provider.dart';
 
+import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 import '../../models/episode.dart';
 import '../episode/episode.dart';
@@ -19,7 +19,7 @@ class EpisodesView extends StatefulWidget {
 
 class _EpisodesViewState extends State<EpisodesView> {
   Widget _buildEpisodeTile(BuildContext context, Episode episode) {
-    // debugPrint('episode: $episode');
+    // logDebug('episode: $episode');
     final logic = context.read<LoqueLogic>();
     final styleColor0 = episode.played ? Theme.of(context).disabledColor : null;
     final styleColor2 = episode.played
@@ -245,7 +245,7 @@ class _EpisodesViewState extends State<EpisodesView> {
   @override
   Widget build(BuildContext context) {
     final episodes = context.watch<LoqueLogic>().episodes;
-    // debugPrint('episodes: $episodes');
+    // logDebug('episodes: $episodes');
     return episodes.isNotEmpty
         ? RefreshIndicator(
             onRefresh: () => context.read<LoqueLogic>().refreshEpisodes(),

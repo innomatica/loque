@@ -96,7 +96,7 @@ class _SearchPageState extends State<SearchPage> {
                     onChanged: (value) {
                       language = value;
                       setState(() {});
-                      // debugPrint(language);
+                      // logDebug(language);
                     },
                   ),
                   // search button
@@ -128,7 +128,7 @@ class _SearchPageState extends State<SearchPage> {
         });
       },
     ).then((value) async {
-      // debugPrint('value: $value');
+      // logDebug('value: $value');
       if (value != null &&
           value['categories'] is String &&
           value['categories'].isNotEmpty) {
@@ -256,7 +256,7 @@ class _SearchPageState extends State<SearchPage> {
             suffix: IconButton(
               onPressed: () {
                 if (url.isNotEmpty) {
-                  // debugPrint('url: $url');
+                  // logDebug('url: $url');
                   Navigator.of(context).pop({"url": url});
                 }
               },
@@ -266,7 +266,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     ).then((value) async {
-      // debugPrint('value: $value');
+      // logDebug('value: $value');
       if (value != null) {
         final logic = context.read<SearchLogic>();
         final flag = await logic.getChannelDataFromRss(value['url']);

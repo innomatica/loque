@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:loqueapp/helpers/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 
 class PlayListView extends StatefulWidget {
@@ -24,13 +24,13 @@ class _PlayListViewState extends State<PlayListView> {
           return ReorderableListView(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             onReorder: (int oldIndex, int newIndex) {
-              // debugPrint('oldIndex:$oldIndex, newIndex:$newIndex');
+              // logDebug('oldIndex:$oldIndex, newIndex:$newIndex');
               // only future items are to be reordered
               final queueIndex = logic.playbackState.value.queueIndex;
               if (queueIndex != null &&
                   queueIndex < oldIndex &&
                   queueIndex < newIndex) {
-                // debugPrint('allowed to reorder');
+                // logDebug('allowed to reorder');
                 setState(() {
                   if (oldIndex < newIndex) {
                     newIndex -= 1;

@@ -27,7 +27,7 @@ class SharedPrefsService {
   static String getSeachEngineUrl(String query) {
     final searchEngine =
         _prefs.getString(spKeySearchEngine) ?? defaultSearchEngine;
-    // debugPrint('searchEngine:$searchEngine');
+    // logDebug('searchEngine:$searchEngine');
     switch (searchEngine) {
       case 'Google':
         return 'https://google.com/search?q=$query+podcast+rss';

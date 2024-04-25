@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint('home.build');
+    // logDebug('home.build');
     return Scaffold(
       appBar: AppBar(
         title: const Text("Loque"),

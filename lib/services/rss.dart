@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:feed_parser/feed_parser.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:loqueapp/settings/constants.dart';
 
+import '../helpers/logger.dart';
 import '../models/channel.dart';
 import '../models/episode.dart';
+import '../settings/constants.dart';
 
 final feedSignatures = <String>['<rss', '<feed'];
 
@@ -21,7 +21,7 @@ Future<Channel?> getChannelFromRssUrl(String url) async {
 
   try {
     final res = await http.get(Uri.parse(url));
-    // debugPrint('res.body: ${res.body}');
+    // logDebug('res.body: ${res.body}');
     if (res.statusCode < 400 &&
         feedSignatures.any((element) => res.body.contains(element))) {
       try {
@@ -30,11 +30,11 @@ Future<Channel?> getChannelFromRssUrl(String url) async {
 
         return Channel.fromRssFeed(feedData, url);
       } catch (e) {
-        debugPrint(e.toString());
+        logError(e.toString());
       }
     }
   } catch (e) {
-    debugPrint(e.toString());
+    logError(e.toString());
   }
   return null;
 }
@@ -49,11 +49,10 @@ Future<List<Episode>> getEpisodesFromRssChannel(
 
   List<Episode> episodes = [];
 
-  // debugPrint(channel.toString());
   try {
     final res = await http.get(Uri.parse(channel.url));
     if (res.statusCode < 400) {
-      // debugPrint(res.body);
+      // logDebug(res.body);
       try {
         final utf8String = utf8.decode(res.bodyBytes, allowMalformed: true);
         final feedData = FeedData.parse(utf8String);
@@ -67,11 +66,11 @@ Future<List<Episode>> getEpisodesFromRssChannel(
           }
         }
       } catch (e) {
-        debugPrint(e.toString());
+        logError(e.toString());
       }
     }
   } catch (e) {
-    debugPrint(e.toString());
+    logError(e.toString());
   }
   return episodes;
 }

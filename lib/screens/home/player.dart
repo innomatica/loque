@@ -50,7 +50,7 @@ class _PlayerViewState extends State<PlayerView> {
         if (snapshot.hasData) {
           final state = snapshot.data!;
           final tag = logic.currentTag;
-          // debugPrint('playerview.state: $state, tag: $tag');
+          // logDebug('playerview.state: $state, tag: $tag');
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
