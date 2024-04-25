@@ -222,18 +222,21 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     //
                     // title
                     //
-                    child: Center(
-                      child: Text(
-                        tag?.title ?? "... media loading ...",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          tag?.title ?? "... media loading ...",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
