@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/logger.dart';
 import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 
@@ -26,11 +27,9 @@ class _PlayListViewState extends State<PlayListView> {
             onReorder: (int oldIndex, int newIndex) {
               // logDebug('oldIndex:$oldIndex, newIndex:$newIndex');
               // only future items are to be reordered
-              final queueIndex = logic.playbackState.value.queueIndex;
-              if (queueIndex != null &&
-                  queueIndex < oldIndex &&
-                  queueIndex < newIndex) {
-                // logDebug('allowed to reorder');
+              final curIndex = logic.playbackState.value.queueIndex ?? 0;
+              logDebug('current:$curIndex, old:$oldIndex, new:$newIndex');
+              if (curIndex < oldIndex && curIndex < newIndex) {
                 setState(() {
                   if (oldIndex < newIndex) {
                     newIndex -= 1;

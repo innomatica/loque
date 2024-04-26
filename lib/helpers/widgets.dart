@@ -212,6 +212,30 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => const PlayerView(),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        tag?.title ?? "... media loading ...",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                /*
+                Expanded(
                   child: GestureDetector(
                     onTap: () {
                       showModalBottomSheet(
@@ -225,21 +249,24 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          tag?.title ?? "... media loading ...",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
+                        Expanded(
+                          child: Text(
+                            tag?.title ?? "... media loading ...",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                */
                 //
                 // play button
                 //
