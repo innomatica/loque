@@ -221,7 +221,7 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     },
                     child: Center(
                       child: Text(
-                        tag?.title ?? "... media loading ...",
+                        tag?.title ?? "... loading ...",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

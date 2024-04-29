@@ -268,6 +268,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     (_player.audioSource as ConcatenatingAudioSource)
         .add(_mediaItemToAudioSource(mediaItem));
     // broadcast change
+    // queue.add(_queueFromAudioSource);
     final qval = queue.value..add(mediaItem);
     queue.add(qval);
   }
@@ -277,6 +278,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     (_player.audioSource as ConcatenatingAudioSource)
         .addAll(mediaItems.map((m) => _mediaItemToAudioSource(m)).toList());
     // broadcast change
+    // queue.add(_queueFromAudioSource);
     final qval = queue.value..addAll(mediaItems);
     queue.add(qval);
   }
@@ -286,6 +288,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     (_player.audioSource as ConcatenatingAudioSource)
         .insert(index, _mediaItemToAudioSource(mediaItem));
     // broadcast change
+    // queue.add(_queueFromAudioSource);
     final qval = queue.value..insert(index, mediaItem);
     queue.add(qval);
   }
