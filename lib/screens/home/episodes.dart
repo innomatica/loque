@@ -127,7 +127,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                             label: SizedBox(
                               width: chipWidth,
                               child: Text(
-                                'playing ... ',
+                                'playing',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14.0,
@@ -207,8 +207,8 @@ class _EpisodesViewState extends State<EpisodesView> {
                           : () {
                               logic.setPlayed(episode.id);
                               if (episode.id == logic.currentEpisodeId) {
-                                // currently playing
-                                logic.skipToNext();
+                                // currently playing => DON'T do anything
+                                // logic.skipToNext();
                               } else {
                                 // if it is on the playlist remove it
                                 logic.removePlaylistItemByEpisodeId(episode.id);

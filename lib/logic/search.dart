@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/channel.dart';
 import '../services/pcidx.dart';
 import '../services/rss.dart';
 import '../services/sharedprefs.dart';
+import '../settings/constants.dart';
 
 class SearchLogic extends ChangeNotifier {
   // SearchLogic() {
@@ -61,12 +65,32 @@ class SearchLogic extends ChangeNotifier {
     final res = await getPodcastByFeedUrl(url);
     // logDebug('getPodcastByUrl: $res');
     if (res is Channel) {
-      // _channels.clear();
+      // check duplication
       final idx = _channels.indexWhere((c) => c.id == res.id);
       if (idx == -1) {
         _channels.insert(0, res);
         notifyListeners();
       }
+    }
+  }
+
+  //
+  // Get curated list
+  //
+  Future getCuratedList() async {
+    final res = await http.get(Uri.parse(urlCuratedData));
+    if (res.statusCode == 200) {
+      final channels = jsonDecode(res.body);
+      _channels.clear();
+      for (final channel in channels.reversed.toList()) {
+        final res = await getPodcastByFeedUrl(channel['url']);
+        if (res is Channel) {
+          _channels.insert(0, res);
+          notifyListeners();
+        }
+      }
+    } else {
+      // fail to fetch
     }
   }
 }

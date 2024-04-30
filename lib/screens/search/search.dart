@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 import '../../helpers/widgets.dart';
 import '../../logic/search.dart';
 import '../../models/channel.dart';
-import '../../settings/constants.dart';
 import 'browser.dart';
 
 class SearchPage extends StatefulWidget {
@@ -32,7 +28,7 @@ class _SearchPageState extends State<SearchPage> {
   //
   // Trending Dialog
   //
-  Future searchTrending() async {
+  Future _searchTrending() async {
     String? language = "en";
     // do not support all categories option: takes too long
     // bool allCategorise = false;
@@ -149,56 +145,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   //
-  // Show Curated List
-  Future showCurated() async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Loque Favorites'),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: FutureBuilder(
-              future: http.get(Uri.parse(urlCuratedData)),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final res = snapshot.data!;
-                  if (res.statusCode == 200) {
-                    final channels = jsonDecode(res.body);
-                    final search = context.read<SearchLogic>();
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: channels.length,
-                      itemBuilder: (context, index) => Card(
-                        child: ListTile(
-                          title: Text(channels[index]["title"]),
-                          subtitle: Text(
-                            channels[index]["categories"],
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary),
-                          ),
-                          onTap: () {
-                            search.getPodcastByUrl(channels[index]['url']);
-                          },
-                        ),
-                      ),
-                    );
-                  } else {
-                    return const Text('Server failure');
-                  }
-                }
-                return Container();
-              }),
-        ),
-      ),
-    );
-  }
-
-  //
   // Browser Dialog
   //
-  Future browseAndFind() async {
+  Future _browseAndFind() async {
     String keyword = '';
     showDialog(
       context: context,
@@ -236,7 +185,7 @@ class _SearchPageState extends State<SearchPage> {
   //
   // RSS Dialog
   //
-  Future enterRssUrl() async {
+  Future _enterRssUrl() async {
     String url = '';
     showDialog(
       context: context,
@@ -358,7 +307,7 @@ class _SearchPageState extends State<SearchPage> {
               // Trending
               //
               FilledButton.tonal(
-                onPressed: searchTrending,
+                onPressed: _searchTrending,
                 // child: const Text("Trending"),
                 child: const Icon(Icons.trending_up_rounded),
               ),
@@ -366,7 +315,10 @@ class _SearchPageState extends State<SearchPage> {
               // Trending
               //
               FilledButton.tonal(
-                onPressed: showCurated,
+                onPressed: () async {
+                  final search = context.read<SearchLogic>();
+                  await search.getCuratedList();
+                },
                 // child: const Text("Trending"),
                 child: const Icon(Icons.favorite_border_outlined),
               ),
@@ -374,7 +326,7 @@ class _SearchPageState extends State<SearchPage> {
               // RSS
               //
               FilledButton.tonal(
-                onPressed: enterRssUrl,
+                onPressed: _enterRssUrl,
                 // child: const Text("Browse and Find"),
                 child: const Icon(Icons.rss_feed_rounded),
               ),
@@ -382,7 +334,7 @@ class _SearchPageState extends State<SearchPage> {
               // Search Web
               //
               FilledButton.tonal(
-                onPressed: browseAndFind,
+                onPressed: _browseAndFind,
                 // child: const Text("Browse and Find"),
                 child: const Icon(Icons.public_rounded),
               ),

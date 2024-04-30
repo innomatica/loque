@@ -1,20 +1,20 @@
 [
   {
+    "title": "The Backbench",
+    "url": "https://feeds.acast.com/public/shows/73fb297d-023b-5595-a03d-88c27dbc7890",
+    "itunesId": "1344871955",
+    "author": "CANADALAND",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
+    "categories": "News, Politics, Commentary, Government",
+    "language": "en"
+  },
+  {
     "title": "Because News",
     "url": "https://www.cbc.ca/podcasting/includes/becausenews.xml",
     "itunesId": "1030012459",
     "author": "CBC",
     "imageUrl": "https://www.cbc.ca/radio/podcasts/images/BN-promo.jpg",
     "categories": "Comedy",
-    "language": "en"
-  },
-  {
-    "title": "Blocked and Reported",
-    "url": "https://api.substack.com/feed/podcast/500230.rss",
-    "itunesId": "1504298199",
-    "author": "Katie Herzog and Jesse Singal",
-    "imageUrl": "https://substackcdn.com/feed/podcast/500230/627648b7e4e67b5365cc93a29fce9fdd.jpg",
-    "categories": "Society, Culture, News",
     "language": "en"
   },
   {
@@ -27,12 +27,30 @@
     "language": "en"
   },
   {
-    "title": "LINUX Unplugged",
-    "url": "https://feeds.fireside.fm/linuxunplugged/rss",
-    "itunesId": "687598126",
+    "title": "The Debaters",
+    "url": "https://feeds.fireside.fm/selfhosted/rss",
+    "itunesId": "1404480773",
     "author": "Jupiter Broadcasting",
-    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/f/f31a453c-fa15-491f-8618-3f71f1d565e5/cover.jpg",
+    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
+    "categories": "Technology, Leisure, Hobbies",
+    "language": "en"
+  },
+  {
+    "title": "Hard Fork",
+    "url": "https://feeds.simplecast.com/l2i9YnTd",
+    "itunesId": "1528594034",
+    "author": "The New York Times",
+    "imageUrl": "https://image.simplecastcdn.com/images/4105a47a-42e5-4ccc-887a-832af7989986/23965394-f5e4-4fdb-b150-639f4910353e/3000x3000/nyt-hf-album-art-3000-2.jpg?aid=rss_feed",
     "categories": "Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "In Our Time",
+    "url": "https://podcasts.files.bbci.co.uk/b006qykl.rss",
+    "itunesId": "73330895",
+    "author": "BBC Radio 4",
+    "imageUrl": "http://ichef.bbci.co.uk/images/ic/3000x3000/p0gfqcj8.jpg",
+    "categories": "Science, History",
     "language": "en"
   },
   {
@@ -54,6 +72,51 @@
     "language": "en"
   },
   {
+    "title": "LINUX Unplugged",
+    "url": "https://feeds.fireside.fm/linuxunplugged/rss",
+    "itunesId": "687598126",
+    "author": "Jupiter Broadcasting",
+    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/f/f31a453c-fa15-491f-8618-3f71f1d565e5/cover.jpg",
+    "categories": "Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "The Naked Scientists",
+    "url": "https://www.thenakedscientists.com/naked_scientists_podcast.xml",
+    "itunesId": "74171648",
+    "author": "The Naked Scientists",
+    "imageUrl": "https://www.thenakedscientists.com/sites/default/files/media/media/images/NS_Podcasts_1400.png",
+    "categories": "Science, Life, Natural, Health, Fitness, Medicine",
+    "language": "en"
+  },
+  {
+    "title": "Nature Podcast",
+    "url": "http://rss.acast.com/nature",
+    "itunesId": "81934659",
+    "author": "Springer Nature Limited",
+    "imageUrl": "https://assets.pippa.io/shows/61b9f3b71a8cbe675f3cedcb/show-cover.jpg",
+    "categories": "Science, Technology, News",
+    "language": "en"
+  },
+  {
+    "title": "Ologies with Alie Ward",
+    "url": "https://feeds.simplecast.com/FO6kxYGj",
+    "itunesId": "1278815517",
+    "author": "Alie Ward",
+    "imageUrl": "https://image.simplecastcdn.com/images/89060b63-e603-4297-b6e8-5a654e50244e/f9713c33-7eca-4512-8d96-7a668e274cb2/3000x3000/image.jpg?aid=rss_feed",
+    "categories": "Science, Comedy, Society, Culture",
+    "language": "en"
+  },
+  {
+    "title": "The Pulse",
+    "url": "https://feeds.npr.org/510371/podcast.xml",
+    "itunesId": "772127662",
+    "author": "NPR",
+    "imageUrl": "https://media.npr.org/assets/img/2023/04/28/thepulse-3000x3000_nprnetwork_sq-3d76f68f8584a6cf99220148b39152d8419a66aa.jpg?s=1400&c=66&f=jpg",
+    "categories": "Science, Health, Fitness, Technology",
+    "language": "en"
+  },
+  {
     "title": "Radiolab",
     "url": "https://feeds.feedburner.com/radiolab",
     "itunesId": "152249110",
@@ -69,6 +132,15 @@
     "author": "WNYC Studios",
     "imageUrl": "https://image.simplecastcdn.com/images/ac8e2039-dfef-4938-b66a-c2f58f4b7599/c01bb987-b09c-4e1a-b8ba-5cd859951535/3000x3000/sciencefriday-wnycstudios-1400.jpg?aid=rss_feed",
     "categories": "Science, Natural, Life, Earth",
+    "language": "en"
+  },
+  {
+    "title": "Science Magazine Podcast",
+    "url": "https://feeds.megaphone.fm/AAAS8717073854",
+    "itunesId": "120329020",
+    "author": "Science Magazine",
+    "imageUrl": "https://megaphone.imgix.net/podcasts/ced64e52-63a7-11ee-a0a8-87aeb796287a/image/image.jpg?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
+    "categories": "Science, News, Commentary",
     "language": "en"
   },
   {
@@ -90,15 +162,6 @@
     "language": "en"
   },
   {
-    "title": "Short Wave",
-    "url": "https://feeds.npr.org/510351/podcast.xml",
-    "itunesId": "1482575855",
-    "author": "NPR",
-    "imageUrl": "https://media.npr.org/assets/img/2022/09/23/short-wave_tile_npr-network-01_sq-517382b4b8fd0ab48ea9c781253f9992eab733dc.jpg?s=1400&c=66&f=jpg",
-    "categories": "Science, News, Daily",
-    "language": "en"
-  },
-  {
     "title": "Snap Judgment",
     "url": "https://snap.feed.snapjudgment.org",
     "itunesId": "283657561",
@@ -108,66 +171,21 @@
     "language": "en"
   },
   {
+    "title": "Tech Won't Save Us",
+    "url": "https://feeds.buzzsprout.com/1004689.rss",
+    "itunesId": "1507621076",
+    "author": "Paris Marx",
+    "imageUrl": "https://storage.buzzsprout.com/0752tal6xyzzh96maunpflcuqg8p?.jpg",
+    "categories": "Technology, News, Arts, Books",
+    "language": "en"
+  },
+  {
     "title": "TED Radio Hour",
     "url": "https://feeds.npr.org/510298/podcast.xml",
     "itunesId": "523121474",
     "author": "NPR",
     "imageUrl": "https://media.npr.org/assets/img/2022/09/23/ted-radio-hour_tile_npr-network-01_sq-75eeb1db55c439c11197a2eb1ca921fe3b1943cc.jpg?s=1400&c=66&f=jpg",
     "categories": "Technology, Science, Social, Society, Culture",
-    "language": "en"
-  },
-  {
-    "title": "The Backbench",
-    "url": "https://feeds.acast.com/public/shows/73fb297d-023b-5595-a03d-88c27dbc7890",
-    "itunesId": "1344871955",
-    "author": "CANADALAND",
-    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
-    "categories": "News, Politics, Commentary, Government",
-    "language": "en"
-  },
-  {
-    "title": "The Debaters",
-    "url": "https://feeds.fireside.fm/selfhosted/rss",
-    "itunesId": "1404480773",
-    "author": "Jupiter Broadcasting",
-    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
-    "categories": "Technology, Leisure, Hobbies",
-    "language": "en"
-  },
-  {
-    "title": "The Naked Scientists",
-    "url": "https://www.thenakedscientists.com/naked_scientists_podcast.xml",
-    "itunesId": "74171648",
-    "author": "The Naked Scientists",
-    "imageUrl": "https://www.thenakedscientists.com/sites/default/files/media/media/images/NS_Podcasts_1400.png",
-    "categories": "Science, Life, Natural, Health, Fitness, Medicine",
-    "language": "en"
-  },
-  {
-    "title": "The Pulse",
-    "url": "https://feeds.npr.org/510371/podcast.xml",
-    "itunesId": "772127662",
-    "author": "NPR",
-    "imageUrl": "https://media.npr.org/assets/img/2023/04/28/thepulse-3000x3000_nprnetwork_sq-3d76f68f8584a6cf99220148b39152d8419a66aa.jpg?s=1400&c=66&f=jpg",
-    "categories": "Science, Health, Fitness, Technology",
-    "language": "en"
-  },
-  {
-    "title": "The Science Show",
-    "url": "https://www.abc.net.au/feeds/13868682/podcast.xml",
-    "itunesId": "73330054",
-    "author": "ABC listen",
-    "imageUrl": "https://live-production.wcms.abc-cdn.net.au/e7b00f88152341adf356466ffa745abe.jpg?src",
-    "categories": "Science, Natural",
-    "language": "en"
-  },
-  {
-    "title": "The Vergecast",
-    "url": "https://feeds.megaphone.fm/vergecast",
-    "itunesId": "430333725",
-    "author": "The Verge",
-    "imageUrl": "https://megaphone.imgix.net/podcasts/e4c412e6-e1f0-11e8-9bde-83f9d376f059/image/Podcast_Tile_6000x6000px.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
-    "categories": "Technology, News",
     "language": "en"
   },
   {

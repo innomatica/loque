@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+// import 'package:loqueapp/helpers/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/loque.dart';
@@ -221,7 +222,7 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     },
                     child: Center(
                       child: Text(
-                        tag?.title ?? "... loading ...",
+                        tag?.title ?? "\u231b",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -234,39 +235,6 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                     ),
                   ),
                 ),
-                /*
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => const PlayerView(),
-                      );
-                    },
-                    //
-                    // title
-                    //
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            tag?.title ?? "... media loading ...",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                */
                 //
                 // play button
                 //

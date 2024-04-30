@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../helpers/logger.dart';
 import '../../helpers/widgets.dart';
 import '../../logic/loque.dart';
 import '../../models/channel.dart';
@@ -31,7 +32,7 @@ class _ChannelPageState extends State<ChannelPage> {
             daysSince: SharedPrefsService.dataRetentionPeriod)
         : getEpisodesFromRssChannel(widget.channel,
             daysSince: SharedPrefsService.dataRetentionPeriod);
-    // logger(widget.channel.toString());
+    logDebug(widget.channel.toString());
   }
 
 //
