@@ -1,5 +1,4 @@
 import 'package:async/async.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 import 'package:flutter/material.dart';
@@ -42,16 +41,10 @@ class _PlayerViewState extends State<PlayerView> {
 
   @override
   Widget build(BuildContext context) {
-    final logic = context.read<LoqueLogic>();
-
-    return StreamBuilder<PlaybackState?>(
-      stream: logic.playbackState,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final state = snapshot.data!;
-          final tag = logic.currentTag;
-          // logDebug('playerview.state: $state, tag: $tag');
-          return Padding(
+    final logic = context.watch<LoqueLogic>();
+    final tag = logic.currentMedia;
+    return tag != null
+        ? Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -59,21 +52,21 @@ class _PlayerViewState extends State<PlayerView> {
                 // title block
                 Row(
                   children: [
-                    LoqueImage(tag?.artUri.toString(), width: 60, height: 60),
+                    LoqueImage(tag.artUri.toString(), width: 60, height: 60),
                     const SizedBox(width: 8.0),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            tag?.album ?? '',
+                            tag.album ?? '',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Theme.of(context).colorScheme.tertiary),
                           ),
                           Text(
-                            tag?.title ?? '',
+                            tag.title,
                             maxLines: 2,
                             style: const TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -103,7 +96,7 @@ class _PlayerViewState extends State<PlayerView> {
                       // speed selector
                       //
                       DropdownButton<double>(
-                        value: state.speed,
+                        value: logic.speed,
                         iconSize: 0,
                         isDense: true,
                         onChanged: (double? value) =>
@@ -127,16 +120,21 @@ class _PlayerViewState extends State<PlayerView> {
                       //
                       // play / pause button
                       //
-                      state.playing
-                          ? IconButton(
-                              icon: const Icon(Icons.pause_rounded, size: 32),
-                              onPressed: () => logic.pause(),
-                            )
-                          : IconButton(
-                              icon: const Icon(Icons.play_arrow_rounded,
-                                  size: 32),
-                              onPressed: () => logic.play(null),
-                            ),
+                      StreamBuilder(
+                        stream: logic.playbackState
+                            .map((s) => s.playing)
+                            .distinct(),
+                        builder: (context, snapshot) => snapshot.data == true
+                            ? IconButton(
+                                icon: const Icon(Icons.pause_rounded, size: 32),
+                                onPressed: () => logic.pause(),
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.play_arrow_rounded,
+                                    size: 32),
+                                onPressed: () => logic.play(null),
+                              ),
+                      ),
                       //
                       // fast forward
                       //
@@ -149,12 +147,8 @@ class _PlayerViewState extends State<PlayerView> {
                 ),
               ],
             ),
-          );
-        } else {
-          return const SizedBox(height: 0.0);
-        }
-      },
-    );
+          )
+        : const SizedBox(height: 0.0);
   }
 }
 

@@ -1,14 +1,5 @@
 [
   {
-    "title": "The Backbench",
-    "url": "https://feeds.acast.com/public/shows/73fb297d-023b-5595-a03d-88c27dbc7890",
-    "itunesId": "1344871955",
-    "author": "CANADALAND",
-    "imageUrl": "https://www.cbc.ca/radio/podcasts/images/debaters-promo.jpg",
-    "categories": "News, Politics, Commentary, Government",
-    "language": "en"
-  },
-  {
     "title": "Because News",
     "url": "https://www.cbc.ca/podcasting/includes/becausenews.xml",
     "itunesId": "1030012459",
@@ -96,15 +87,6 @@
     "author": "Springer Nature Limited",
     "imageUrl": "https://assets.pippa.io/shows/61b9f3b71a8cbe675f3cedcb/show-cover.jpg",
     "categories": "Science, Technology, News",
-    "language": "en"
-  },
-  {
-    "title": "Ologies with Alie Ward",
-    "url": "https://feeds.simplecast.com/FO6kxYGj",
-    "itunesId": "1278815517",
-    "author": "Alie Ward",
-    "imageUrl": "https://image.simplecastcdn.com/images/89060b63-e603-4297-b6e8-5a654e50244e/f9713c33-7eca-4512-8d96-7a668e274cb2/3000x3000/image.jpg?aid=rss_feed",
-    "categories": "Science, Comedy, Society, Culture",
     "language": "en"
   },
   {

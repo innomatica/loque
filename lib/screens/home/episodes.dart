@@ -109,7 +109,7 @@ class _EpisodesViewState extends State<EpisodesView> {
               stream: logic.playbackState,
               builder: (context, snapshot) {
                 final state = snapshot.data;
-                final tag = logic.currentTag;
+                final tag = logic.currentMedia;
                 return Row(
                   children: [
                     //
@@ -127,7 +127,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                             label: SizedBox(
                               width: chipWidth,
                               child: Text(
-                                'playing',
+                                'now playing',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 14.0,

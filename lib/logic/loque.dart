@@ -59,7 +59,9 @@ class LoqueLogic extends ChangeNotifier {
       .firstWhere((e) => e!.id == currentEpisodeId, orElse: () => null);
 
   // from handler
-  MediaItem? get currentTag => _handler.mediaItem.value;
+  double get speed => _handler.speed;
+  bool get playing => _handler.playing;
+  MediaItem? get currentMedia => _handler.mediaItem.value;
   String? get currentEpisodeId =>
       _handler.mediaItem.value?.extras?['episodeId'];
   BehaviorSubject<List<MediaItem>> get queue => _handler.queue;
@@ -91,13 +93,14 @@ class LoqueLogic extends ChangeNotifier {
             episode.played = true;
             episode.mediaSeekPos = 0;
             // update database
-            await db.updateEpisodes(
-              values: {'played': 1, 'mediaSeekPos': 0},
-              params: {
-                'where': 'id = ?',
-                'whereArgs': [episodeId]
-              },
-            );
+            await db.saveEpisode(episode);
+            // await db.updateEpisodes(
+            //   values: {'played': 1, 'mediaSeekPos': 0},
+            //   params: {
+            //     'where': 'id = ?',
+            //     'whereArgs': [episodeId]
+            //   },
+            // );
           }
         }
       }
@@ -116,25 +119,24 @@ class LoqueLogic extends ChangeNotifier {
     _subMediaItem = _handler.mediaItem.listen((MediaItem? mediaItem) async {
       logDebug('logic.mediaItemChange: ${mediaItem?.title}');
       if (mediaItem != null) {
-        final seekPos = mediaItem.extras!['seekPos'];
         final episodeId = mediaItem.extras!['episodeId'];
-        if (episodeId != null && seekPos != null) {
-          final episode = _getEpisodeById(episodeId);
-          if (episode != null) {
-            // update episode: required to update UI
+        final played = mediaItem.extras!['played'];
+        final seekPos = mediaItem.extras!['seekPos'];
+        final duration = mediaItem.duration;
+
+        final episode = _getEpisodeById(episodeId);
+
+        if (episode != null) {
+          // update database
+          if (played == true) {
+            episode.played = true;
+            episode.mediaSeekPos = 0;
+          } else if (seekPos != null || duration != null) {
             episode.mediaSeekPos = seekPos;
-            // update database
-            // logDebug('handleMediaItemChange: $episodeId, $seekPos');
-            await db.updateEpisodes(
-              values: {'mediaSeekPos': seekPos},
-              params: {
-                'where': 'id = ?',
-                'whereArgs': [episodeId]
-              },
-            );
-            // required to notify
-            notifyListeners();
+            episode.mediaDuration = duration?.inSeconds;
           }
+          await db.saveEpisode(episode);
+          notifyListeners();
         }
       }
     });
@@ -189,7 +191,10 @@ class LoqueLogic extends ChangeNotifier {
   Future<void> rewind() => _handler.rewind();
   Future<void> fastForward() => _handler.fastForward();
   Future<void> seek(Duration position) => _handler.seek(position);
-  Future<void> setSpeed(double speed) => _handler.setSpeed(speed);
+  Future<void> setSpeed(double speed) async {
+    await _handler.setSpeed(speed);
+    notifyListeners();
+  }
 
   Future<void> resume() async {
     // TODO: confirm this change
@@ -211,17 +216,6 @@ class LoqueLogic extends ChangeNotifier {
           // currently playing or paused
           _handler.playing ? pause() : resume();
         } else {
-          // this must be handled by the handler and come back as mediaItem
-          // if (_handler.playing && currentEpisodeId != null) {
-          //   logDebug('saving seekPos: ${_handler.position.inSeconds}');
-          //   // save the seekpos before move on to play new episode
-          //   await db.updateEpisodes(values: {
-          //     'mediaSeekPos': _handler.position.inSeconds
-          //   }, params: {
-          //     'where': 'id = ?',
-          //     'whereArgs': [currentEpisodeId]
-          //   });
-          // }
           _handler.playMediaItem(episode.toMediaItem());
         }
       }
@@ -366,13 +360,7 @@ class LoqueLogic extends ChangeNotifier {
       // set seek pos back to zero
       episode.mediaSeekPos = 0;
       // update database
-      await db.updateEpisodes(
-        values: {'played': 1, 'mediaSeekPos': 0},
-        params: {
-          'where': 'id = ?',
-          'whereArgs': [episodeId]
-        },
-      );
+      await db.saveEpisode(episode);
       // remove item from the queue
       await _handler.removeQueueItem(episode.toMediaItem());
       notifyListeners();
@@ -390,13 +378,7 @@ class LoqueLogic extends ChangeNotifier {
       episode.played = false;
       // set seek pos to zero
       episode.mediaSeekPos = 0;
-      await db.updateEpisodes(
-        values: {'played': 0, 'mediaSeekPos': 0},
-        params: {
-          'where': 'id = ?',
-          'whereArgs': [episodeId]
-        },
-      );
+      await db.saveEpisode(episode);
       notifyListeners();
     }
   }

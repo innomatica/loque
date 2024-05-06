@@ -292,8 +292,7 @@ class _ChannelPageState extends State<ChannelPage> {
         ],
       ),
       body: _buildBody(context),
-      // https://github.com/flutter/flutter/issues/50314
-      bottomNavigationBar: buildMiniPlayer(context),
+      bottomSheet: buildMiniPlayer(context),
     );
   }
 }

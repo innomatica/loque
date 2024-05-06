@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: cached_network_image_web
-      sha256: "42a835caa27c220d1294311ac409a43361088625a4f23c820b006dd9bffb3316"
+      sha256: "205d6a9f1862de34b93184f22b9d2d94586b2f05c581d546695e3d8f6a805cd7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.2.0"
   characters:
     dependency: transitive
     description:
@@ -195,10 +195,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_cache_manager
-      sha256: "8207f27539deb83732fdda03e259349046a39a4c767269285f449ade355d54ba"
+      sha256: "395d6b7831f21f3b989ebedbb785545932adb9afe2622c1ffacf7f4b53a7e544"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "3.3.2"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -221,10 +221,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_widget_from_html_core
-      sha256: "028f4989b9ff4907466af233d50146d807772600d98a3e895662fbdb09c39225"
+      sha256: cc1d9be3d187ce668ee02091cd5442dfb050cdaf98e0ab9a4d12ad008f966979
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.11"
+    version: "0.14.12"
   frontend_server_client:
     dependency: transitive
     description:
@@ -578,10 +578,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite
-      sha256: "5ce2e1a15e822c3b4bfb5400455775e421da7098eed8adc8f26298ada7c9308c"
+      sha256: a43e5a27235518c03ca238e7b4732cf35eabe863a369ceba6cbefa537a66f16d
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.3"
+    version: "2.3.3+1"
   sqflite_common:
     dependency: transitive
     description:
@@ -754,10 +754,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: f038ee2fae73b509dde1bc9d2c5a50ca92054282de17631a9a3d515883740934
+      sha256: dad3313c9ead95517bb1cae5e1c9d20ba83729d5a59e5e83c0a2d66203f27f91
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.0"
+    version: "3.16.1"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
@@ -778,10 +778,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "0a989dc7ca2bb51eac91e8fd00851297cfffd641aa7538b165c62637ca0eaa4a"
+      sha256: "0eaf06e3446824099858367950a813472af675116bf63f008a4c2a75ae13e9cb"
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.0"
+    version: "5.5.0"
   xdg_directories:
     dependency: transitive
     description:

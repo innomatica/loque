@@ -1,4 +1,3 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 // import 'package:loqueapp/helpers/logger.dart';
@@ -183,46 +182,38 @@ class ChannelCard extends StatelessWidget {
 //
 // Mini Player for Scaffold BottomSheet
 //
-StreamBuilder buildMiniPlayer(BuildContext context) {
-  final logic = context.read<LoqueLogic>();
-  return StreamBuilder<PlaybackState?>(
-    stream: logic.playbackState,
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        final state = snapshot.data!;
-        final tag = logic.currentTag;
-        // logDebug('miniplayer.state: $state, tag: $tag');
-        if ([
-          AudioProcessingState.loading,
-          AudioProcessingState.buffering,
-          AudioProcessingState.ready
-        ].contains(state.processingState)) {
-          return Container(
-            padding: const EdgeInsets.only(left: 8.0),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0),
-              ),
-              color: Theme.of(context)
-                  .colorScheme
-                  .secondaryContainer
-                  .withOpacity(0.35),
+Widget buildMiniPlayer(BuildContext context) {
+  final logic = context.watch<LoqueLogic>();
+  final tag = logic.currentMedia;
+  return tag != null
+      ? Container(
+          padding: const EdgeInsets.only(left: 8.0),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10.0),
+              topRight: Radius.circular(10.0),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => const PlayerView(),
-                      );
-                    },
-                    child: Center(
+            color: Theme.of(context)
+                .colorScheme
+                .secondaryContainer
+                .withOpacity(0.35),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => const PlayerView(),
+                        );
+                      },
                       child: Text(
-                        tag?.title ?? "\u231b",
+                        tag.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -234,26 +225,26 @@ StreamBuilder buildMiniPlayer(BuildContext context) {
                       ),
                     ),
                   ),
-                ),
-                //
-                // play button
-                //
-                state.playing
-                    ? IconButton(
-                        icon: const Icon(Icons.pause_rounded),
-                        onPressed: () => logic.pause(),
-                      )
-                    : IconButton(
-                        icon: const Icon(Icons.play_arrow_rounded),
-                        onPressed: () => logic.play(null),
-                      ),
-              ],
-            ),
-          );
-        }
-      }
-      // show nothing when the player is idle, completed, or error state
-      return const SizedBox(height: 0.0);
-    },
-  );
+                  //
+                  // play button
+                  //
+                  StreamBuilder<bool>(
+                    stream:
+                        logic.playbackState.map((s) => s.playing).distinct(),
+                    builder: (context, snapshot) => snapshot.data == true
+                        ? IconButton(
+                            icon: const Icon(Icons.pause_rounded),
+                            onPressed: () => logic.pause(),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.play_arrow_rounded),
+                            onPressed: () => logic.play(null),
+                          ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        )
+      : const SizedBox(height: 0);
 }
