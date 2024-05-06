@@ -79,7 +79,7 @@ class LoqueLogic extends ChangeNotifier {
   void _handleQueueChange() {
     _subQueue = _handler.queue.listen((List<MediaItem> items) async {
       for (final mediaItem in items) {
-        // logDebug('handleQueueChange.mediaItem: $mediaItem');
+        logDebug('logic.queueChange.mediaItem: $mediaItem');
         // check played flag
         if (mediaItem.extras!['played'] == true) {
           // logDebug('${mediaItem.extras!['episodeId']} reported as played');
@@ -114,7 +114,7 @@ class LoqueLogic extends ChangeNotifier {
   //
   void _handleMediaItemChange() {
     _subMediaItem = _handler.mediaItem.listen((MediaItem? mediaItem) async {
-      logDebug('handleMediaItemChange: ${mediaItem?.title}');
+      logDebug('logic.mediaItemChange: ${mediaItem?.title}');
       if (mediaItem != null) {
         final seekPos = mediaItem.extras!['seekPos'];
         final episodeId = mediaItem.extras!['episodeId'];
@@ -383,13 +383,20 @@ class LoqueLogic extends ChangeNotifier {
   // Clear episode played flag
   //
   Future clearPlayed(String episodeId) async {
+    logDebug('logic.clearPlayed: $episodeId');
     final episode = _getEpisodeById(episodeId);
     if (episode != null) {
       // set unplayed
       episode.played = false;
       // set seek pos to zero
       episode.mediaSeekPos = 0;
-      await db.saveEpisode(episode);
+      await db.updateEpisodes(
+        values: {'played': 0, 'mediaSeekPos': 0},
+        params: {
+          'where': 'id = ?',
+          'whereArgs': [episodeId]
+        },
+      );
       notifyListeners();
     }
   }

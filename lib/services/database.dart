@@ -189,7 +189,7 @@ Future updateEpisodes({
   Map<String, dynamic>? params,
 }) async {
   final db = await _open();
-  // logDebug('database:updateEpisode: $values, $params');
+  logDebug('database:updateEpisode: $values, $params');
   await db.update(
     tableEpisodes,
     values,

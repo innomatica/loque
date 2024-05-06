@@ -70,7 +70,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       final sequence = _player.sequence;
       if (index != null && sequence != null && index < sequence.length) {
         final item = sequence[index].tag as MediaItem;
-        logDebug('handleDurationChange: ${item.title}');
+        logDebug('handler.durationChange: ${item.title}');
         // broadcast mediaItem with updated duration
         mediaItem.add(item.copyWith(duration: duration));
       }
@@ -79,7 +79,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handlePlyStateChange() {
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
-      logDebug('handlePlyStateChange: $state');
+      logDebug('handler.plyStateChange: $state');
       if (state.processingState == ProcessingState.ready) {
         if (state.playing == false) {
           // about to start playing or paused
@@ -148,7 +148,7 @@ class LoqueAudioHandler extends BaseAudioHandler
         MediaAction.seekBackward,
       },
       // controls to show in compact view
-      androidCompactActionIndices: const [0, 1, 3],
+      androidCompactActionIndices: const [0, 1, 2],
       processingState: const {
         ProcessingState.idle: AudioProcessingState.idle,
         ProcessingState.loading: AudioProcessingState.loading,
@@ -185,7 +185,9 @@ class LoqueAudioHandler extends BaseAudioHandler
   // ignore: avoid_renaming_method_parameters
   Future<void> playMediaItem(MediaItem newItem) async {
     // logDebug('playMediaItem: ${newItem.title}');
+    logDebug('playMediaItem: $newItem.title');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
+    logDebug('$audioSource');
     // first we need to save current position if currently playing
     if (_player.playing) {
       _updateSeekPos();
@@ -198,11 +200,11 @@ class LoqueAudioHandler extends BaseAudioHandler
     // if the mediaItem is in the queue remove it from the queue
     if (index >= 0 && index < audioSource.length) {
       // we remove the media from its original position
-      // logDebug('remove the item from $index');
+      logDebug('remove the item from $index');
       await audioSource.removeAt(index);
     }
     // insert the mediaItem into the current position
-    // logDebug('insert the item into ${_player.currentIndex ?? 0}');
+    logDebug('insert the item into ${_player.currentIndex ?? 0}');
     await audioSource.insert(targetIdx < audioSource.length ? targetIdx : 0,
         _mediaItemToAudioSource(newItem));
     // update queue
@@ -220,7 +222,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   // QueueHandler implements skipToNext, skipToPrevious
   @override
   Future<void> skipToQueueItem(int index) async {
-    // logDebug('skipToQueueItem: $index');
+    logDebug('skipToQueueItem: $index');
     final qval = queue.value;
     if (index >= 0 && index < qval.length) {
       // start at the last position

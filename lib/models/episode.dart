@@ -256,7 +256,10 @@ class Episode {
       artist: channelTitle,
       duration:
           mediaDuration != null ? Duration(seconds: mediaDuration!) : null,
-      artUri: channelImageUrl != null ? Uri.tryParse(channelImageUrl!) : null,
+      artUri: channelImageUrl != null
+          // && channelImageUrl!.endsWith('png')
+          ? Uri.tryParse(channelImageUrl!)
+          : null,
       extras: extras == null
           ? {
               'channelId': channelId, // channel.id

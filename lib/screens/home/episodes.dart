@@ -139,9 +139,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                             side: BorderSide.none,
                             backgroundColor:
                                 Theme.of(context).colorScheme.primary,
-                            onPressed: () async {
-                              await logic.pause();
-                            },
+                            onPressed: () async => await logic.pause(),
                           )
                         // not playing => start playing
                         : (episode.mediaSeekPos ?? 0) > 0
@@ -156,9 +154,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                                 // side: BorderSide.none,
                                 onPressed: episode.played
                                     ? null
-                                    : () async {
-                                        logic.play(episode);
-                                      },
+                                    : () => logic.play(episode),
                               )
                             // hasn't been played yet
                             : ActionChip(
@@ -170,9 +166,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                                 // side: BorderSide.none,
                                 onPressed: episode.played
                                     ? null
-                                    : () async {
-                                        logic.play(episode);
-                                      },
+                                    : () async => logic.play(episode),
                               ),
                     const Expanded(child: SizedBox()),
                     //
@@ -182,7 +176,8 @@ class _EpisodesViewState extends State<EpisodesView> {
                       icon: episode.liked
                           ? const Icon(Icons.thumb_up_alt)
                           : const Icon(Icons.thumb_up_alt_outlined),
-                      onPressed: () => logic.toggleLiked(episode.id),
+                      onPressed: () async =>
+                          await logic.toggleLiked(episode.id),
                     ),
                     //
                     // playlist add
@@ -203,15 +198,15 @@ class _EpisodesViewState extends State<EpisodesView> {
                     //
                     IconButton(
                       onPressed: episode.played
-                          ? () => logic.clearPlayed(episode.id)
-                          : () {
-                              logic.setPlayed(episode.id);
+                          ? () async => await logic.clearPlayed(episode.id)
+                          : () async {
+                              await logic.setPlayed(episode.id);
                               if (episode.id == logic.currentEpisodeId) {
                                 // currently playing => DON'T do anything
-                                // logic.skipToNext();
                               } else {
                                 // if it is on the playlist remove it
-                                logic.removePlaylistItemByEpisodeId(episode.id);
+                                await logic
+                                    .removePlaylistItemByEpisodeId(episode.id);
                               }
                             },
                       icon: episode.played
