@@ -155,8 +155,8 @@ Future deleteChannelById(String channelId) async {
 
 // C
 Future saveEpisode(Episode episode) async {
+  logDebug('database:saveEpisode: $episode');
   final db = await _open();
-  // logDebug('database:createEpisode: $episode');
   await db.insert(
     tableEpisodes,
     episode.toDbMap(),
@@ -201,8 +201,8 @@ Future updateEpisodes({
 
 // D
 Future deleteEpisodeById(String episodeId) async {
-  final db = await _open();
   // logDebug('database:deleteEpisode: $episodeId');
+  final db = await _open();
   await db.delete(
     tableEpisodes,
     where: 'id=?',
