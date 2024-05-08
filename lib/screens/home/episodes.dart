@@ -184,11 +184,7 @@ class _EpisodesViewState extends State<EpisodesView> {
                     //
                     IconButton(
                       icon: const Icon(Icons.playlist_add_rounded),
-                      onPressed: episode.played ||
-                              (episode.id == logic.currentEpisodeId &&
-                                      state != null &&
-                                      state.playing) ==
-                                  true
+                      onPressed: logic.isInPlaylist(episode.id)
                           ? null
                           : () async =>
                               await logic.addEpisodeToPlaylist(episode),

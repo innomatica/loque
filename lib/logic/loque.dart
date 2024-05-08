@@ -197,7 +197,6 @@ class LoqueLogic extends ChangeNotifier {
   }
 
   Future<void> resume() async {
-    // TODO: confirm this change
     if (_handler.queue.value.isNotEmpty) {
       _handler.play();
     }
@@ -412,6 +411,17 @@ class LoqueLogic extends ChangeNotifier {
   //
   // Playlist(Queue) related
   //
+
+  bool isInPlaylist(String episodeId) =>
+      queue.value.indexWhere((m) => m.extras?['episodeId'] == episodeId) != -1;
+  // bool isInPlaylist(String episodeId) {
+  //   final index =
+  //       queue.value.indexWhere((m) => m.extras?['episodeId'] == episodeId);
+  //   logDebug(
+  //       'isInPlaylist: $episodeId, ${queue.value.map((e) => e.id).toList()}');
+  //   return index != -1;
+  // }
+
   Future<void> addEpisodeToPlaylist(Episode episode) =>
       _handler.addQueueItem(episode.toMediaItem());
 

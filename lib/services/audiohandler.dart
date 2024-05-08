@@ -218,17 +218,9 @@ class LoqueAudioHandler extends BaseAudioHandler
           children: [_mediaItemToAudioSource(mediaItem)]));
       await _player.seek(Duration(seconds: mediaItem.extras!['seekPos']));
     } else if (mediaIndex < audioSource.length && mediaIndex != currentIndex) {
-      // FIXME: confirm below with currentIndexChange
       logDebug('existing media at $mediaIndex is selected');
       final targetIndex = _player.currentIndex ?? 0;
       await audioSource.move(mediaIndex, targetIndex);
-      /*
-      await audioSource.removeAt(mediaIndex);
-      logDebug('source removed from $mediaIndex');
-      // push into the current position
-      await audioSource.insert(targetIndex, _mediaItemToAudioSource(mediaItem));
-      logDebug('source inserted into $targetIndex');
-      */
       await _player.seek(Duration(seconds: mediaItem.extras!['seekPos']),
           index: targetIndex);
       logDebug('seek to index $targetIndex');
