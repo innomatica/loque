@@ -69,8 +69,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   void _handleDurationChange() {
     // subscribe to the duration change
     _subDuration = _player.durationStream.listen((Duration? duration) {
-      logDebug('handler.durationChange: $duration, ${_player.playerState}');
-
+      // logDebug('handler.durationChange: $duration, ${_player.playerState}');
       if (duration != null && _player.playing) {
         // broadcast duration change
         if (currentMediaItem != null) {
@@ -82,8 +81,8 @@ class LoqueAudioHandler extends BaseAudioHandler
             currentIndex != null &&
             currentIndex! > 0 &&
             currentIndex! < sequence!.length) {
-          logDebug(
-              'handler.CurIndexChange.set played for ${currentIndex! - 1})');
+          // logDebug(
+          //     'handler.CurIndexChange.set played for ${currentIndex! - 1})');
           sequence![currentIndex! - 1].tag?.extras['played'] = true;
           queue.add(_queueFromSequence);
         }
@@ -93,7 +92,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _handlePlyStateChange() {
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
-      logDebug('handler.plyStateChange: $state');
+      // logDebug('handler.plyStateChange: $state');
       if (state.processingState == ProcessingState.ready) {
         if (state.playing == false) {
           // paused or loading done
@@ -105,8 +104,7 @@ class LoqueAudioHandler extends BaseAudioHandler
       } else if (state.processingState == ProcessingState.completed) {
         // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
         if (state.playing) {
-          // end of queue: do not use (state.playing==false)
-          logDebug('end of queue');
+          // logDebug('end of queue');
           // set played for the last mediaItem otherwise left unchecked
           if (currentMediaItem != null) {
             mediaItem.add(currentMediaItem!.copyWith(
@@ -117,7 +115,7 @@ class LoqueAudioHandler extends BaseAudioHandler
           await stop();
         } else {
           // this is invoked when stop() is called
-          logDebug('cleaning up audioSource, queue, mediaItem');
+          // logDebug('cleaning up audioSource, queue, mediaItem');
           queue.add([]);
           mediaItem.add(null);
         }
@@ -131,7 +129,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   //
   void _handleCurIndexChange() {
     _subCurIndex = _player.currentIndexStream.listen((int? index) {
-      logDebug('handler.CurIndexChange.index: $index, ${_player.playerState}');
+      // logDebug('handler.CurIndexChange.index: $index, ${_player.playerState}');
       // broadcast current media item
       mediaItem.add(currentMediaItem);
       // do not set the played flag here
@@ -203,7 +201,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
-    logDebug('playMediaItem: ${mediaItem.title}');
+    // logDebug('playMediaItem: ${mediaItem.title}');
     final audioSource = _player.audioSource as ConcatenatingAudioSource;
     // first we need to save current position if currently playing
     if (_player.playing) {
@@ -213,21 +211,21 @@ class LoqueAudioHandler extends BaseAudioHandler
     final mediaIndex = audioSource.children
         .indexWhere((c) => (c as UriAudioSource).tag.id == mediaItem.id);
     if (mediaIndex == -1) {
-      logDebug('new media => set up a new audio source');
+      // logDebug('new media => set up a new audio source');
       await _player.setAudioSource(ConcatenatingAudioSource(
           children: [_mediaItemToAudioSource(mediaItem)]));
       await _player.seek(Duration(seconds: mediaItem.extras!['seekPos']));
     } else if (mediaIndex < audioSource.length && mediaIndex != currentIndex) {
-      logDebug('existing media at $mediaIndex is selected');
+      // logDebug('existing media at $mediaIndex is selected');
       final targetIndex = _player.currentIndex ?? 0;
       await audioSource.move(mediaIndex, targetIndex);
       await _player.seek(Duration(seconds: mediaItem.extras!['seekPos']),
           index: targetIndex);
-      logDebug('seek to index $targetIndex');
+      // logDebug('seek to index $targetIndex');
     }
     // update queue
     queue.add(_queueFromSequence);
-    logDebug('queue: ${queue.value.map((m) => m.title).toList()}');
+    // logDebug('queue: ${queue.value.map((m) => m.title).toList()}');
     _player.play();
   }
 
@@ -241,7 +239,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   // QueueHandler implements skipToNext, skipToPrevious
   @override
   Future<void> skipToQueueItem(int index) async {
-    logDebug('skipToQueueItem: $index');
+    // logDebug('skipToQueueItem: $index');
     final qval = queue.value;
     if (index >= 0 && index < qval.length) {
       // start at the last position
@@ -271,16 +269,12 @@ class LoqueAudioHandler extends BaseAudioHandler
   @override
   // ignore: avoid_renaming_method_parameters
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    logDebug('addQueueItem: $mediaItem');
+    // logDebug('addQueueItem: $mediaItem');
     (_player.audioSource as ConcatenatingAudioSource)
         .add(_mediaItemToAudioSource(mediaItem));
     // broadcast change
     queue.add(_queueFromSequence);
-    logDebug('queue: ${queue.value.map((m) => m.title).toList()}');
-    // final qval = queue.value;
-    // mediaItem.add(qval[_player.currentIndex ?? 0]);
-    // final qval = queue.value..add(mediaItem);
-    // queue.add(qval);
+    // logDebug('queue: ${queue.value.map((m) => m.title).toList()}');
   }
 
   @override

@@ -102,7 +102,7 @@ void close() async {
 //
 Future saveChannel(Channel channel) async {
   final db = await _open();
-  // logDebug('database:saveChannel: $channel');
+  // logDebug('database.saveChannel: $channel');
   await db.insert(
     tableChannels,
     channel.toDbMap(),
@@ -155,7 +155,7 @@ Future deleteChannelById(String channelId) async {
 
 // C
 Future saveEpisode(Episode episode) async {
-  logDebug('database:saveEpisode: $episode');
+  // logDebug('database.saveEpisode: $episode');
   final db = await _open();
   await db.insert(
     tableEpisodes,

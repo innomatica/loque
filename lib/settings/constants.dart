@@ -1,16 +1,16 @@
 // app info
 const appId = 'com.innomatic.loqueapp';
 const appName = 'Loque';
-const appVersion = '1.2.8+31';
+const appVersion = '1.3.0+32';
 const emailDeveloper = 'nuntium.ubique@gmail.com';
-const urlGooglePlay = 'https://play.google.com/store/apps/details?id=$appId';
-const urlAppStore = null;
-const urlHomePage = 'https://www.innomatic.ca';
 
 // asset images
 const playStoreUrlQrCode = 'assets/images/com.innomatic.loqueapp.png';
 
-// urls for app
+// urls
+const urlGooglePlay = 'https://play.google.com/store/apps/details?id=$appId';
+const urlAppStore = null;
+const urlHomePage = 'https://www.innomatic.ca';
 const urlSourceRepo = 'https://github.com/innomatica/loque';
 const urlPrivacyPolicy = 'https://innomatica.github.io/loque/privacy/';
 const urlDisclaimer = 'https://innomatica.github.io/loque/disclaimer/';
@@ -20,6 +20,10 @@ const urlStoreImageSource =
     'https://www.pexels.com/photo/rode-podmic-audio-microphone-in-a-podcast-studio-11884525/';
 const urlCuratedData =
     'https://raw.githubusercontent.com/innomatica/loque/master/extra/data/curated.json';
+
+// github
+const githubUser = 'innomatica';
+const githubRepo = 'carta';
 
 // sleep timer setting
 const sleepTimeouts = [30, 20, 10, 5, 60];

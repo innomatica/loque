@@ -1,7 +1,9 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../logic/github.dart';
 import '../../settings/constants.dart';
 
 class AboutPage extends StatefulWidget {
@@ -28,10 +30,33 @@ class _AboutPageState extends State<AboutPage> {
       child: ListView(
         children: [
           // Version
-          ListTile(
-            title: Text('Version', style: titleStyle),
-            subtitle: const Text(appVersion),
+          Consumer<CartaRepo>(
+            builder: (context, repo, child) => ListTile(
+              title: Text('Version', style: titleStyle),
+              subtitle: Row(
+                children: [
+                  const Text(appVersion),
+                  repo.newAvailable
+                      ? Text(
+                          '  (newer version available)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        )
+                      : const SizedBox(width: 0.0),
+                ],
+              ),
+              onTap: repo.newAvailable & (repo.urlRelease != null)
+                  ? () => launchUrl(Uri.parse(repo.urlRelease!),
+                      mode: LaunchMode.externalApplication)
+                  : null,
+            ),
           ),
+          // ListTile(
+          //   title: Text('Version', style: titleStyle),
+          //   subtitle: const Text(appVersion),
+          // ),
           // Open Source
           ListTile(
             title: Text('Open Source', style: titleStyle),

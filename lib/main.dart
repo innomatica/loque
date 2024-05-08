@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'logic/github.dart';
 import 'logic/loque.dart';
 import 'logic/search.dart';
 import 'screens/home/home.dart';
@@ -16,20 +17,16 @@ void main() async {
   final LoqueAudioHandler handler = await initAudioService();
   // shared preference
   await SharedPrefsService.init();
+  // check update
+  final repo = CartaRepo();
+  repo.checkVersion();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SearchLogic()),
+        ChangeNotifierProvider(create: (_) => CartaRepo()),
         ChangeNotifierProvider(create: (_) => LoqueLogic(handler)),
-        // Provider<LoqueAudioHandler>(
-        //   create: (context) {
-        //     // inject dependency without ProxyProvider
-        //     handler.setLogic(context.read<LoqueLogic>());
-        //     return handler;
-        //   },
-        //   dispose: (context, value) => handler.dispose(),
-        // ),
       ],
       child: const MyApp(),
     ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/widgets.dart';
+import '../../logic/github.dart';
 import '../../logic/loque.dart';
 import '../../settings/constants.dart';
 import '../about/about.dart';
@@ -49,7 +50,11 @@ class _HomePageState extends State<HomePage> {
   //
   Widget _buildMenuButton() {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
+      icon: Consumer<CartaRepo>(
+        builder: (_, repo, __) => repo.newAvailable
+            ? Icon(Icons.more_vert, color: Theme.of(context).colorScheme.error)
+            : const Icon(Icons.more_vert),
+      ),
       onSelected: (String item) {
         if (item == 'Set Sleep Timer') {
           if (_sleepTimer != null) {
@@ -119,7 +124,13 @@ class _HomePageState extends State<HomePage> {
               Icon(Icons.info_rounded,
                   color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8.0),
-              const Text('About'),
+              Consumer<CartaRepo>(
+                builder: (context, repo, child) => repo.newAvailable
+                    ? Text('About',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error))
+                    : const Text('About'),
+              ),
             ],
           ),
         ),
