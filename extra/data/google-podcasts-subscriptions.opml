@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+  <opml version="1.0">
+    <head>
+      <title>Google Podcasts Feeds</title>
+    </head>
+    <body>
+      <outline text="feeds">
+      <outline xmlUrl="https://feeds.megaphone.fm/vergecast" type="rss" text="The Vergecast" />
+      <outline xmlUrl="http://feeds.wnyc.org/science-friday" type="rss" text="Science Friday" />
+      <outline xmlUrl="https://www.theguardian.com/science/series/science/podcast.xml" type="rss" text="Science Weekly" />
+      <outline xmlUrl="https://www.cbc.ca/podcasting/includes/debaters.xml" type="rss" text="The Debaters" />
+      <outline xmlUrl="https://feeds.acast.com/public/shows/630ceae33fe37400122828c6" type="rss" text="CANADALAND" />
+      <outline xmlUrl="https://linuxunplugged.com/rss" type="rss" text="LINUX Unplugged" />
+      <outline xmlUrl="https://selfhosted.show/rss" type="rss" text="Self-Hosted" />
+      <outline xmlUrl="https://linuxactionnews.com/rss" type="rss" text="Linux Action News" />
+      <outline xmlUrl="http://feeds.wnyc.org/radiolab" type="rss" text="Radiolab" />
+      <outline xmlUrl="https://www.cbc.ca/podcasting/includes/laughoutloud.xml" type="rss" text="Laugh Out Loud" />
+      <outline xmlUrl="https://www.cbc.ca/podcasting/includes/becausenews.xml" type="rss" text="Because News" />
+      <outline xmlUrl="https://feeds.npr.org/344098539/podcast.xml" type="rss" text="Wait Wait... Don't Tell Me!" />
+      <outline xmlUrl="https://iotpodcast.com/feed/podcast/" type="rss" text="The Internet of Things Podcast - Stacey On IoT" />
+      </outline>
+    </body>
+  </opml>

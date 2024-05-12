@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+// import '../helpers/logger.dart';
 import '../models/channel.dart';
+import '../services/google.dart';
 import '../services/pcidx.dart';
 import '../services/rss.dart';
 import '../services/sharedprefs.dart';
@@ -86,11 +89,31 @@ class SearchLogic extends ChangeNotifier {
         final res = await getPodcastByFeedUrl(channel['url']);
         if (res is Channel) {
           _channels.insert(0, res);
-          notifyListeners();
         }
       }
+      notifyListeners();
     } else {
       // fail to fetch
     }
+  }
+
+  //
+  // import data from Google podcast
+  //
+  Future<void> importFromGooglePodcast(File file) async {
+    final contents = await file.readAsString();
+    final items = await parseGooglePodcastOpml(contents);
+    // logDebug('items: $items');
+    _channels.clear();
+    for (final item in items) {
+      if (item.xmlUrl is String) {
+        final res = await getPodcastByFeedUrl(item.xmlUrl!);
+        // logDebug('res: $res');
+        if (res is Channel) {
+          _channels.add(res);
+        }
+      }
+    }
+    notifyListeners();
   }
 }

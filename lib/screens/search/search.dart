@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -135,18 +138,14 @@ class _SearchPageState extends State<SearchPage> {
       if (value != null &&
           value['categories'] is String &&
           value['categories'].isNotEmpty) {
-        setState(() {
-          _loading = true;
-        });
+        setState(() => _loading = true);
         final search = context.read<SearchLogic>();
         await search.trendingPodcastsByLangCat(
           value['language'],
           value['categories'],
         );
         _scrollController.jumpTo(0);
-        setState(() {
-          _loading = false;
-        });
+        setState(() => _loading = false);
       }
     });
   }
@@ -197,9 +196,7 @@ class _SearchPageState extends State<SearchPage> {
                             await logic.searchPodcastsByKeyword(
                                 _keywordController.text);
                             _scrollController.jumpTo(0);
-                            setState(() {
-                              _loading = false;
-                            });
+                            setState(() => _loading = false);
                           }
                           _keywordController.clear();
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -235,9 +232,11 @@ class _SearchPageState extends State<SearchPage> {
             onTap: () async {
               setState(() {
                 _showInputBox = InputBox.none;
+                _loading = true;
               });
               final search = context.read<SearchLogic>();
               await search.getCuratedList();
+              setState(() => _loading = false);
             },
             visualDensity: VisualDensity.compact,
             iconColor: iconColor,
@@ -278,6 +277,7 @@ class _SearchPageState extends State<SearchPage> {
                         onTap: () async {
                           if (_rssfeedController.text.isNotEmpty) {
                             logDebug("url: ${_rssfeedController.text}");
+                            setState(() => _loading = true);
                             final logic = context.read<SearchLogic>();
                             final flag = await logic
                                 .getChannelDataFromRss(_rssfeedController.text);
@@ -305,6 +305,7 @@ class _SearchPageState extends State<SearchPage> {
                                 _showInputBox = InputBox.none;
                               });
                             }
+                            setState(() => _loading = false);
                           }
                           _rssfeedController.clear();
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -354,6 +355,35 @@ class _SearchPageState extends State<SearchPage> {
                   )
                 : null,
           ),
+          //
+          // Import Google OPML
+          //
+          ListTile(
+            onTap: () async {
+              _showInputBox = InputBox.none;
+              FilePickerResult? result = await FilePicker.platform.pickFiles();
+              if (result != null) {
+                setState(() => _loading = true);
+                File file = File(result.files.single.path!);
+                logDebug('file: $file');
+                if (context.mounted) {
+                  final search = context.read<SearchLogic>();
+                  await search.importFromGooglePodcast(file);
+                }
+                setState(() => _loading = false);
+              }
+            },
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.podcasts_rounded),
+            title: Row(
+              children: [
+                Text('Import ', style: TextStyle(color: accentColor)),
+                const Text('data from Google Podcast'),
+              ],
+            ),
+          ),
+
           //
           // search results
           //
