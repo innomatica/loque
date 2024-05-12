@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/logger.dart';
 import '../../helpers/widgets.dart';
 import '../../logic/search.dart';
 import '../../models/channel.dart';
@@ -13,14 +14,20 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
+enum InputBox { keyword, rssfeed, websrch, none }
+
 class _SearchPageState extends State<SearchPage> {
   final _keywordController = TextEditingController();
+  final _rssfeedController = TextEditingController();
   final _scrollController = ScrollController();
-  bool loading = false;
+  String _keywords = '';
+  bool _loading = false;
+  InputBox _showInputBox = InputBox.none;
 
   @override
   void dispose() {
     _keywordController.dispose();
+    _rssfeedController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -129,7 +136,7 @@ class _SearchPageState extends State<SearchPage> {
           value['categories'] is String &&
           value['categories'].isNotEmpty) {
         setState(() {
-          loading = true;
+          _loading = true;
         });
         final search = context.read<SearchLogic>();
         await search.trendingPodcastsByLangCat(
@@ -138,103 +145,8 @@ class _SearchPageState extends State<SearchPage> {
         );
         _scrollController.jumpTo(0);
         setState(() {
-          loading = false;
+          _loading = false;
         });
-      }
-    });
-  }
-
-  //
-  // Browser Dialog
-  //
-  Future _browseAndFind() async {
-    String keyword = '';
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        titlePadding: const EdgeInsets.all(0.0),
-        contentPadding: const EdgeInsets.only(
-          top: 0.0,
-          left: 24,
-          right: 24,
-          bottom: 20,
-        ),
-        content: TextField(
-          onChanged: (value) => keyword = value,
-          decoration: InputDecoration(
-            isDense: true,
-            label: const Text('Enter keyword'),
-            suffix: IconButton(
-              onPressed: () {
-                Navigator.of(context).pop({"keyword": keyword});
-              },
-              icon: const Icon(Icons.check_rounded),
-            ),
-          ),
-        ),
-      ),
-    ).then((value) async {
-      if (value != null) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => Browser(value['keyword'])),
-        );
-      }
-    });
-  }
-
-  //
-  // RSS Dialog
-  //
-  Future _enterRssUrl() async {
-    String url = '';
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        titlePadding: const EdgeInsets.all(0.0),
-        contentPadding: const EdgeInsets.only(
-          top: 0.0,
-          left: 24,
-          right: 24,
-          bottom: 20,
-        ),
-        content: TextField(
-          onChanged: (value) => url = value,
-          decoration: InputDecoration(
-            isDense: true,
-            label: const Text('Enter RSS URL'),
-            suffix: IconButton(
-              onPressed: () {
-                if (url.isNotEmpty) {
-                  // logDebug('url: $url');
-                  Navigator.of(context).pop({"url": url});
-                }
-              },
-              icon: const Icon(Icons.check_rounded),
-            ),
-          ),
-        ),
-      ),
-    ).then((value) async {
-      // logDebug('value: $value');
-      if (value != null) {
-        final logic = context.read<SearchLogic>();
-        final flag = await logic.getChannelDataFromRss(value['url']);
-        if (flag == false) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                content: Text(
-                  'Failed to find podcast... Check URL',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
-            );
-          }
-        }
       }
     });
   }
@@ -242,105 +154,206 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final channels = context.watch<SearchLogic>().channels;
+    final iconColor = Theme.of(context).colorScheme.secondary;
+    final accentColor = Theme.of(context).colorScheme.primary;
     return Scaffold(
       appBar: AppBar(title: const Text('Search Podcasts')),
       body: Column(
         children: [
           //
-          // search text box
+          // keyword search
           //
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: TextField(
-              controller: _keywordController,
-              decoration: InputDecoration(
-                isDense: true,
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                prefixIcon: _keywordController.text.isEmpty
-                    ? null
-                    : InkWell(
-                        child: Icon(
-                          Icons.close,
-                          size: 28.0,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        onTap: () {
+          ListTile(
+            onTap: () => setState(() {
+              _showInputBox = _showInputBox == InputBox.keyword
+                  ? InputBox.none
+                  : InputBox.keyword;
+            }),
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.search_rounded),
+            title: Row(
+              children: [
+                const Text('PodcastIndex'),
+                Text(' Keyword ', style: TextStyle(color: accentColor)),
+                const Text('Search'),
+              ],
+            ),
+            subtitle: _showInputBox == InputBox.keyword
+                ? TextField(
+                    controller: _keywordController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "technology, business, ...",
+                      suffixIcon: InkWell(
+                        child: Icon(Icons.check, size: 28.0, color: iconColor),
+                        onTap: () async {
+                          if (_keywordController.text.isNotEmpty) {
+                            setState(() {
+                              _loading = true;
+                              _showInputBox = InputBox.none;
+                            });
+                            final logic = context.read<SearchLogic>();
+                            await logic.searchPodcastsByKeyword(
+                                _keywordController.text);
+                            _scrollController.jumpTo(0);
+                            setState(() {
+                              _loading = false;
+                            });
+                          }
+                          _keywordController.clear();
                           FocusManager.instance.primaryFocus?.unfocus();
-                          _keywordController.text = '';
-                          setState(() {});
                         },
                       ),
-                suffixIcon: InkWell(
-                  child: Icon(
-                    Icons.search,
-                    size: 28.0,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onTap: () async {
-                    if (_keywordController.text.isNotEmpty) {
-                      setState(() {
-                        loading = true;
-                      });
-                      final logic = context.read<SearchLogic>();
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      await logic
-                          .searchPodcastsByKeyword(_keywordController.text);
-                      _scrollController.jumpTo(0);
-                      setState(() {
-                        loading = false;
-                      });
-                    }
-                  },
-                ),
-              ),
+                    ),
+                  )
+                : null,
+          ),
+          //
+          // Trending
+          //
+          ListTile(
+            onTap: () => setState(() {
+              _showInputBox = InputBox.none;
+              _searchTrending();
+            }),
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.trending_up_rounded),
+            title: Row(
+              children: [
+                const Text('On'),
+                Text(' Trending ', style: TextStyle(color: accentColor)),
+                const Text('in PodcastIndex'),
+              ],
             ),
           ),
           //
-          // Button Bar
+          // Curated
           //
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              //
-              // Trending
-              //
-              FilledButton.tonal(
-                onPressed: _searchTrending,
-                // child: const Text("Trending"),
-                child: const Icon(Icons.trending_up_rounded),
-              ),
-              //
-              // Trending
-              //
-              FilledButton.tonal(
-                onPressed: () async {
-                  final search = context.read<SearchLogic>();
-                  await search.getCuratedList();
-                },
-                // child: const Text("Trending"),
-                child: const Icon(Icons.favorite_border_outlined),
-              ),
-              //
-              // RSS
-              //
-              FilledButton.tonal(
-                onPressed: _enterRssUrl,
-                // child: const Text("Browse and Find"),
-                child: const Icon(Icons.rss_feed_rounded),
-              ),
-              //
-              // Search Web
-              //
-              FilledButton.tonal(
-                onPressed: _browseAndFind,
-                // child: const Text("Browse and Find"),
-                child: const Icon(Icons.public_rounded),
-              ),
-            ],
+          ListTile(
+            onTap: () async {
+              setState(() {
+                _showInputBox = InputBox.none;
+              });
+              final search = context.read<SearchLogic>();
+              await search.getCuratedList();
+            },
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.favorite_border_rounded),
+            title: Row(
+              children: [
+                const Text('Try Loque'),
+                Text(' Favorites', style: TextStyle(color: accentColor)),
+              ],
+            ),
           ),
-          const SizedBox(height: 8.0),
+          //
+          // RSS URL
+          //
+          ListTile(
+            onTap: () => setState(() {
+              _showInputBox = _showInputBox == InputBox.rssfeed
+                  ? InputBox.none
+                  : InputBox.rssfeed;
+            }),
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.rss_feed_rounded),
+            title: Row(
+              children: [
+                const Text('I know the'),
+                Text(' Feed URL', style: TextStyle(color: accentColor)),
+              ],
+            ),
+            subtitle: _showInputBox == InputBox.rssfeed
+                ? TextField(
+                    controller: _rssfeedController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "https://example.com/rss",
+                      suffixIcon: InkWell(
+                        child: Icon(Icons.check, size: 28.0, color: iconColor),
+                        onTap: () async {
+                          if (_rssfeedController.text.isNotEmpty) {
+                            logDebug("url: ${_rssfeedController.text}");
+                            final logic = context.read<SearchLogic>();
+                            final flag = await logic
+                                .getChannelDataFromRss(_rssfeedController.text);
+                            if (flag == false) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    content: Text(
+                                      'Failed to find podcast... Check the URL',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimaryContainer,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            } else {
+                              setState(() {
+                                _showInputBox = InputBox.none;
+                              });
+                            }
+                          }
+                          _rssfeedController.clear();
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+          //
+          // Browse and Find
+          //
+          ListTile(
+            onTap: () => setState(() {
+              _showInputBox = _showInputBox == InputBox.websrch
+                  ? InputBox.none
+                  : InputBox.websrch;
+            }),
+            visualDensity: VisualDensity.compact,
+            iconColor: iconColor,
+            leading: const Icon(Icons.public_rounded),
+            title: Row(
+              children: [
+                Text('Browse and Find ', style: TextStyle(color: accentColor)),
+                const Text('the Feed'),
+              ],
+            ),
+            subtitle: _showInputBox == InputBox.websrch
+                ? TextField(
+                    onChanged: (value) => _keywords = value,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "leadership, culture, ...",
+                      suffixIcon: InkWell(
+                        child: Icon(Icons.check, size: 28.0, color: iconColor),
+                        onTap: () async {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          if (_keywords.isNotEmpty) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => Browser(_keywords)),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  )
+                : null,
+          ),
           //
           // search results
           //
@@ -349,10 +362,11 @@ class _SearchPageState extends State<SearchPage> {
               children: [
                 ListView.builder(
                   controller: _scrollController,
+                  // shrinkWrap: true,
                   itemCount: channels.length,
                   itemBuilder: (context, index) => ChannelTile(channels[index]),
                 ),
-                loading
+                _loading
                     ? const Center(
                         child: SizedBox(
                           width: 20.0,

@@ -1,7 +1,8 @@
 # loqueapp
 
-A Simple Podcast App based on [PodcastIndex.org](https://podcastindex.org).
+A Simple Podcast App based on [PodcastIndex.org](https://podcastindex.org) and RSS feed.
 
 # TODO
 
-seekPos is not observed when played sequentially
+- redesign search page
+- implement import from google podcast

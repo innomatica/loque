@@ -91,6 +91,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   void _handlePlyStateChange() {
+    // subscribe to playerStateStream
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
       // logDebug('handler.plyStateChange: $state');
       if (state.processingState == ProcessingState.ready) {
@@ -102,9 +103,9 @@ class LoqueAudioHandler extends BaseAudioHandler
         // probably unnecessary
         // _updateSeekPos();
       } else if (state.processingState == ProcessingState.completed) {
-        // NOTE (playing, completed) may or MAY NOT be followed by (not playing, complted)
+        // (playing, completed) => (not playing, completed) => (not playing, idle)
         if (state.playing) {
-          // logDebug('end of queue');
+          logDebug('end of queue');
           // set played for the last mediaItem otherwise left unchecked
           if (currentMediaItem != null) {
             mediaItem.add(currentMediaItem!.copyWith(
@@ -231,10 +232,7 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   // SeekHandler implements fastForward, rewind, seekForward, seekBackward
   @override
-  Future<void> seek(Duration position) async {
-    await _player.seek(position);
-    _updateSeekPos();
-  }
+  Future<void> seek(Duration position) => _player.seek(position);
 
   // QueueHandler implements skipToNext, skipToPrevious
   @override
@@ -267,19 +265,17 @@ class LoqueAudioHandler extends BaseAudioHandler
       : <MediaItem>[];
 
   @override
-  // ignore: avoid_renaming_method_parameters
   Future<void> addQueueItem(MediaItem mediaItem) async {
     // logDebug('addQueueItem: $mediaItem');
-    (_player.audioSource as ConcatenatingAudioSource)
+    await (_player.audioSource as ConcatenatingAudioSource)
         .add(_mediaItemToAudioSource(mediaItem));
     // broadcast change
     queue.add(_queueFromSequence);
-    // logDebug('queue: ${queue.value.map((m) => m.title).toList()}');
   }
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    (_player.audioSource as ConcatenatingAudioSource)
+    await (_player.audioSource as ConcatenatingAudioSource)
         .addAll(mediaItems.map((m) => _mediaItemToAudioSource(m)).toList());
     // broadcast change
     queue.add(_queueFromSequence);

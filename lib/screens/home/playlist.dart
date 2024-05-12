@@ -27,7 +27,7 @@ class _PlayListViewState extends State<PlayListView> {
             onReorder: (int oldIndex, int newIndex) {
               // only future items are to be reordered
               final curIndex = logic.playbackState.value.queueIndex ?? 0;
-              // logDebug('current:$curIndex, old:$oldIndex, new:$newIndex');
+              logDebug('current:$curIndex, old:$oldIndex, new:$newIndex');
               if (curIndex < oldIndex && curIndex < newIndex) {
                 setState(() {
                   if (oldIndex < newIndex) {
