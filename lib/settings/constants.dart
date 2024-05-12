@@ -1,7 +1,7 @@
 // app info
 const appId = 'com.innomatic.loqueapp';
 const appName = 'Loque';
-const appVersion = '1.3.1+33';
+const appVersion = '1.3.2+34';
 const emailDeveloper = 'nuntium.ubique@gmail.com';
 
 // asset images
