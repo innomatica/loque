@@ -9,15 +9,6 @@
     "language": "en"
   },
   {
-    "title": "CANADALAND",
-    "url": "https://feeds.acast.com/public/shows/630ceae33fe37400122828c6",
-    "itunesId": "721048994",
-    "author": "CANADALAND",
-    "imageUrl": "https://assets.pippa.io/shows/630ceae33fe37400122828c6/show-cover.jpg",
-    "categories": "Canada, News, Politics",
-    "language": "en"
-  },
-  {
     "title": "The Debaters",
     "url": "https://feeds.fireside.fm/selfhosted/rss",
     "itunesId": "1404480773",
@@ -63,15 +54,6 @@
     "language": "en"
   },
   {
-    "title": "LINUX Unplugged",
-    "url": "https://feeds.fireside.fm/linuxunplugged/rss",
-    "itunesId": "687598126",
-    "author": "Jupiter Broadcasting",
-    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/f/f31a453c-fa15-491f-8618-3f71f1d565e5/cover.jpg",
-    "categories": "Technology, News",
-    "language": "en"
-  },
-  {
     "title": "The Naked Scientists",
     "url": "https://www.thenakedscientists.com/naked_scientists_podcast.xml",
     "itunesId": "74171648",
@@ -108,39 +90,12 @@
     "language": "en"
   },
   {
-    "title": "Science Friday",
-    "url": "https://feeds.feedburner.com/science-friday/",
-    "itunesId": "73329284",
-    "author": "WNYC Studios",
-    "imageUrl": "https://image.simplecastcdn.com/images/ac8e2039-dfef-4938-b66a-c2f58f4b7599/c01bb987-b09c-4e1a-b8ba-5cd859951535/3000x3000/sciencefriday-wnycstudios-1400.jpg?aid=rss_feed",
-    "categories": "Science, Natural, Life, Earth",
-    "language": "en"
-  },
-  {
-    "title": "Science Magazine Podcast",
-    "url": "https://feeds.megaphone.fm/AAAS8717073854",
-    "itunesId": "120329020",
-    "author": "Science Magazine",
-    "imageUrl": "https://megaphone.imgix.net/podcasts/ced64e52-63a7-11ee-a0a8-87aeb796287a/image/image.jpg?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
-    "categories": "Science, News, Commentary",
-    "language": "en"
-  },
-  {
     "title": "Science Weekly",
     "url": "https://www.theguardian.com/science/series/science/podcast.xml",
     "itunesId": "136697669",
     "author": "The Guardian",
     "imageUrl": "https://uploads.guim.co.uk/2021/11/17/ScienceWeekly_FINAL_3000.jpeg",
     "categories": "Science",
-    "language": "en"
-  },
-  {
-    "title": "Self-Hosted",
-    "url": "https://feeds.fireside.fm/selfhosted/rss",
-    "itunesId": "1477997392",
-    "author": "Jupiter Broadcasting",
-    "imageUrl": "https://assets.fireside.fm/file/fireside-images/podcasts/images/7/7296e34a-2697-479a-adfb-ad32329dd0b0/cover.jpg",
-    "categories": "Technology, Leisure, Hobbies",
     "language": "en"
   },
   {
