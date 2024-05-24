@@ -23,7 +23,7 @@ const urlCuratedData =
 
 // github
 const githubUser = 'innomatica';
-const githubRepo = 'carta';
+const githubRepo = 'loque';
 
 // sleep timer setting
 const sleepTimeouts = [30, 20, 10, 5, 60];

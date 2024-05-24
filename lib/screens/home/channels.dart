@@ -28,7 +28,8 @@ class _ChannelsViewState extends State<ChannelsView> {
             : Center(
                 child: Icon(Icons.subscriptions_rounded,
                     size: 80,
-                    color: Theme.of(context).colorScheme.surfaceVariant),
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest),
               ),
         Positioned(
             right: 20.0,

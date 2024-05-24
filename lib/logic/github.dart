@@ -18,7 +18,8 @@ class CartaRepo extends ChangeNotifier {
   Release? get latestRelease => _latestRelease;
   bool get newAvailable =>
       _latestVersion != null && (_latestVersion! > _currentVersion);
-  String? get urlRelease => _latestRelease?.assets?[0].browserDownloadUrl;
+  String? get urlAsset => _latestRelease?.assets?[0].browserDownloadUrl;
+  String? get urlRelease => _latestRelease?.htmlUrl;
 
   Future _init() async {
     _currentVersion = int.parse(appVersion.split('+')[1]);

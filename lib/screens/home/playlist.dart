@@ -93,7 +93,8 @@ class _PlayListViewState extends State<PlayListView> {
         } else {
           return Center(
             child: Icon(Icons.playlist_play_rounded,
-                size: 100, color: Theme.of(context).colorScheme.surfaceVariant),
+                size: 100,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest),
           );
         }
       },
