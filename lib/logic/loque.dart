@@ -131,9 +131,16 @@ class LoqueLogic extends ChangeNotifier {
           if (played == true) {
             episode.played = true;
             episode.mediaSeekPos = 0;
-          } else if (seekPos != null || duration != null) {
-            episode.mediaSeekPos = seekPos;
-            episode.mediaDuration = duration?.inSeconds;
+            // } else if (seekPos != null || duration != null) {
+            //   episode.mediaSeekPos = seekPos;
+            //   episode.mediaDuration = duration?.inSeconds;
+          } else {
+            if (seekPos != null && seekPos > 5) {
+              episode.mediaSeekPos = seekPos;
+            }
+            if (duration != null) {
+              episode.mediaDuration = duration.inSeconds;
+            }
           }
           await db.saveEpisode(episode);
           notifyListeners();

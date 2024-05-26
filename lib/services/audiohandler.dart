@@ -329,12 +329,11 @@ class LoqueAudioHandler extends BaseAudioHandler
   }
 
   void _updateSeekPos() {
-    int posInSecs = _player.position.inSeconds;
     // avoid saving trivial value: happens when the media first loaded
-    if (currentMediaItem != null && posInSecs > 5) {
+    if (currentMediaItem != null) {
       mediaItem.add(currentMediaItem!.copyWith(
           extras: currentMediaItem!.extras
-            ?..update('seekPos', (value) => posInSecs)));
+            ?..update('seekPos', (value) => _player.position.inSeconds)));
     }
   }
 }
