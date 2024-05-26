@@ -46,3 +46,4 @@ const maxSearchResultsSelection = [10, 50, 100, 200];
 const dataRetentionPeriodSelection = [7, 14, 30, 90];
 const maxDataRetentionPeriod = 90;
 const searchEngineSelection = ['DuckDuckGo', 'Google', 'Bing'];
+const swipeGestureThreshold = 50;

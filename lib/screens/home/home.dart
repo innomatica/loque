@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/logger.dart';
 import '../../helpers/widgets.dart';
 import '../../logic/github.dart';
 import '../../logic/loque.dart';
@@ -158,45 +159,57 @@ class _HomePageState extends State<HomePage> {
   // Body
   //
   Widget _buildBody(BuildContext context) {
-    switch (_selectedIndex) {
-      case 1:
-        return const ChannelsView();
-      case 2:
-        return const PlayListView();
-      default:
-        return const EpisodesView();
-    }
+    return GestureDetector(
+      // onPanEnd: (details) {
+      //   logDebug('onPanEnd:$details');
+      // },
+      onHorizontalDragEnd: (details) {
+        logDebug('onHorizontalDragEnd:$details');
+        final val = details.primaryVelocity ?? 0;
+        if (val > swipeGestureThreshold && _selectedIndex > 0) {
+          // swipe right
+          setState(() {
+            _selectedIndex = _selectedIndex - 1;
+          });
+        } else if (val < -swipeGestureThreshold && _selectedIndex < 2) {
+          // swipe left
+          setState(() {
+            _selectedIndex = _selectedIndex + 1;
+          });
+        }
+      },
+      behavior: HitTestBehavior.translucent,
+      child: _selectedIndex == 1
+          ? const ChannelsView()
+          : _selectedIndex == 2
+              ? const PlayListView()
+              : const EpisodesView(),
+    );
   }
 
   //
   // Bottom Navigation Bar
   //
   Widget _buildBottomNavBar() {
-    return BottomNavigationBar(
-      items: const [
-        BottomNavigationBarItem(
+    return NavigationBar(
+      onDestinationSelected: (int index) => setState(() {
+        _selectedIndex = index;
+      }),
+      selectedIndex: _selectedIndex,
+      destinations: const <Widget>[
+        NavigationDestination(
           icon: Icon(Icons.mic_rounded),
           label: 'Episodes',
         ),
-        BottomNavigationBarItem(
+        NavigationDestination(
           icon: Icon(Icons.subscriptions_rounded),
           label: 'Subscriptions',
         ),
-        // BottomNavigationBarItem(
-        //   icon: Icon(Icons.search),
-        //   label: 'Search',
-        // ),
-        BottomNavigationBarItem(
+        NavigationDestination(
           icon: Icon(Icons.playlist_play_rounded),
           label: 'Playlist',
         ),
       ],
-      currentIndex: _selectedIndex,
-      onTap: (int index) {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
     );
   }
 
