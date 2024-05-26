@@ -12,7 +12,8 @@ class CartaRepo extends ChangeNotifier {
   int? _latestVersion;
 
   CartaRepo() {
-    _init();
+    _currentVersion = int.parse(appVersion.split('+')[1]);
+    _checkVersion();
   }
 
   Release? get latestRelease => _latestRelease;
@@ -21,12 +22,7 @@ class CartaRepo extends ChangeNotifier {
   String? get urlAsset => _latestRelease?.assets?[0].browserDownloadUrl;
   String? get urlRelease => _latestRelease?.htmlUrl;
 
-  Future _init() async {
-    _currentVersion = int.parse(appVersion.split('+')[1]);
-    await checkVersion();
-  }
-
-  Future checkVersion() async {
+  Future _checkVersion() async {
     try {
       _latestRelease = await _github.repositories
           .getLatestRelease(RepositorySlug(githubUser, githubRepo));

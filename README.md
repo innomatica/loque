@@ -1,7 +1,8 @@
-# loqueapp
+# Loque
 
-A Simple Podcast App based on [PodcastIndex.org](https://podcastindex.org) and RSS feed.
+A Simple Podcast App based on [PodcastIndex](https://podcastindex.org) 
+as well as RSS feed.
 
-# TODO
+Thanks to [PodcastIndex](https://podcastindex.org), you can discover previously unknown world of podcasts hidden behind Google and Apple search algorithms.
+Also you can subscribe to any podcasts as long as they publish it via RSS feed.
 
-- implement import from google podcast

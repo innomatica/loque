@@ -17,9 +17,6 @@ void main() async {
   final LoqueAudioHandler handler = await initAudioService();
   // shared preference
   await SharedPrefsService.init();
-  // check update
-  final repo = CartaRepo();
-  repo.checkVersion();
 
   runApp(
     MultiProvider(
