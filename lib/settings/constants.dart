@@ -38,12 +38,12 @@ const spKeySearchEngine = 'searchengine';
 // default parameters
 const defaultMaxSearchResults = 100;
 const defaultTrendingDaysSince = 360;
-const defaultDataRetentionPeriod = 30;
+const defaultDataRetentionPeriod = 60;
 const defaultSearchEngine = 'DuckDuckGo';
 
 // options
 const maxSearchResultsSelection = [10, 50, 100, 200];
-const dataRetentionPeriodSelection = [7, 14, 30, 90];
-const maxDataRetentionPeriod = 90;
+const dataRetentionPeriodSelection = [7, 14, 30, 60, 90];
+int maxDataRetentionPeriod = dataRetentionPeriodSelection.last;
 const searchEngineSelection = ['DuckDuckGo', 'Google', 'Bing'];
 const swipeGestureThreshold = 50;

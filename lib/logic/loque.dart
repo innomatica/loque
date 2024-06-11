@@ -240,7 +240,7 @@ class LoqueLogic extends ChangeNotifier {
     // load eposides from DB
     final records = await db.readEpisodes();
     final expiryDate =
-        DateTime.now().subtract(const Duration(days: maxDataRetentionPeriod));
+        DateTime.now().subtract(Duration(days: maxDataRetentionPeriod));
     final displayDate = DateTime.now()
         .subtract(Duration(days: SharedPrefsService.dataRetentionPeriod));
 
