@@ -18,6 +18,15 @@
     "language": "en"
   },
   {
+    "title": "The Documentary Podcast",
+    "url": "https://podcasts.files.bbci.co.uk/p02nq0lx.rss",
+    "itunesId": "73802620",
+    "author": "BBC World Service",
+    "imageUrl": "http://ichef.bbci.co.uk/images/ic/3000x3000/p09rkmyp.jpg",
+    "categories": "Society, Culture, Personal, Journals",
+    "language": "en"
+  },
+  {
     "title": "Hard Fork",
     "url": "https://feeds.simplecast.com/l2i9YnTd",
     "itunesId": "1528594034",
@@ -27,12 +36,30 @@
     "language": "en"
   },
   {
+    "title": "Huberman Lab",
+    "url": "https://feeds.megaphone.fm/hubermanlab",
+    "itunesId": "1545953110",
+    "author": "Scicomm Media",
+    "imageUrl": "https://megaphone.imgix.net/podcasts/042e6144-725e-11ec-a75d-c38f702aecad/image/Huberman-Lab-Podcast-Thumbnail-3000x3000.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
+    "categories": "Health, Fitness, Science, Life",
+    "language": "en"
+  },
+  {
     "title": "In Our Time",
     "url": "https://podcasts.files.bbci.co.uk/b006qykl.rss",
     "itunesId": "73330895",
     "author": "BBC Radio 4",
     "imageUrl": "http://ichef.bbci.co.uk/images/ic/3000x3000/p0gfqcj8.jpg",
     "categories": "Science, History",
+    "language": "en"
+  },
+  {
+    "title": "The Jordan Habinger Show",
+    "url": "http://www.podcastone.com/podcast?categoryID2=1237",
+    "itunesId": "1344999619",
+    "author": "Jordan Harbinger",
+    "imageUrl": "https://img.podcastone.com/images/1237/JHS_hi_res_3k_Rev.png",
+    "categories": "Education, Self Improvement, Business, Entrepreneurship, Science, Social",
     "language": "en"
   },
   {
@@ -51,6 +78,15 @@
     "author": "CBC",
     "imageUrl": "https://www.cbc.ca/radio/podcasts/images/promo-laughoutloud-new.jpg",
     "categories": "Comedy",
+    "language": "en"
+  },
+  {
+    "title": "Lex Fridman Podcast",
+    "url": "https://lexfridman.com/feed/podcast/",
+    "itunesId": "1434243584",
+    "author": "Lex Fridman",
+    "imageUrl": "https://lexfridman.com/wordpress/wp-content/uploads/powerpress/artwork_3000-230.png",
+    "categories": "Technology, Science, Society, Culture, Philosophy",
     "language": "en"
   },
   {
@@ -108,6 +144,15 @@
     "language": "en"
   },
   {
+    "title": "Stuff You Should Know",
+    "url": "https://omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/A91018A4-EA4F-4130-BF55-AE270180C327/44710ECC-10BB-48D1-93C7-AE270180C33E/podcast.rss",
+    "itunesId": "278981407",
+    "author": "iHeartPodcasts",
+    "imageUrl": "https://www.omnycontent.com/d/programs/e73c998e-6e60-432f-8610-ae210140c5b1/a91018a4-ea4f-4130-bf55-ae270180c327/image.jpg?t=1684846432&size=Large",
+    "categories": "Society, Culture",
+    "language": "en"
+  },
+  {
     "title": "Tech Won't Save Us",
     "url": "https://feeds.buzzsprout.com/1004689.rss",
     "itunesId": "1507621076",
@@ -123,15 +168,6 @@
     "author": "NPR",
     "imageUrl": "https://media.npr.org/assets/img/2022/09/23/ted-radio-hour_tile_npr-network-01_sq-75eeb1db55c439c11197a2eb1ca921fe3b1943cc.jpg?s=1400&c=66&f=jpg",
     "categories": "Technology, Science, Social, Society, Culture",
-    "language": "en"
-  },
-  {
-    "title": "Today, Explained",
-    "url": "https://feeds.megaphone.fm/VMP5705694065",
-    "itunesId": "1346207297",
-    "author": "Vox Media",
-    "imageUrl": "https://megaphone.imgix.net/podcasts/23d52a2a-1c5f-11ea-9a0e-b70170f2a827/image/uploads_2F1588357113366-jjsdfzx6x4m-c0339c10f9b113a5fcc93436e66e5ef4_2FTodayExplained+V2_Tile_3000x3000+_281_29.png?ixlib=rails-4.3.1&max-w=3000&max-h=3000&fit=crop&auto=format,compress",
-    "categories": "News",
     "language": "en"
   },
   {
