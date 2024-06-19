@@ -70,10 +70,11 @@ class LoqueAudioHandler extends BaseAudioHandler
     // subscribe to the duration change
     _subDuration = _player.durationStream.listen((Duration? duration) {
       // logDebug('handler.durationChange: $duration, ${_player.playerState}');
-      if (duration != null && _player.playing) {
+      if (duration != null &&
+          _player.playerState.processingState == ProcessingState.ready) {
         // broadcast duration change
-        if (currentMediaItem != null) {
-          mediaItem.add(currentMediaItem!.copyWith(duration: duration));
+        if (currentTag != null) {
+          mediaItem.add(currentTag!.copyWith(duration: duration));
         }
         // surprisingly this is a good spot to set the played flag
         // set played flag for the previous item
@@ -107,9 +108,9 @@ class LoqueAudioHandler extends BaseAudioHandler
         if (state.playing) {
           logDebug('end of queue');
           // set played for the last mediaItem otherwise left unchecked
-          if (currentMediaItem != null) {
-            mediaItem.add(currentMediaItem!.copyWith(
-                extras: currentMediaItem!.extras
+          if (currentTag != null) {
+            mediaItem.add(currentTag!.copyWith(
+                extras: currentTag!.extras
                   ?..update('played', (value) => true)));
           }
           // need to call stop to ensure firing below state
@@ -132,7 +133,7 @@ class LoqueAudioHandler extends BaseAudioHandler
     _subCurIndex = _player.currentIndexStream.listen((int? index) {
       // logDebug('handler.CurIndexChange.index: $index, ${_player.playerState}');
       // broadcast current media item
-      mediaItem.add(currentMediaItem);
+      mediaItem.add(currentTag);
       // do not set the played flag here
     });
   }
@@ -187,7 +188,7 @@ class LoqueAudioHandler extends BaseAudioHandler
           currentIndex! < sequence!.length
       ? sequence?.elementAt(currentIndex!)
       : null;
-  MediaItem? get currentMediaItem => currentSource?.tag as MediaItem?;
+  MediaItem? get currentTag => currentSource?.tag as MediaItem?;
 
   // implement basic features
   @override
@@ -233,6 +234,27 @@ class LoqueAudioHandler extends BaseAudioHandler
   // SeekHandler implements fastForward, rewind, seekForward, seekBackward
   @override
   Future<void> seek(Duration position) => _player.seek(position);
+  @override
+  Future<void> fastForward() {
+    // in case of degenerative duration
+    if (currentTag?.duration?.inSeconds == 0) {
+      // do not rely on super and seek forcefully
+      PlaybackState pb = playbackState.value;
+      return _player.seek(pb.position + fastForwardInterval);
+    }
+    return super.fastForward();
+  }
+
+  @override
+  Future<void> rewind() {
+    // in case of degenerative duration
+    if (currentTag?.duration?.inSeconds == 0) {
+      // do not rely on super and seek forcefully
+      PlaybackState pb = playbackState.value;
+      return _player.seek(pb.position - rewindInterval);
+    }
+    return super.rewind();
+  }
 
   // QueueHandler implements skipToNext, skipToPrevious
   @override
@@ -330,9 +352,9 @@ class LoqueAudioHandler extends BaseAudioHandler
 
   void _updateSeekPos() {
     // avoid saving trivial value: happens when the media first loaded
-    if (currentMediaItem != null) {
-      mediaItem.add(currentMediaItem!.copyWith(
-          extras: currentMediaItem!.extras
+    if (currentTag != null) {
+      mediaItem.add(currentTag!.copyWith(
+          extras: currentTag!.extras
             ?..update('seekPos', (value) => _player.position.inSeconds)));
     }
   }

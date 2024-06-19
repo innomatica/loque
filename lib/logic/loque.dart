@@ -117,7 +117,7 @@ class LoqueLogic extends ChangeNotifier {
   //
   void _handleMediaItemChange() {
     _subMediaItem = _handler.mediaItem.listen((MediaItem? mediaItem) async {
-      // logDebug('logic.mediaItemChange: ${mediaItem?.title}');
+      // logDebug('logic.mediaItemChange: $mediaItem');
       if (mediaItem != null) {
         final episodeId = mediaItem.extras!['episodeId'];
         final played = mediaItem.extras!['played'];
@@ -138,7 +138,7 @@ class LoqueLogic extends ChangeNotifier {
             if (seekPos != null && seekPos > 5) {
               episode.mediaSeekPos = seekPos;
             }
-            if (duration != null) {
+            if (duration != null && duration.inSeconds > 0) {
               episode.mediaDuration = duration.inSeconds;
             }
           }
