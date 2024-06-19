@@ -70,22 +70,24 @@ class LoqueAudioHandler extends BaseAudioHandler
     // subscribe to the duration change
     _subDuration = _player.durationStream.listen((Duration? duration) {
       // logDebug('handler.durationChange: $duration, ${_player.playerState}');
-      if (duration != null &&
-          _player.playerState.processingState == ProcessingState.ready) {
-        // broadcast duration change
-        if (currentTag != null) {
-          mediaItem.add(currentTag!.copyWith(duration: duration));
-        }
-        // surprisingly this is a good spot to set the played flag
-        // set played flag for the previous item
-        if (sequence != null &&
-            currentIndex != null &&
-            currentIndex! > 0 &&
-            currentIndex! < sequence!.length) {
-          // logDebug(
-          //     'handler.CurIndexChange.set played for ${currentIndex! - 1})');
-          sequence![currentIndex! - 1].tag?.extras['played'] = true;
-          queue.add(_queueFromSequence);
+      if (_player.playerState.processingState == ProcessingState.ready) {
+        if (_player.playing) {
+          // logDebug('handler.durationChange => end of episode');
+          // surprisingly this is a good time to set played for the previous item
+          if (sequence != null &&
+              currentIndex != null &&
+              currentIndex! > 0 &&
+              currentIndex! < sequence!.length) {
+            // logDebug('handler.durationChange.set played: ${currentIndex! - 1}');
+            sequence![currentIndex! - 1].tag?.extras['played'] = true;
+            queue.add(_queueFromSequence);
+          }
+        } else if (duration != null) {
+          // logDebug('handler.durationChange => update duration');
+          // broadcast duration change
+          if (currentTag != null) {
+            mediaItem.add(currentTag!.copyWith(duration: duration));
+          }
         }
       }
     });
