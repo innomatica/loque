@@ -30,7 +30,7 @@ Future<LoqueAudioHandler> initAudioService() async {
 class LoqueAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler {
   final _player = AudioPlayer();
-  StreamSubscription? _subDuration;
+  // StreamSubscription? _subDuration;
   StreamSubscription? _subPlyState;
   StreamSubscription? _subCurIndex;
 
@@ -47,13 +47,13 @@ class LoqueAudioHandler extends BaseAudioHandler
     await _player.setAudioSource(ConcatenatingAudioSource(children: []));
     queue.add([]);
     // stream subscriptions
-    _handleDurationChange();
+    // _handleDurationChange();
     _handlePlyStateChange();
     _handleCurIndexChange();
   }
 
   Future<void> dispose() async {
-    await _subDuration?.cancel();
+    // await _subDuration?.cancel();
     await _subPlyState?.cancel();
     await _subCurIndex?.cancel();
 
@@ -66,6 +66,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   // - at the beginning: playing && buffering (valid data)
   // - at the end: not playing && idle (should be ignored)
   //
+  /*
   void _handleDurationChange() {
     // subscribe to the duration change
     _subDuration = _player.durationStream.listen((Duration? duration) {
@@ -92,15 +93,22 @@ class LoqueAudioHandler extends BaseAudioHandler
       }
     });
   }
+  */
 
   void _handlePlyStateChange() {
     // subscribe to playerStateStream
     _subPlyState = _player.playerStateStream.listen((PlayerState state) async {
-      // logDebug('handler.plyStateChange: $state');
+      // logDebug('handler.plyStateChange: $state, $duration, ${currentTag?.id}');
       if (state.processingState == ProcessingState.ready) {
         if (state.playing == false) {
           // paused or loading done
+          // logDebug('handler.plyStateChange: updateSeekPos');
           _updateSeekPos();
+        } else {
+          if (currentTag != null && duration.inSeconds > 0) {
+            // logDebug('handler.plyStateChange: broadcast mediaItem');
+            mediaItem.add(currentTag!.copyWith(duration: duration));
+          }
         }
       } else if (state.processingState == ProcessingState.buffering) {
         // probably unnecessary
@@ -111,6 +119,7 @@ class LoqueAudioHandler extends BaseAudioHandler
           logDebug('end of queue');
           // set played for the last mediaItem otherwise left unchecked
           if (currentTag != null) {
+            // logDebug('broadcast media item');
             mediaItem.add(currentTag!.copyWith(
                 extras: currentTag!.extras
                   ?..update('played', (value) => true)));
@@ -136,7 +145,15 @@ class LoqueAudioHandler extends BaseAudioHandler
       // logDebug('handler.CurIndexChange.index: $index, ${_player.playerState}');
       // broadcast current media item
       mediaItem.add(currentTag);
-      // do not set the played flag here
+      if (sequence != null &&
+          index != null &&
+          index > 0 &&
+          index < sequence!.length) {
+        // logDebug('handler.plyStateChange.setPlayed: ${index - 1}');
+        sequence![index - 1].tag?.extras['played'] = true;
+        // logDebug('handler.plyStateChange.broadcast queue');
+        queue.add(_queueFromSequence);
+      }
     });
   }
 
@@ -356,6 +373,7 @@ class LoqueAudioHandler extends BaseAudioHandler
   void _updateSeekPos() {
     // avoid saving trivial value: happens when the media first loaded
     if (currentTag != null) {
+      // logDebug('_updateSeekPos: ${currentTag?.id}, ${_player.position}');
       mediaItem.add(currentTag!.copyWith(
           extras: currentTag!.extras
             ?..update('seekPos', (value) => _player.position.inSeconds)));
